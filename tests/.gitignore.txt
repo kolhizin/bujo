@@ -1,1 +1,1 @@
-tests_config.py
+test_config.py
