@@ -1,7 +1,14 @@
 import numpy
 import skimage.transform
+import filters
 
 def get_text_angle(image, min_local_maxima_dst=5, interval_points=[0.75, 0.50, 0.25]):
+    """Find most probable angle of document in degrees
+
+    Keyword arguments:
+    min_local_maxima_dst -- ?? (default=5)
+    interval_points -- percent of maximum to median at which return width of confidence interval (default=[0.75, 0.50, 0.25])
+    """
     #find width at certain quota
     def find_width(src, ind, i_left, i_right, quota):
         ileft = i_left
@@ -52,3 +59,30 @@ def get_text_angle(image, min_local_maxima_dst=5, interval_points=[0.75, 0.50, 0
         if src_tmp is not None:
             res.append(inds)
     return [process_return(src_variance, theta, x) for x in res]
+
+def get_text_line_delta(src, max_delta=100):
+    """Calculates most probable delta between text lines
+
+    Keyword arguments:
+    max_delta -- maximum delta to consider
+    
+    Returns (delta, f(delta)), where f(delta) is array of odds of delta being correct
+    """
+    v = numpy.sum(numpy.abs(src[:,1:]-src[:,:-1]), axis=1)
+    r = numpy.array([numpy.mean(numpy.abs(v[i:]-v[:-i])) for i in range(1, max_delta)])
+    i = numpy.argmax((r[:-2]>=r[1:-1])&(r[2:]>=r[1:-1]))+1
+    return (i, r)
+
+
+def filter_variance(src, sz, qv, qh):
+    """Calculate product of variance_percentile_h and variance_percentile_v filters
+
+    Keyword arguments:
+    sz -- pair of sizes
+    qv, qh -- array-like of percentiles
+    
+    Returns (len(q), src.shape[0]-sz[0], src.shape[1]-sz[1]+1) ndarray
+    """
+    var_v = filters.variance_percentile_v(src, sz, qv)
+    var_h = filters.variance_percentile_h(src, sz, qh)
+    return var_v[:,1:-1]*var_h[1:-1,:]
