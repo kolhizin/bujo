@@ -1,6 +1,7 @@
 import numpy
 import skimage.transform
 import filters
+import local_radon
 
 def get_text_angle(image, min_local_maxima_dst=5, interval_points=[0.75, 0.50, 0.25]):
     """Find most probable angle of document in degrees
@@ -45,7 +46,7 @@ def get_text_angle(image, min_local_maxima_dst=5, interval_points=[0.75, 0.50, 0
         angle_intervals = [(angles[i1], angles[i2]) for (i1, i2) in inds[1:]]
         return (angle, magnitude, angle_intervals)
     
-    theta = numpy.linspace(-np.pi/2, np.pi/2, max(image.shape), endpoint=False)
+    theta = numpy.linspace(-90, 90, max(image.shape), endpoint=False)
     img_radon = skimage.transform.radon(image, theta=theta, circle=True)
     src_variance = numpy.sum(numpy.abs(img_radon[1:]-img_radon[:-1]), axis=0)
     src_variance = src_variance - numpy.mean(src_variance)
@@ -86,3 +87,75 @@ def filter_variance(src, sz, qv, qh):
     var_v = filters.variance_percentile_v(src, sz, qv)
     var_h = filters.variance_percentile_h(src, sz, qh)
     return var_v[:,1:-1]*var_h[1:-1,:]
+
+
+def search_region_vsplit(src, min_angle, num_angles,
+                         window_size_1d, max_value, zero_threshold, min_split_abs, max_split_pct):
+    """Find near-vertical splits that remove irrelevant regions. Returns list of splits.
+
+    Keyword arguments:
+    min_angle -- minimal angle to consider (closer to pi/2 closer to vertical)
+    num_angles -- num angles of Radon transform
+    window_size_1d -- width of window to be global minima inside for split search
+    max_value -- cutoff value for local minima for split search (in other words maximum number of relevant information that can be intersected by split)
+    zero_threshold -- value above which to start consider relevant information of Radon transform (i.e. start and end points of value at least zero_threshold) for split search (in other words how big region should consider)
+    min_split_abs -- minimal number of non-zero elements inside
+    max_split_pct -- maximal region that should not be removed as pct of all
+    
+    Returns list of (angle, offset, intersect volume, sum before split, sum after split)
+    """
+    def select_best_local_minima(minimas, angles, min_angle, max_value, max_split_pct, min_split_abs):
+        tmp = [x for x in minimas if abs(angles[x[0]])>min_angle and x[2]<max_value
+               and min(x[3], x[4]) >= min_split_abs and min(x[3], x[4]) < max_split_pct * (x[3] + x[4])]
+        if len(tmp) == 0:
+            return None
+        return sorted(tmp, key=lambda x: x[2])[0]
+
+    theta = numpy.append(numpy.linspace(-numpy.pi/2, -min_angle, num_angles//2+1)[:-1],
+                         numpy.linspace(min_angle, numpy.pi/2, num_angles//2+1))
+    grid = local_radon.create_grid(src, theta)
+    
+    tmp = numpy.copy(src)
+    res = []
+    
+    while True:
+        gradon = local_radon.calc_local_radon(grid, tmp, 0, tmp.shape[0], 0, tmp.shape[1])
+        
+        mins = local_radon.get_local_minimas_2d(gradon, window_size_1d, max_value, zero_threshold)
+        tres = select_best_local_minima(mins, theta, min_angle, max_value, min_split_abs, max_split_pct)
+        if tres is None:
+            return res
+
+        off = local_radon.global_offset_from_subgrid(grid, 0, tmp.shape[0], 0, tmp.shape[1], tres[0], tres[1])
+        ang = theta[tres[0]]
+        
+        if tres[3] > tres[4]:
+            tmp[grid[:,:,tres[0]]>off] = False
+        else:
+            tmp[grid[:,:,tres[0]]<off] = False
+            
+        res.append((ang, off, tres[2], tres[3], tres[4]))
+        
+    return res
+
+def erase_regions(src, splits, dsz=1):
+    """Remove from src splits.
+
+    Keyword arguments:
+    splits -- list of [(angle, offset, v, v_neg, v_pos)]
+    dsz -- size difference coefficient
+    
+    Returns image size of src 
+    """
+    res = numpy.copy(src)
+    if splits is None or len(splits)==0:
+        return src
+    
+    grid = local_radon.create_grid(src, numpy.array([x[0] for x in splits]))
+    for (i, (ang, off, v, v_neg, v_pos)) in enumerate(splits):
+        direction = 1
+        if v_neg < v_pos:
+            direction = -1
+        res[(grid[:,:,i]-off*dsz)*direction > 0] = 0
+    
+    return res
