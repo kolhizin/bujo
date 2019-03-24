@@ -105,6 +105,20 @@ def get_local_minimas_1d(arr1d, window_size, max_value):
     minf = scipy.ndimage.minimum_filter1d(arr1d, window_size, mode='nearest')
     return idf[(minf[idf]>=arr1d[idf])&(arr1d[idf]<=max_value)]
 
+def get_local_maximas_1d(arr1d, window_size, min_value):
+    """Returns indices of local maximas in arr1d using window_size and cutoff value of min_value (i.e. they are local maximas and global maximas inside window_size and greater than min_value).
+        
+    Keyword arguments:
+    window_size -- width of window to be global maxima inside
+    min_value -- cutoff value for local maxima
+    
+    Returns array of indices
+    """
+    idf = np.array(range(1, len(arr1d)-1))[(arr1d[:-2]<=arr1d[1:-1])&(arr1d[2:]<=arr1d[1:-1])]
+    if len(idf) == 0:
+        return idf
+    maxf = scipy.ndimage.maximum_filter1d(arr1d, window_size, mode='nearest')
+    return idf[(maxf[idf]<=arr1d[idf])&(arr1d[idf]>=min_value)]
 
 def get_local_minimas_2d(arr2d, window_size_1d, max_value, zero_threshold):
     """Returns indices of local minimas in arr2d using window_size_1d and cutoff value of max_value (i.e. they are local minimas and global minimas inside window_size and less than max_value).
