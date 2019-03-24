@@ -45,7 +45,7 @@ def get_text_angle(image, min_local_maxima_dst=5, interval_points=[0.75, 0.50, 0
         angle_intervals = [(angles[i1], angles[i2]) for (i1, i2) in inds[1:]]
         return (angle, magnitude, angle_intervals)
     
-    theta = numpy.linspace(-90., 90., max(image.shape), endpoint=False)
+    theta = numpy.linspace(-np.pi/2, np.pi/2, max(image.shape), endpoint=False)
     img_radon = skimage.transform.radon(image, theta=theta, circle=True)
     src_variance = numpy.sum(numpy.abs(img_radon[1:]-img_radon[:-1]), axis=0)
     src_variance = src_variance - numpy.mean(src_variance)

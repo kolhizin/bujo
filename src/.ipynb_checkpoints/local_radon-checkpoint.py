@@ -1,7 +1,7 @@
 import numpy as np
 import scipy.ndimage
 
-def create_grid(src, angles):
+def create_grid_legacy_(src, angles):
     """Create grid for Radon transform of src-image
 
     Keyword arguments:
@@ -13,6 +13,18 @@ def create_grid(src, angles):
     uvecs = np.array([np.cos(angles), np.sin(angles)])
     return np.round(np.dot(grid, uvecs))
 
+def create_grid(src, angles):
+    """Create grid for Radon transform of src-image
+
+    Keyword arguments:
+    angles -- array of angles in radians
+        
+    Returns (src.shape[0], src.shape[1], len(angles)) ndarray
+    """
+    g1 = np.arange(src.shape[0]).reshape(-1, 1, 1) * np.cos(angles).reshape(1, -1)
+    g2 = np.arange(src.shape[1]).reshape(1, -1, 1) * np.sin(angles).reshape(1, -1)
+    return np.floor(g1+g2+0.5) #instead of np.round which is crazy slow - don't know why
+    
 def count_values_in_range(xres, vmin, vmax):
     """Count values in range [vmin, vmax] of xres
 
