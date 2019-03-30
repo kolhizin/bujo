@@ -134,3 +134,36 @@ def get_local_minimas_2d(arr2d, window_size_1d, max_value, zero_threshold):
     res = [(i, t0[i]+get_local_minimas_1d(arr2d[i, t0[i]:(t1[i]+1)], window_size_1d, max_value)) for i in range(len(t0))]
     return [(row[0], x, arr2d[row[0], x], np.sum(arr2d[row[0], :x]), np.sum(arr2d[row[0], (x+1):]))
             for row in res if len(row[1])>0 for x in row[1]]
+
+
+def calc_local_radon_angle(grid, flt, i0, i1, j0, j1):
+    """Calculates local Radon transform on subgrid
+
+    Keyword arguments:
+    grid -- global grid
+    flt -- ndarray to be used for filtering (>0)
+    [i0, i1)x[j0, j1) -- local subgrid
+        
+    Returns angle_id in which there is maximal variance
+    """
+    vals = grid[i0:i1, j0:j1, :][flt[i0:i1, j0:j1]>0, :]
+    angs = [np.sum(np.power(np.unique(v, return_counts=True)[1], 2)) for v in vals.T]
+    return np.argmax(angs)
+
+def find_local_angle(src, grid, angles, i0, i1, j0, j1, reg_coef=0.2, reg_power=1.0):
+    """Finds regularized angle by local Radon transform on subgrid
+
+    Keyword arguments:
+    src -- ndarray of source values
+    grid -- global grid
+    angles -- array with angles in radians
+    [i0, i1)x[j0, j1) -- local subgrid
+    reg_coef -- mean value in subregion will be normalized on this value, i.e. np.mean(subgrid)/reg_coef
+    reg_power -- np.power(np.mean(subgrid)/reg_coef, reg_power) -- full regularization term
+        
+    Returns regularized angle
+    """
+    ang = angles[calc_local_radon_angle(grid, src, i0, i1, j0, j1)]
+    pct = np.power(min(1, np.mean(src[i0:i1,j0:j1])/reg_coef), reg_power)
+    return ang * pct
+

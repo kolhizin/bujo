@@ -134,3 +134,114 @@ def get_local_minimas_2d(arr2d, window_size_1d, max_value, zero_threshold):
     res = [(i, t0[i]+get_local_minimas_1d(arr2d[i, t0[i]:(t1[i]+1)], window_size_1d, max_value)) for i in range(len(t0))]
     return [(row[0], x, arr2d[row[0], x], np.sum(arr2d[row[0], :x]), np.sum(arr2d[row[0], (x+1):]))
             for row in res if len(row[1])>0 for x in row[1]]
+
+
+def calc_local_radon_angle(grid, flt, i0, i1, j0, j1):
+    """Calculates local Radon transform on subgrid
+
+    Keyword arguments:
+    grid -- global grid
+    flt -- ndarray to be used for filtering (>0)
+    [i0, i1)x[j0, j1) -- local subgrid
+        
+    Returns angle_id in which there is maximal variance
+    """
+    vals = grid[i0:i1, j0:j1, :][flt[i0:i1, j0:j1]>0, :]
+    angs = [np.sum(np.power(np.unique(v, return_counts=True)[1], 2)) for v in vals.T]
+    return np.argmax(angs)
+
+def find_local_angle(src, grid, angles, i0, i1, j0, j1, reg_coef=0.2, reg_power=1.0):
+    """Finds regularized angle by local Radon transform on subgrid
+
+    Keyword arguments:
+    src -- ndarray of source values
+    grid -- global grid
+    angles -- array with angles in radians
+    [i0, i1)x[j0, j1) -- local subgrid
+    reg_coef -- mean value in subregion will be normalized on this value, i.e. np.mean(subgrid)/reg_coef
+    reg_power -- np.power(np.mean(subgrid)/reg_coef, reg_power) -- full regularization term
+        
+    Returns regularized angle
+    """
+    ang = angles[calc_local_radon_angle(grid, src, i0, i1, j0, j1)]
+    pct = np.power(min(1, np.mean(src[i0:i1,j0:j1])/reg_coef), reg_power)
+    return ang * pct
+
+
+def make_curve_1way(i0, j0, step, src, grid, angles, kernel_size, reg_coef, reg_power):
+    """Calculates curve from starting position (i0, j0) with directed step. Each step is in direction of regularized local angle.
+
+    Keyword arguments:
+    i0, j0 -- starting position
+    step -- maximal step
+    src -- ndarray of source values
+    grid -- global grid
+    angles -- array with angles in radians
+    kernel_size -- size of region to determine local angle
+    reg_coef -- mean value in subregion will be normalized on this value, i.e. np.mean(subgrid)/reg_coef
+    reg_power -- np.power(np.mean(subgrid)/reg_coef, reg_power) -- full regularization term
+        
+    Returns list of (i, j)-coordinates of curve
+    """
+    isz = kernel_size[0]//2
+    jsz = kernel_size[1]//2
+    def calc_angle(i, j): #function to calculate local angle
+        r_i0 = max(0, i-isz)
+        r_i1 = min(src.shape[0], i+isz+1)
+        r_j0 = max(0, j-jsz)
+        r_j1 = min(src.shape[1], j+jsz+1)
+        return find_local_angle(src, grid, angles, r_i0, r_i1, r_j0, r_j1, reg_coef, reg_power)
+    
+    res = [(i0, j0)]
+    while True:
+        ci, cj = res[-1]
+        # step like Runge-Kutta, i.e. we take 0.5 step in local angle, calculate new angle and take full step in that direction
+        angle0 = calc_angle(ci, cj)
+        di = step * np.sin(-angle0) * 0.5
+        dj = step * np.cos(-angle0) * 0.5
+        angle = calc_angle(int(np.round(ci+di)), int(np.round(cj+dj)))
+        di = step * np.sin(-angle)
+        dj = step * np.cos(-angle)
+        ni = int(np.round(ci+di))
+        nj = int(np.round(cj+dj))
+        
+        if ni < 0 or ni >= src.shape[0] or nj < 0 or nj >= src.shape[1]:
+            # renormalize when we hit border
+            ri = max(0, min(src.shape[0]-1, ni))
+            rj = max(0, min(src.shape[1]-1, nj))
+            
+            rdi = 1.0
+            rdj = 1.0
+            if np.abs(di) > 1e-5:
+                rdi = (ri - ci) / di
+            if np.abs(dj) > 1e-5:
+                rdj = (rj - cj) / dj
+                
+            rstep = min(rdi, rdj) * 0.9
+            
+            ni = int(np.round(ci+di*rstep))
+            nj = int(np.round(cj+dj*rstep))
+            res.append((ni, nj))            
+            break
+        
+        res.append((ni, nj))
+    return res
+
+def make_curve_2way(i0, j0, step, src, grid, angles, kernel_size, reg_coef, reg_power):
+    """Calculates curve from starting position (i0, j0) in both direction with specified step. Each step is in direction of regularized local angle.
+
+    Keyword arguments:
+    i0, j0 -- starting position
+    step -- maximal step
+    src -- ndarray of source values
+    grid -- global grid
+    angles -- array with angles in radians
+    kernel_size -- size of region to determine local angle
+    reg_coef -- mean value in subregion will be normalized on this value, i.e. np.mean(subgrid)/reg_coef
+    reg_power -- np.power(np.mean(subgrid)/reg_coef, reg_power) -- full regularization term
+        
+    Returns list of (i, j)-coordinates of curve
+    """
+    crv_p = make_curve_1way(i0, j0, step, src, grid, angles, kernel_size, reg_coef, reg_power)
+    crv_n = make_curve_1way(i0, j0, -step, src, grid, angles, kernel_size, reg_coef, reg_power)
+    return crv_n[:0:-1]+crv_p
