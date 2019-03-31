@@ -160,32 +160,3 @@ def erase_regions(src, splits, dsz=1):
     
     return res
 
-def get_array_range(src, q):
-    """Find range where array first hits certain quantile.
-    
-    Keyword arguments:
-    src -- 1d-array
-    q -- percentile to hit
-    axis -- in which axis to search
-    
-    Returns (min, max)
-    """
-    val = numpy.percentile(src, q)
-    inds = numpy.arange(len(src))[src>val]
-    return (min(inds), max(inds))
-
-def get_sparse_max_points(src, i0, i1, window, stride):
-    """Find sparse maximums of width window with stride.
-    
-    Keyword arguments:
-    src -- 1d-array
-    (i0, i1) -- range where to search
-    window -- width of window where to search maximum
-    stride -- stride between windows
-    
-    Returns array of indices
-    """
-    res = []
-    for i in range(i0, i1, stride):
-        res.append(i+numpy.argmax(src[i:(i+window)]))
-    return numpy.array(res)
