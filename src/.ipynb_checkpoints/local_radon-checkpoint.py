@@ -148,9 +148,9 @@ def calc_local_radon_angle(grid, flt, i0, i1, j0, j1):
     """
     vals = grid[i0:i1, j0:j1, :][flt[i0:i1, j0:j1]>0, :]
     angs = np.array([np.sum(np.power(np.unique(v, return_counts=True)[1], 2)) for v in vals.T])
-    return np.argmax(angs), angs
+    return angs
 
-def find_local_angle(src, grid, angles, i0, i1, j0, j1, reg_coef=0.2, reg_power=1.0):
+def find_local_angle(src, grid, angles, i0, i1, j0, j1, reg_coef=0.1, reg_power=0.25):
     """Finds regularized angle by local Radon transform on subgrid
 
     Keyword arguments:
@@ -165,10 +165,8 @@ def find_local_angle(src, grid, angles, i0, i1, j0, j1, reg_coef=0.2, reg_power=
     """
     if np.mean(src[i0:i1,j0:j1]) < 1e-3:
         return 0
-    ang_id, angs = calc_local_radon_angle(grid, src, i0, i1, j0, j1)
-    ang = angles[ang_id]
-    print((i0, i1), (j0, j1), ang, np.std(angs), np.max(angs)/np.median(angs), np.mean(src[i0:i1,j0:j1]))
-    #pct = np.power(min(1, np.mean(src[i0:i1,j0:j1])/reg_coef), reg_power)
-    pct = max(0, min(1, reg_coef * np.power((np.max(angs) / np.median(angs)) - 1, reg_power)))
-    return ang * pct
+    angs = calc_local_radon_angle(grid, src, i0, i1, j0, j1)
+    max_ang = np.max(np.abs(angles))
+    reg_mult = np.power((reg_coef + max_ang - np.abs(angles)) / (reg_coef + max_ang), reg_power)
+    return angles[np.argmax(angs * reg_mult)]
 

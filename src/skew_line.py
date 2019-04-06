@@ -243,7 +243,7 @@ def get_sparse_max_points(src, i0, i1, window, stride):
         res.append(i+np.argmax(src[i:(i+window)]))
     return np.array(res)
 
-def create_support_curves(src, step, kernel_size, num_angles=91, range_quantiles=(75, 50), support_window=30, max_angle=np.pi/4, reg_coef=0, reg_power=1.0):
+def create_support_curves(src, step, kernel_size, num_angles=91, range_quantiles=(75, 50), support_window=30, max_angle=np.pi/4, reg_coef=0.1, reg_power=0.25):
     """Creates support curves by using local angly (by Radon transform).
 
     Keyword arguments:
