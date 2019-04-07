@@ -276,3 +276,90 @@ def create_support_curves(src, step, kernel_size, num_angles=91, range_quantiles
     rows = np.concatenate(([ri0], get_sparse_max_points(src_h, ri0+support_window, ri1-support_window, support_window, support_stride), [ri1]))
 
     return [np.array(make_curve_2way(i, (rj0+rj1)//2, step, src, rgrid, theta, kernel_size, reg_coef=used_reg_coef, reg_power=reg_power)) for i in rows]
+
+
+def calc_cumulative_integral_with_offset(src, curve_j, curve_i, offsets):
+    """Calculates cumulative integral over curve of image src with specified offsets
+    
+    Keyword arguments:
+    src -- source image (required to be 0/1 2d-array)
+    curve_j, curve_i -- 1d-array of equal length specifying curve
+    offsets -- list-like structure with offsets
+    
+    Returns 2d-array of size (len(offsets), src.shape[1]) with cumulative integrals for different offsets
+    """
+    return np.array([np.cumsum(src[np.minimum(src.shape[0]-1, np.maximum(0, curve_i+offset)), curve_j]) for offset in offsets])
+
+def find_local_maximum_by_ascend(arr1d, i):
+    """Finds closest local maximum by gradient ascend
+    
+    Keyword arguments:
+    arr1d -- 1d-array
+    i -- starting point
+    
+    Returns index of closest maximum
+    """
+    if arr1d[i-1] < arr1d[i] and arr1d[i+1] < arr1d[i]:
+        return i
+    if arr1d[i-1] >= arr1d[i] and arr1d[i+1] >= arr1d[i]:
+        if arr1d[i-1]>arr1d[i+1]:
+            adir = arr1d[:(i+1)][::-1]
+            ddir = -1
+        else:
+            adir = arr1d[i:]
+            ddir = +1
+    elif arr1d[i-1] > arr1d[i]:
+        adir = arr1d[:(i+1)][::-1]
+        ddir = -1
+    else:
+        adir = arr1d[i:]
+        ddir = +1
+    off = np.argmin(adir[1:]>adir[:-1])
+    return i + off*ddir
+
+def calc_recursive_offsets_by_midpoint(arr2d, i0, i1, offset, min_window):
+    """Finds best offset from specified offset and then by binary split fine-tunes results until min_window is reached.
+    
+    Keyword arguments:
+    arr2d -- array with cumulative integrals for specified offsets (shape of image, number of offsets)
+    i0, i1 -- considered segment
+    offset -- current offset
+    min_window -- minimal segment length
+    
+    Returns tuple of (i0, i1, offset, integral_value, [optional] recursive left split, [optinal] recursive right split)
+    """
+    integral_value = arr2d[-1,offset]-arr2d[0,offset]
+    if arr2d.shape[0] < min_window:
+        return (i0, i1, offset, integral_value)
+    
+    midpoint = arr2d.shape[0] // 2
+    arr_l = arr2d[midpoint,:] - arr2d[0,:]
+    arr_r = arr2d[-1,:] - arr2d[midpoint,:]
+    off_l = find_local_maximum_by_ascend(arr_l, offset)
+    off_r = find_local_maximum_by_ascend(arr_r, offset)
+    return (i0, i1, offset, integral_value, 
+            calc_offsets_by_midpoint(arr2d[:midpoint], i0, i0+midpoint, off_l, min_window),
+            calc_offsets_by_midpoint(arr2d[midpoint:], i0+midpoint, i1, off_r, min_window))
+
+def convert_tree_to_linear(offset_tree):
+    if offset_tree is None or offset_tree[3] <= 0.0:
+        return [], (np.inf, -np.inf)
+    if len(offset_tree) == 4:
+        return [((offset_tree[0]+offset_tree[1])*0.5, offset_tree[2])], (offset_tree[0], offset_tree[1])
+    
+    l_part, l_mm = convert_tree_to_linear(offset_tree[4])
+    r_part, r_mm = convert_tree_to_linear(offset_tree[5])
+    
+    f_mm = (np.min([l_mm[0], r_mm[0]]), np.max([l_mm[1], r_mm[1]]))    
+    return l_part+r_part, f_mm
+
+def optimize_curve(src, crv_j, crv_i, offset, min_window):
+    loc_arr2d = calc_cumulative_integral_with_offset(src, crv_j, crv_i, np.arange(-offset, offset+1)).T
+    tree_off = calc_offsets_by_midpoint(loc_arr2d, 0, loc_arr2d.shape[0], offset, min_window)
+    off_ji, off_mm = convert_tree_to_linear(tree_off)
+    off_ji_np = np.array(off_ji)
+    off_min = max(0, int(off_mm[0])-3)
+    off_max = min(src.shape[1], int(off_mm[1])+3)
+    new_j = crv_j[off_min:off_max]
+    new_i_full = np.minimum(src.shape[0]-1, np.maximum(0, np.round(crv_i + np.interp(crv_j, off_ji_np[:,0], off_ji_np[:,1]) - offset))).astype(int)
+    return new_j, new_i_full[off_min:off_max]
