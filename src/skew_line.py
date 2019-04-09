@@ -381,3 +381,79 @@ def optimize_curve(src, curve_j, curve_i, offset, min_window, add_trim=3):
     new_j = curve_j[off_min:off_max]
     new_i_full = np.minimum(src.shape[0]-1, np.maximum(0, np.round(curve_i + np.interp(curve_j, off_ji_np[:,0], off_ji_np[:,1]) - offset))).astype(int)
     return new_j, new_i_full[off_min:off_max]
+
+
+def get_curve_height(src, crv_j, crv_i, max_offset, additive_regularization=0):
+    """Searches height-boundaries of curve in image src with regularization by searching closes local minimum
+    
+    Keyword arguments:
+    src -- source image (required to be 2d-array)
+    crv_j, crv_i -- 1d-array of equal length specifying curve
+    max_offset -- maximum offset to consider for search of local minimum
+    additive_regularization -- 1d-array of size of max_offset + 1 that defines additive regularization term (i.e. f_reg(x) = f(x) + reg(x))
+    
+    Returns (-offset_low, offset_high) -- tuple with boundaries of curve
+    """
+    def get_closest_local_min(arr1d):
+        off_less = np.argmax(arr1d[1:]<arr1d[:-1])    
+        msk_min = arr1d[1:]>=arr1d[:-1]
+        off = np.argmax(msk_min[off_less:])+off_less
+        return off
+    offsets = np.arange(-max_offset, max_offset+1)
+    values = np.array([np.sum(src[np.maximum(0, np.minimum(src.shape[0]-1, crv_i+off)), crv_j]) for off in offsets])
+    off_r = get_closest_local_min(values[max_offset:]+additive_regularization)
+    off_l = get_closest_local_min(values[:(max_offset+1)][::-1]+additive_regularization)
+    return (-off_l, off_r)
+
+def reparametrize_by_x(crv_j, crv_i, num_points):
+    """Creates new parametrization based on j-points with num_points support points
+    
+    Keyword arguments:
+    crv_j, crv_i -- 1d-array of equal length specifying curve
+    num -- new number of support points
+    
+    Returns (crv_j, crv_i) -- curve
+    """
+    new_j = np.linspace(np.min(crv_j), np.max(crv_j), num_points)
+    new_i = np.interp(new_j, crv_j, crv_i)
+    return new_j, new_i
+
+def reparametrize_by_length(crv_j, crv_i, num_points):
+    """Creates new parametrization based on curve-length with num_points support points
+    
+    Keyword arguments:
+    crv_j, crv_i -- 1d-array of equal length specifying curve
+    num -- new number of support points
+    
+    Returns (crv_p, crv_j, crv_i) -- curve with nonuniform parametrization
+    """
+    dx2 = np.power(np.abs(crv_j[1:]-crv_j[:-1]), 2.0)
+    dy2 = np.power(np.abs(crv_i[1:]-crv_i[:-1]), 2.0)
+    crv_len = np.insert(np.cumsum(np.sqrt(dx2+dy2)), 0, 0) #prepend 0
+    new_len = np.linspace(0, crv_len[-1], num_points) #parametrization by length
+    new_j = np.interp(new_len, crv_len, crv_j)
+    new_i = np.interp(new_j, crv_j, crv_i)
+    return new_len, new_j, new_i
+
+def extract_line(src, crv_p, crv_j, crv_i, offset):
+    """Warps and extracts curved line of height defined by offset
+    
+    Keyword arguments:
+    src -- source image (required to be 2d-array)
+    crv_p, crv_j, crv_i -- 1d-array of equal length specifying curve with nonuniform parametrization
+    offset -- tuple with boundaries of curve
+    
+    Returns 2d-array of size (max(offset)-min(offset), max(crv_p)-min(crv_p)) with warped image from src
+    """
+    height = np.ceil(np.max(offset) - np.min(offset)).astype(int)
+    width = np.ceil(np.max(crv_p) - np.min(crv_p)).astype(int)
+    res = np.zeros(shape=(height, width))
+    
+    actual_p = np.arange(width) + np.min(crv_p)
+    actual_j = np.floor(np.interp(actual_p, crv_p, crv_j) + 0.5).astype(int)
+    actual_i = np.floor(np.interp(actual_p, crv_p, crv_i) + 0.5 + min(offset)).astype(int)
+    
+    for i in range(height):
+        res[i,:] = src[actual_i + i, actual_j]
+        
+    return res

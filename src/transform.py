@@ -2,6 +2,7 @@ import numpy
 import skimage.transform
 import filters
 import local_radon
+import skew_line
 
 def get_text_angle(image, min_local_maxima_dst=5, interval_points=[0.75, 0.50, 0.25]):
     """Find most probable angle of document in degrees
@@ -160,3 +161,35 @@ def erase_regions(src, splits, dsz=1):
     
     return res
 
+
+def extract_lines_from_image(img, src, curves, line_delta, num_points, height_margin=0, filter_offset=None):
+    """Warps and extracts curved line of height defined by offset
+    
+    Keyword arguments:
+    img -- image to extract from (required to be 2d-array)
+    src -- image to search for line height (required to be 2d-array)
+    curves -- array of (crv_j, crv_i), i.e. curves that determine lines
+    line_delta -- approximate line delta that is used in image -- used only to determine max offset for search of line height and as to calculate filter_offset if not specified
+    num_points -- number of support points to use in curve (less points less jagged line)
+    height_margin -- multiplicative factor to determine final height of line, i.e. final-height = calculated-height * (1 + height_margin)
+    filter_offset -- parameter that specified if any vertical filters were used on src image besides different sizes, by default is calculated from line_delta, but can be overriden
+    
+    Returns list of 2d-arrays of size (max(offset)-min(offset), max(crv_p)-min(crv_p)) with warped image from img
+    """
+    max_offset = 2 * line_delta
+    additive_regularization = numpy.power(numpy.linspace(0, 2, 2 * line_delta + 1), 2.0)
+    use_filter_offset = filter_offset
+    if filter_offset is None:
+        use_filter_offset = (line_delta//2+1)//2+1
+        
+    res = []
+    for (crv_j, crv_i) in curves:
+        offsets = skew_line.get_curve_height(src, crv_j, crv_i, max_offset, additive_regularization=additive_regularization)
+        crv_r = skew_line.reparametrize_by_x(crv_j, crv_i, num_points)
+        crv_l = skew_line.reparametrize_by_length(*crv_r, num_points)
+        sz_factor = img.shape[0] / (src.shape[0] + (use_filter_offset-1)*2)
+        crv_q = (crv_l[0]*sz_factor, crv_l[1]*sz_factor, (crv_l[2]+use_filter_offset)*sz_factor)
+    
+        res.append(skew_line.extract_line(img, *crv_q, (numpy.floor(offsets[0]*sz_factor*(1+height_margin)), numpy.ceil(offsets[1]*sz_factor*(1+height_margin)))))
+        
+    return res
