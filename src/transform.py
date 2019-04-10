@@ -174,7 +174,7 @@ def extract_lines_from_image(img, src, curves, line_delta, num_points, height_ma
     height_margin -- multiplicative factor to determine final height of line, i.e. final-height = calculated-height * (1 + height_margin)
     filter_offset -- parameter that specified if any vertical filters were used on src image besides different sizes, by default is calculated from line_delta, but can be overriden
     
-    Returns list of 2d-arrays of size (max(offset)-min(offset), max(crv_p)-min(crv_p)) with warped image from img
+    Returns list of (line-img, curve (as tuple of 3), curve-height) where line-img is 2d-arrays of size (max(offset)-min(offset), max(crv_p)-min(crv_p)) with warped image from img
     """
     max_offset = 2 * line_delta
     additive_regularization = numpy.power(numpy.linspace(0, 2, 2 * line_delta + 1), 2.0)
@@ -189,7 +189,10 @@ def extract_lines_from_image(img, src, curves, line_delta, num_points, height_ma
         crv_l = skew_line.reparametrize_by_length(*crv_r, num_points)
         sz_factor = img.shape[0] / (src.shape[0] + (use_filter_offset-1)*2)
         crv_q = (crv_l[0]*sz_factor, crv_l[1]*sz_factor, (crv_l[2]+use_filter_offset)*sz_factor)
+        real_offsets = (numpy.floor(offsets[0]*sz_factor*(1+height_margin)), numpy.ceil(offsets[1]*sz_factor*(1+height_margin)))
+        
+        res0 = skew_line.extract_line(img, *crv_q, real_offsets)
     
-        res.append(skew_line.extract_line(img, *crv_q, (numpy.floor(offsets[0]*sz_factor*(1+height_margin)), numpy.ceil(offsets[1]*sz_factor*(1+height_margin)))))
+        res.append((res0, crv_q, real_offsets))
         
     return res
