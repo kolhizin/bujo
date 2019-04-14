@@ -299,9 +299,17 @@ def find_local_maximum_by_ascend(arr1d, i):
     
     Returns index of closest maximum
     """
-    if arr1d[i-1] < arr1d[i] and arr1d[i+1] < arr1d[i]:
+    i = max(0, min(len(arr1d)-1, i))
+    if (i<=0 or arr1d[i-1] < arr1d[i]) and (i>=len(arr1d)-1 or arr1d[i+1] < arr1d[i]):
         return i
-    if arr1d[i-1] >= arr1d[i] and arr1d[i+1] >= arr1d[i]:
+    
+    if i <= 0:
+        adir = arr1d[i:]
+        ddir = +1
+    elif i >= len(arr1d)-1:
+        adir = arr1d[:(i+1)][::-1]
+        ddir = -1
+    elif arr1d[i-1] >= arr1d[i] and arr1d[i+1] >= arr1d[i]:
         if arr1d[i-1]>arr1d[i+1]:
             adir = arr1d[:(i+1)][::-1]
             ddir = -1
