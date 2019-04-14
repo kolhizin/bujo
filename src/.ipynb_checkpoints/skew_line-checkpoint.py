@@ -465,3 +465,94 @@ def extract_line(src, crv_p, crv_j, crv_i, offset):
         res[i,:] = src[actual_i + i, actual_j]
         
     return res
+
+
+
+def locate_positive_regions(arr1d):
+    """Locate regions where array is positive and return list of segments.
+    
+    Keyword arguments:
+    arr1d -- numpy 1d-array
+    
+    Returns list of (start, end) of each positive region
+    """
+    #check that there are no zeros or modify array a little:
+    if(np.any(arr1d==0)):
+        if(np.all(arr1d==0)):
+            return []
+        delta = 0.5*np.min(np.abs(arr1d[arr1d!=0]))
+    else:
+        delta = 0
+    smd = arr1d + delta
+    lends = np.arange(len(smd)-1)[(smd[:-1]<0)&(smd[1:]>0)]
+    rends = np.arange(len(smd)-1)[(smd[:-1]>0)&(smd[1:]<0)]+1
+    
+    if smd[0] > 0:
+        lends = np.insert(lends, 0, 0)
+    if smd[-1] > 0:
+        rends = np.append(rends, len(smd))
+    
+    return list(zip(lends, rends))
+
+
+def locate_words(src_line, min_space_size,
+                 cutoff_coef_detect, cutoff_coef_confirm,
+                 reg_lo, reg_hi, reg_center_pct):
+    """Locate offsets of words in src_line
+    
+    Keyword arguments:
+    src_line -- source line image (required to be 2d-array)
+    min_space_size -- minimal distance between words to consider different words
+    cutoff_coef_detect -- cutoff for detection of word-candidates
+    cutoff_coef_confirm -- cutoff for confirmation of words
+    reg_lo, reg_hi -- regularization coeficients for np.power(1 - np.power(reg2, reg_hi), reg_lo)
+    reg_center_pct -- location of center of the line for regularization
+    
+    Returns list of (start, end) of detected words
+    """
+    def expand_regions_to_local_minima(src, segments):
+        tmp = -src
+        return [(max(0, find_local_maximum_by_ascend(tmp, a)),
+                 min(src.shape[0]-1, find_local_maximum_by_ascend(tmp, b))) for (a, b) in segments]
+
+    def filter_segments(src, segments, min_word_value):
+        return [(a,b) for (a,b) in segments if b>a and np.median(src[a:b]) > min_word_value]
+
+    def join_segments(segments, window_size):
+        if len(segments) == 0:
+            return []
+        res = [segments[0]]
+        for (a,b) in segments[1:]:
+            if a - res[-1][1] < window_size:
+                res[-1] = (res[-1][0], b)
+            else:
+                res.append((a,b))
+        return res
+    
+    reg1 = np.abs(np.linspace(0, 1, src_line.shape[0]) - reg_center_pct)
+    reg2 = np.minimum(1.0, reg1 / min(reg1[0], reg1[-1]))
+    reg_vector = np.power(1 - np.power(reg2, reg_hi), reg_lo)
+    rs = np.array([src_line[:,i]*reg_vector for i in range(src_line.shape[1])]).T
+    rsmax = np.max(rs, axis=0)
+    
+    qntl = np.percentile(rsmax[rsmax>0], 90)
+    cutoff0 = qntl * cutoff_coef_detect
+    cutoff1 = qntl * cutoff_coef_confirm
+    segs = expand_regions_to_local_minima(rsmax, locate_positive_regions(rsmax-cutoff0))
+    return join_segments(filter_segments(rsmax, segs, cutoff1), min_space_size)
+
+def calculate_word_curve(curve_p, curve_j, curve_i, word_location, num_points=2):
+    """Reparametrize curve by word location
+    
+    Keyword arguments:
+    curve_p, curve_j, curve_i -- initial curve with length-parametrization
+    word_location -- tuple (start, end)
+    num_points -- number of points for interpolation
+    
+    Returns curve-p, curve-j, curve-i with num_points corresponding to curve
+    """
+    interp_l = np.linspace(word_location[0], word_location[1], num_points)
+    res_j = np.interp(interp_l, curve_p, curve_j)
+    res_i = np.interp(interp_l, curve_p, curve_i)
+    return np.linspace(0, word_location[1]-word_location[0], num_points), res_j, res_i
+

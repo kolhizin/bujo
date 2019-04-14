@@ -196,3 +196,34 @@ def extract_lines_from_image(img, src, curves, line_delta, num_points, height_ma
         res.append((res0, crv_q, real_offsets))
         
     return res
+
+def extract_words_from_line(src_line, crv_p, crv_j, crv_i, offsets, filter_size,
+                  cutoff_coef_detect=0.2, cutoff_coef_confirm=0.3,
+                  min_space_size=1, reg_lo=1.0, reg_hi=2.0, word_num_points=2):
+    """
+    Keyword arguments:
+    src_line -- source line image (required to be 2d-array)
+    curve_p, curve_j, curve_i -- initial curve with length-parametrization
+    offsets -- top and bottom offsets relative to center line
+    word_num_points -- number of points for word interpolation
+    min_space_size -- minimal distance between words to consider different words
+    cutoff_coef_detect -- cutoff for detection of word-candidates
+    cutoff_coef_confirm -- cutoff for confirmation of words
+    reg_lo, reg_hi -- regularization coeficients for np.power(1 - np.power(reg2, reg_hi), reg_lo)
+    
+    """
+    src_flt = filters.stddev(src_line, filter_size)
+    reg_center = -offsets[0] / (offsets[1] - offsets[0])
+    wrd_locs = skew_line.locate_words(src_flt, min_space_size, cutoff_coef_detect, cutoff_coef_confirm,
+                                     reg_lo, reg_hi, reg_center)
+    if wrd_locs is None or len(wrd_locs)==0:
+        return []
+    res = []
+    for (w0, w1) in wrd_locs:
+        c0 = w0#int(np.floor(w0 * src_line.shape[1] / (src_line.shape[1] - filter_size)))
+        c1 = w1 + filter_size - 1#int(np.ceil(w1 * src_line.shape[1] / (src_line.shape[1] - filter_size)))
+        wrd_src = src_line[:, c0:c1]
+        wrd_crv = skew_line.calculate_word_curve(crv_p, crv_j, crv_i, (c0, c1), word_num_points)
+        wrd_off = offsets
+        res.append((wrd_src, wrd_crv, wrd_off))
+    return res

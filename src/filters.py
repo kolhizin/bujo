@@ -63,3 +63,25 @@ def local_maxima_v(src, d1, d2, cutoff):
         m2 = np.max(src[ilo2:ihi2], axis=0)
         return (m1 >= m2)*(m2 > cutoff)
     return np.array([row_local_maxima_v(i) for i in range(src.shape[0])])
+
+def stddev(src, filter_size):
+    """Calculate rolling standard deviation with filter size of sz
+
+    Keyword arguments:
+    src -- source image
+    filter_size -- (h, w) filter size
+    
+    Returns (src.shape[0]-filter_size[0], src.shape[1]-filter_size[1]) ndarray
+    """
+    f_x1 = np.cumsum(np.cumsum(src, axis=0), axis=1)
+    f_x2 = np.cumsum(np.cumsum(np.power(src, 2.0), axis=0), axis=1)
+    if type(filter_size) in (int, np.int64, np.int32, np.int16):
+        flt_w = filter_size
+        flt_h = filter_size
+    else:
+        flt_w = filter_size[1]
+        flt_h = filter_size[0]
+    nsize = flt_w * flt_h
+    d_x1 = f_x1[flt_h:,flt_w:]-f_x1[:-flt_h,flt_w:]-f_x1[flt_h:,:-flt_w]+f_x1[:-flt_h,:-flt_w]
+    d_x2 = f_x2[flt_h:,flt_w:]-f_x2[:-flt_h,flt_w:]-f_x2[flt_h:,:-flt_w]+f_x2[:-flt_h,:-flt_w]
+    return np.sqrt(np.maximum(0,(d_x2 - d_x1*d_x1/nsize))/nsize)
