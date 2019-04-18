@@ -5,6 +5,9 @@ namespace bujo
 {
 	namespace radon
 	{
-		void createGrid(cv::Mat &dst, const cv::Mat &src, const cv::Mat &angles);
+		enum TransformType {RT_RADON, RT_HOUGH};
+
+		void radon(cv::Mat& dst, const cv::Mat& src, const cv::Mat& angles, unsigned int num_offset,
+			unsigned transformType);
 	}
 }
