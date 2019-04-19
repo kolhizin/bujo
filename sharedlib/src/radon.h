@@ -1,5 +1,5 @@
 #pragma once
-#include <opencv2\opencv.hpp>
+#include <xtensor/xarray.hpp>
 
 namespace bujo
 {
@@ -7,7 +7,7 @@ namespace bujo
 	{
 		enum TransformType {RT_RADON, RT_HOUGH};
 
-		void radon(cv::Mat& dst, const cv::Mat& src, const cv::Mat& angles, unsigned int num_offset,
-			unsigned transformType);
+		std::tuple< xt::xarray<float>, xt::xarray<float>> radon(const xt::xarray<float> &src, const xt::xarray<float> &angles,
+								unsigned num_offset, unsigned transformType);
 	}
 }
