@@ -34,7 +34,7 @@ std::tuple<xt::xarray<float>, xt::xarray<float>> impl_vanilla_radon_(const xt::x
 {
 	unsigned num_angles = angles.size();
 	xt::xarray<float> offsets = set_uniform_offset_range_(src, num_offsets);
-	float x_cutoff = 1.0f / std::sqrtf(2.0f);
+	float a_cutoff = 1.0f / std::sqrtf(2.0f);
 	xt::xarray<float> radon_res = xt::zeros<float>({ angles.size(), offsets.size() });
 
 	float x_min = -float(src.shape()[1]) * 0.5f;
@@ -42,14 +42,14 @@ std::tuple<xt::xarray<float>, xt::xarray<float>> impl_vanilla_radon_(const xt::x
 
 	for (int i = 0; i < num_angles; i++)
 	{
-		float a_cos = std::cosf(angles[i]), a_sin = std::sinf(angles[i]);
-		float r_offset = x_min * a_cos + y_min * a_sin;
-		if (std::fabsf(a_sin) > x_cutoff)
+		float a_x = std::sinf(angles[i]), a_y = -std::cosf(angles[i]);
+		float r_offset = x_min * a_x + y_min * a_y;
+		if (std::fabsf(a_y) > a_cutoff)
 		{
-			float slope = -a_cos / a_sin;
+			float slope = -a_x / a_y;
 			for (int j = 0; j < num_offsets; j++)
 			{
-				float off = (offsets[j] - r_offset) / a_sin;
+				float off = (offsets[j] - r_offset) / a_y;
 				float res = 0.0f;
 				for (int x = 0; x < src.shape()[1]; x++)
 				{
@@ -63,10 +63,10 @@ std::tuple<xt::xarray<float>, xt::xarray<float>> impl_vanilla_radon_(const xt::x
 		}
 		else
 		{
-			float slope = -a_sin / a_cos;
+			float slope = -a_y / a_x;
 			for (int j = 0; j < num_offsets; j++)
 			{
-				float off = (offsets[j] - r_offset) / a_cos;
+				float off = (offsets[j] - r_offset) / a_x;
 				float res = 0.0f;
 				for (int y = 0; y < src.shape()[0]; y++)
 				{
@@ -87,7 +87,7 @@ std::tuple<xt::xarray<float>, xt::xarray<float>> impl_optimized_radon_(const xt:
 {
 	unsigned num_angles = angles.size();
 	xt::xarray<float> offsets = set_uniform_offset_range_(src, num_offsets);
-	float x_cutoff = 1.0f / std::sqrtf(2.0f);
+	float a_cutoff = 1.0f / std::sqrtf(2.0f);
 	xt::xarray<float> radon_res = xt::zeros<float>({ angles.size(), offsets.size() });
 
 	float x_min = -float(src.shape()[1]) * 0.5f;
@@ -95,14 +95,14 @@ std::tuple<xt::xarray<float>, xt::xarray<float>> impl_optimized_radon_(const xt:
 
 	for (int i = 0; i < num_angles; i++)
 	{
-		float a_cos = std::cosf(angles[i]), a_sin = std::sinf(angles[i]);
-		float r_offset = x_min * a_cos + y_min * a_sin;
-		if (std::fabsf(a_sin) > x_cutoff)
+		float a_x = std::sinf(angles[i]), a_y = -std::cosf(angles[i]);
+		float r_offset = x_min * a_x + y_min * a_y;
+		if (std::fabsf(a_y) > a_cutoff)
 		{
-			float slope = -a_cos / a_sin;
+			float slope = -a_x / a_y;
 			for (int j = 0; j < num_offsets; j++)
 			{
-				float off = (offsets[j] - r_offset) / a_sin;
+				float off = (offsets[j] - r_offset) / a_y;
 				auto xrange = get_line_range_(off, slope, src.shape()[1], src.shape()[0]);
 				float res = 0.0f;
 				for (int x = std::get<0>(xrange); x <= std::get<1>(xrange); x++)
@@ -117,10 +117,10 @@ std::tuple<xt::xarray<float>, xt::xarray<float>> impl_optimized_radon_(const xt:
 		}
 		else
 		{
-			float slope = -a_sin / a_cos;
+			float slope = -a_y / a_x;
 			for (int j = 0; j < num_offsets; j++)
 			{
-				float off = (offsets[j] - r_offset) / a_cos;
+				float off = (offsets[j] - r_offset) / a_x;
 				auto yrange = get_line_range_(off, slope, src.shape()[0], src.shape()[1]);
 				float res = 0.0f;
 				for (int y = std::get<0>(yrange); y <= std::get<1>(yrange); y++)
