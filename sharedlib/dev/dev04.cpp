@@ -25,10 +25,12 @@ void dev04()
 
 	float angle = bujo::transform::getTextAngle(src1);
 	src2 = bujo::transform::rotateImage(src1, -angle);
+	int lineDelta = bujo::transform::getTextLineDelta(src2);
 
 	auto t1 = std::chrono::high_resolution_clock::now();
 
-	std::cout << "Elapsed: " << std::chrono::duration<float>(t1 - t0).count() << "s.\n\n";
+	std::cout << "Elapsed: " << std::chrono::duration<float>(t1 - t0).count() << "s.\n";
+	std::cout << "Text angle is " << angle << " radians, line-delta is " << lineDelta << " pixels\n\n";
 
 	cv::namedWindow("Src2", cv::WINDOW_AUTOSIZE);
 	cv::imshow("Src2", src2);

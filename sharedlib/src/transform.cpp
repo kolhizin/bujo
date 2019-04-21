@@ -21,12 +21,42 @@ float bujo::transform::getTextAngle(const cv::Mat& src)
 	return angles[idx];
 }
 
+template<class T>
+inline float get_norm_by_offset_(const T& x, int offset)
+{
+	auto x0 = xt::view(x, xt::range(offset, xt::placeholders::_), xt::all());
+	auto x1 = xt::view(x, xt::range(xt::placeholders::_, -offset), xt::all());
+	return static_cast<float>(xt::mean(xt::square(x0-x1))[0]);
+}
+
+int bujo::transform::getTextLineDelta(const cv::Mat& src)
+{
+	if (src.size.dims() != 2)
+		throw std::logic_error("Function getTextLineDelta() expects 2d-matrix as src!");
+	if ((src.rows <= 0) || (src.cols <= 0))
+		throw std::logic_error("Function getTextLineDelta() expects non-trivial 2d-matrix as src!");
+	auto x0 = bujo::util::cv2xtf(src);
+	int delta = 1;
+	bool ascending = true;
+	float prev_value = 0.0f;
+	while (delta < src.rows)
+	{
+		float cur_value = get_norm_by_offset_(x0, delta);
+		if ((cur_value >= prev_value) && (!ascending))
+			return delta;
+		ascending = (cur_value >= prev_value);
+		prev_value = cur_value;
+		delta++;
+	}
+	return -1;
+}
+
 cv::Mat bujo::transform::rotateImage(const cv::Mat& src, float angle)
 {
 	if (src.size.dims() != 2)
-		throw std::logic_error("Function rotate() expects 2d-matrix as src!");
+		throw std::logic_error("Function rotateImage() expects 2d-matrix as src!");
 	if ((src.rows <= 0) || (src.cols <= 0))
-		throw std::logic_error("Function rotate() expects non-trivial 2d-matrix as src!");
+		throw std::logic_error("Function rotateImage() expects non-trivial 2d-matrix as src!");
 	cv::Mat res;
 	float new_w = std::fabsf(src.cols * std::cosf(angle)) + std::fabsf(src.rows * std::sinf(angle));
 	float new_h = std::fabsf(src.cols * std::sinf(angle)) + std::fabsf(src.rows * std::cosf(angle));
