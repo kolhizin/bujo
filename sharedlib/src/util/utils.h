@@ -38,9 +38,9 @@ namespace bujo
 			if (src.shape().size() > 16)
 				throw std::runtime_error("Function xt2cv() received array with more than 16 dimensions!");
 			for (int i = 0; i < src.shape().size(); i++)
-				tensor_shape_local_[i] = src.shape()[i];
+				tensor_shape_local_[i] = static_cast<int>(src.shape()[i]);
 			cv::Mat res;
-			res.create(src.shape().size(), tensor_shape_local_, cvType);
+			res.create(static_cast<int>(src.shape().size()), tensor_shape_local_, cvType);
 			switch (cvType)
 			{
 			case CV_32F:

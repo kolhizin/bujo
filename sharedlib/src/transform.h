@@ -5,6 +5,7 @@ namespace bujo
 {
 	namespace transform
 	{
-		double getTextAngle(const cv::Mat &src);
+		float getTextAngle(const cv::Mat &src);
+		cv::Mat rotateImage(const cv::Mat& src, float angle);
 	}
 }
