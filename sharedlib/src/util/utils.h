@@ -2,6 +2,7 @@
 #include <opencv2/opencv.hpp>
 #include <xtensor/xarray.hpp>
 #include <exception>
+#include "quantiles.h"
 
 namespace bujo
 {

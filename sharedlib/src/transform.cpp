@@ -1,6 +1,7 @@
 #include "transform.h"
 #include "util/utils.h"
 #include "radon.h"
+#include "filters.h"
 #include <xtensor/xview.hpp>
 #include <xtensor/xsort.hpp>
 
@@ -66,4 +67,14 @@ cv::Mat bujo::transform::rotateImage(const cv::Mat& src, float angle)
 		-angle * 180.0f / pi_f, 1.0);
 	cv::warpAffine(src, res, rot, cv::Size(new_width, new_height));
 	return res;
+}
+
+cv::Mat bujo::transform::applyVarianceCutoff(const cv::Mat& src, unsigned size_w, unsigned size_h, double q)
+{
+	auto xsrc = bujo::util::cv2xtf(src);
+	auto xres = bujo::filters::filterVarianceQuantileVH(xsrc, size_w, size_h, 0.5f, 0.5f);
+	std::vector<float> buffer(xres.size());
+	float cutoff = bujo::util::calculateQuantile(xres.cbegin(), xres.cend(), q, &buffer[0], buffer.size());
+	auto xres_final = xt::cast<float>(xt::greater(xres, cutoff * 0.5f));
+	return bujo::util::xt2cv(xres_final, CV_8U);
 }
