@@ -5,18 +5,82 @@
 #include <xtensor/xview.hpp>
 #include <xtensor/xsort.hpp>
 
-//using namespace bujo::transform;
+using namespace bujo::transform;
 constexpr float pi_f = 3.1415926f;
-/*
-float bujo::transform::getTextAngle(const cv::Mat& src)
+
+
+xt::xtensor<float, 2> impl_resize_image_bilinear_(const xt::xtensor<float, 2>& src, float factor)
 {
-	float sz = std::sqrtf(static_cast<float>(src.cols * src.cols + src.rows * src.rows));
+	size_t new_h = static_cast<size_t>(std::ceilf(src.shape()[0] * factor));
+	size_t new_w = static_cast<size_t>(std::ceilf(src.shape()[1] * factor));
+	xt::xtensor<float, 2> res({ new_h, new_w });
+	for (unsigned i = 0; i < new_h; i++)
+	{
+		int i0 = static_cast<int>(std::floorf(i / factor));
+		int i1 = std::min(static_cast<int>(src.shape()[0])-1, std::max(0, static_cast<int>(std::floorf((i+1) / factor))-1));
+		for (unsigned j = 0; j < new_w; j++)
+		{
+			int j0 = static_cast<int>(std::floorf(j / factor));
+			int j1 = std::min(static_cast<int>(src.shape()[1]) - 1, std::max(0, static_cast<int>(std::floorf((j + 1) / factor))-1));
+			res.at(i, j) = 0.25f * (src.at(i0, j0) + src.at(i0, j1) + src.at(i1, j0) + src.at(i1, j1));
+		}
+	}
+	return res;
+}
+
+xt::xtensor<float, 2> bujo::transform::resizeImage(const xt::xtensor<float, 2>& src, float factor)
+{
+	xt::xtensor<float, 2> res = src;
+	while (factor < 0.5f)
+	{
+		res = impl_resize_image_bilinear_(res, 0.5f);
+		factor *= 2.0f;
+	}
+	return impl_resize_image_bilinear_(res, factor);
+}
+
+xt::xtensor<float, 2> bujo::transform::rotateImage(const xt::xtensor<float, 2>& src, float angle)
+{
+	float a_sin = std::sinf(angle), a_cos = std::cosf(angle);
+	float new_fh = src.shape()[0] * std::fabsf(a_cos) + src.shape()[1] * std::fabsf(a_sin);
+	float new_fw = src.shape()[0] * std::fabsf(a_sin) + src.shape()[1] * std::fabsf(a_cos);
+	size_t new_h = static_cast<size_t>(std::ceilf(new_fh));
+	size_t new_w = static_cast<size_t>(std::ceilf(new_fw));
+	xt::xtensor<float, 2> res({new_h, new_w});
+
+	int new_ci = static_cast<int>(new_h / 2);
+	int old_ci = static_cast<int>(src.shape()[0] / 2);
+	int new_cj = static_cast<int>(new_w / 2);
+	int old_cj = static_cast<int>(src.shape()[1] / 2);
+
+	for(int i = 0; i < new_h; i++)
+		for (int j = 0; j < new_w; j++)
+		{
+			int di = i - new_ci;
+			int dj = j - new_cj;
+			float ri = di * a_cos - dj * a_sin;
+			float rj = di * a_sin + dj * a_cos;
+			int oi = static_cast<int>(std::roundf(ri)) + old_ci;
+			int oj = static_cast<int>(std::roundf(rj)) + old_cj;
+			if ((oi < 0) || (oi >= src.shape()[0]) || (oj < 0) || (oj >= src.shape()[1]))
+				res.at(i, j) = 0.0f;
+			else
+				res.at(i, j) = src.at(oi, oj);
+		}
+
+	return res;
+}
+
+
+float bujo::transform::getTextAngle(const xt::xtensor<float, 2>& src)
+{
+	float sz = std::sqrtf(static_cast<float>(src.shape()[0] * src.shape()[0] + src.shape()[1] * src.shape()[1]));
 	unsigned num_angles = std::min(100, int(std::ceilf(sz * 0.5f)));
 	if (!(num_angles & 1))
 		num_angles += 1; //make odd number of angles to include angle 0
 	unsigned num_offset = std::min(100, int(std::ceilf(sz * 0.5f)));
 	auto angles = xt::linspace<float>(-pi_f * 0.5f, pi_f * 0.5f, num_angles);
-	auto res1 = bujo::radon::radon(bujo::util::cv2xtf(src), angles, 100, bujo::radon::RT_RADON);
+	auto res1 = bujo::radon::radon(src, angles, 100, bujo::radon::RT_RADON);
 	auto res2 = std::get<0>(res1);
 	auto res3 = xt::abs(xt::view(res2, xt::all(), xt::range(1, xt::placeholders::_)) - xt::view(res2, xt::all(), xt::range(xt::placeholders::_, -1)));
 	auto res4 = xt::sum(res3, 1);
@@ -28,26 +92,26 @@ float bujo::transform::getTextAngle(const cv::Mat& src)
 template<class T>
 inline float get_norm_by_offset_(const T& x, int offset)
 {
-	auto x0 = xt::view(x, xt::range(offset, xt::placeholders::_), xt::all());
-	auto x1 = xt::view(x, xt::range(xt::placeholders::_, -offset), xt::all());
-	return static_cast<float>(xt::mean(xt::square(x0-x1))[0]);
+	auto x0 = xt::view(x, xt::range(offset, xt::placeholders::_));
+	auto x1 = xt::view(x, xt::range(xt::placeholders::_, -offset));
+	return static_cast<float>(xt::mean(xt::abs(x0-x1))[0]);
 }
 
-int bujo::transform::getTextLineDelta(const cv::Mat& src)
+int bujo::transform::getTextLineDelta(const xt::xtensor<float, 2>& src)
 {
-	if (src.size.dims() != 2)
-		throw std::logic_error("Function getTextLineDelta() expects 2d-matrix as src!");
-	if ((src.rows <= 0) || (src.cols <= 0))
-		throw std::logic_error("Function getTextLineDelta() expects non-trivial 2d-matrix as src!");
-	auto x0 = bujo::util::cv2xtf(src);
+	//v = numpy.sum(numpy.abs(src[:,1:]-src[:,:-1]), axis=1)
+	auto v0 = xt::view(src, xt::all(), xt::range(1, xt::placeholders::_)) -
+		xt::view(src, xt::all(), xt::range(xt::placeholders::_, -1));
+	auto v = xt::sum(xt::abs(v0), 1);
+
 	int delta = 1;
 	bool ascending = true;
 	float prev_value = 0.0f;
-	while (delta < src.rows)
+	while (delta < src.shape()[0])
 	{
-		float cur_value = get_norm_by_offset_(x0, delta);
+		float cur_value = get_norm_by_offset_(v, delta);
 		if ((cur_value >= prev_value) && (!ascending))
-			return delta;
+			return delta - 1;
 		ascending = (cur_value >= prev_value);
 		prev_value = cur_value;
 		delta++;
@@ -55,23 +119,23 @@ int bujo::transform::getTextLineDelta(const cv::Mat& src)
 	return -1;
 }
 
-cv::Mat bujo::transform::rotateImage(const cv::Mat& src, float angle)
+xt::xtensor<float, 2> bujo::transform::filterVarianceQuantile(const xt::xtensor<float, 2>& src, unsigned size_w, unsigned size_h, float qw, float qh)
 {
-	if (src.size.dims() != 2)
-		throw std::logic_error("Function rotateImage() expects 2d-matrix as src!");
-	if ((src.rows <= 0) || (src.cols <= 0))
-		throw std::logic_error("Function rotateImage() expects non-trivial 2d-matrix as src!");
-	cv::Mat res;
-	float new_w = std::fabsf(src.cols * std::cosf(angle)) + std::fabsf(src.rows * std::sinf(angle));
-	float new_h = std::fabsf(src.cols * std::sinf(angle)) + std::fabsf(src.rows * std::cosf(angle));
-	int new_width = static_cast<int>(std::ceilf(new_w));
-	int new_height = static_cast<int>(std::ceilf(new_h));
-	cv::Mat rot = cv::getRotationMatrix2D(cv::Point2f(src.cols * 0.5f, src.rows * 0.5f),
-		-angle * 180.0f / pi_f, 1.0);
-	cv::warpAffine(src, res, rot, cv::Size(new_width, new_height));
-	return res;
+	return bujo::filters::filterVarianceQuantileVH(src, size_w, size_h, qw, qh);
 }
 
+float bujo::transform::calculateQuantile(const xt::xtensor<float, 2>& src, float quantile)
+{
+	std::vector<float> buffer(src.size());
+	return bujo::util::calculateQuantile(src.cbegin(), src.cend(), quantile, &buffer[0], buffer.size());
+}
+
+xt::xtensor<float, 2> bujo::transform::thresholdImage(const xt::xtensor<float, 2>& src, float cutoff)
+{
+	return xt::cast<float>(xt::greater(src, cutoff));
+}
+
+/*
 cv::Mat bujo::transform::applyVarianceCutoff(const cv::Mat& src, unsigned size_w, unsigned size_h,
 	float cutoff_q, float cutoff_coef)
 {
@@ -93,3 +157,4 @@ cv::Mat bujo::transform::coarseImage(const cv::Mat& src, float scale, float sigm
 	return tmp2;
 }
 */
+

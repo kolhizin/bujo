@@ -3,25 +3,27 @@
 #include <exception>
 #include <vector>
 #include "util/quantiles.h"
-/*
+
 xt::xtensor<float, 2> bujo::filters::filterVariance2DV(const xt::xtensor<float, 2>& src, unsigned size)
 {
 	auto x1 = xt::view(src, xt::range(1, xt::placeholders::_), xt::all()) -
 		xt::view(src, xt::range(xt::placeholders::_, -1), xt::all());
-	auto x2 = xt::cumsum(xt::abs(x1), 0);
-	auto x3 = xt::view(x2, xt::range(size, xt::placeholders::_), xt::all()) -
-		xt::view(x2, xt::range(xt::placeholders::_, -int(size)), xt::all());
-	return x3 / float(size);
+	xt::xtensor<float, 2> x2 = xt::abs(x1);
+	auto x3 = xt::cumsum(x2, 0);
+	auto x4 = xt::view(x3, xt::range(size, xt::placeholders::_), xt::all()) -
+		xt::view(x3, xt::range(xt::placeholders::_, -int(size)), xt::all());
+	return x4 / float(size);
 }
 
 xt::xtensor<float, 2> bujo::filters::filterVariance2DH(const xt::xtensor<float, 2>& src, unsigned size)
 {
 	auto x1 = xt::view(src, xt::all(), xt::range(1, xt::placeholders::_)) -
 		xt::view(src, xt::all(), xt::range(xt::placeholders::_, -1));
-	auto x2 = xt::cumsum(xt::abs(x1), 1);
-	auto x3 = xt::view(x2, xt::all(), xt::range(size, xt::placeholders::_)) -
-		xt::view(x2, xt::all(), xt::range(xt::placeholders::_, -int(size)));
-	return x3 / float(size);
+	xt::xtensor<float, 2> x2 = xt::abs(x1);
+	auto x3 = xt::cumsum(x2, 1);
+	auto x4 = xt::view(x3, xt::all(), xt::range(int(size), xt::placeholders::_)) -
+		xt::view(x3, xt::all(), xt::range(xt::placeholders::_, -int(size)));
+	return x4 / float(size);
 }
 
 xt::xtensor<float, 2> bujo::filters::filterQuantile2D(const xt::xtensor<float, 2>& src, unsigned size_w, unsigned size_h, float quantile)
@@ -32,7 +34,7 @@ xt::xtensor<float, 2> bujo::filters::filterQuantile2D(const xt::xtensor<float, 2
 	if ((res_w <= 0) || (res_h <= 0))
 		throw std::runtime_error("Function filterQuantile2D() received kernel size that is greater than image!");
 
-	xt::xtensor<float, 2><float> res = xt::zeros<float>({ res_h, res_w });
+	xt::xtensor<float, 2> res = xt::zeros<float>({ res_h, res_w });
 	for(unsigned i = 0; i < res.shape()[0]; i++)
 		for (unsigned j = 0; j < res.shape()[1]; j++)
 		{
@@ -53,10 +55,9 @@ xt::xtensor<float, 2> bujo::filters::filterVarianceQuantileH(const xt::xtensor<f
 	return filterQuantile2D(filterVariance2DH(src, size_w), 1, size_h, quantile);
 }
 
-xt::xtensor<float, 2> bujo::filters::filterVarianceQuantileVH(const xt::xtensor<float, 2>& src, unsigned size_w, unsigned size_h, float quantile_v, float quantile_h)
+xt::xtensor<float, 2> bujo::filters::filterVarianceQuantileVH(const xt::xtensor<float, 2>& src, unsigned size_w, unsigned size_h, float quantile_w, float quantile_h)
 {
-	auto xh = filterVarianceQuantileH(src, size_w, size_h, quantile_h);
-	auto xv = filterVarianceQuantileV(src, size_w, size_h, quantile_v);
+	auto xh = filterVarianceQuantileH(src, size_w, size_h, quantile_w);
+	auto xv = filterVarianceQuantileV(src, size_w, size_h, quantile_h);
 	return xt::view(xv, xt::all(), xt::range(1, -1)) * xt::view(xh, xt::range(1, -1), xt::all());
 }
-*/

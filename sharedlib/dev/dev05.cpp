@@ -10,25 +10,39 @@
 #include <algorithm>
 #include <chrono>
 #include <src/util/utils.h>
-//#include <src/radon.h>
-
-//#include <src/transform.h>
-//#include <src/filters.h>
+#include <src/transform.h>
+#include <src/filters.h>
 
 void dev05()
 {
 	cv::Mat cv0, cv1;
 	cv0 = cv::imread("D:\\Data\\bujo_sample\\20190309_125151.jpg", cv::IMREAD_COLOR);
-	cv::cvtColor(cv0, cv0, cv::COLOR_RGB2GRAY);
 	//cv0 = cv::imread("D:\\Data\\bujo_sample\\test_rot30.jpg", cv::IMREAD_COLOR);
+	cv::resize(cv0, cv0, cv::Size(), 0.1, 0.1);
+	cv::cvtColor(cv0, cv0, cv::COLOR_RGB2GRAY);
 	
 	if (cv0.empty()) // Check for invalid input
 		throw std::runtime_error("Could not open file with test image!");
 
 	auto src0 = bujo::util::cv2xt(cv0);
-	cv1 = bujo::util::xt2cv(src0, CV_8U);
 
-	std::cout << src0.shape()[0] << " " << src0.shape()[1] << "\n";
+	auto t0 = std::chrono::system_clock::now();
+
+	float textAngle = bujo::transform::getTextAngle(src0);
+	auto src1 = bujo::transform::rotateImage(src0, -textAngle);
+	int textLineDelta = bujo::transform::getTextLineDelta(src1);
+	auto src2 = bujo::transform::filterVarianceQuantile(src1, textLineDelta / 2, textLineDelta / 2, 0.5f, 0.5f);
+	float cutoff = bujo::transform::calculateQuantile(src2, 0.9f) * 0.5f;
+	auto src3 = bujo::transform::thresholdImage(src2, cutoff);
+
+	cv1 = bujo::util::xt2cv(src3, CV_8U);
+
+	auto t1 = std::chrono::system_clock::now();
+	std::cout << "Elapsed " << std::chrono::duration<float>(t1 - t0).count() << "s.\n\n";
+	std::cout << "Text angle is " << textAngle << " radians\n";
+	std::cout << "Text line delta is " << textLineDelta << " pixels\n";
+	std::cout << "Cutoff is " << cutoff << "\n";
+	std::cout << src1.shape()[0] << " " << src1.shape()[1] << "\n";
 
 	cv::namedWindow("Src", cv::WINDOW_AUTOSIZE);
 	cv::imshow("Src", cv1);
