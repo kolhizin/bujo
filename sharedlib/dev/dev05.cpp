@@ -11,23 +11,27 @@
 #include <src/radon.h>
 #include <chrono>
 #include <src/transform.h>
+#include <src/filters.h>
 
-void dev04()
+void dev05()
 {
-	cv::Mat src0, src1, src2, src3;
+	cv::Mat src0, src1, src2, src3, src4, src5;
 	src0 = cv::imread("D:\\Data\\bujo_sample\\20190309_125151.jpg", cv::IMREAD_COLOR);
 	//src0 = cv::imread("D:\\Data\\bujo_sample\\test_rot30.jpg", cv::IMREAD_COLOR);
 	if (src0.empty()) // Check for invalid input
 		throw std::runtime_error("Could not open file with test image!");
 	cv::resize(src0, src1, cv::Size(), 0.1, 0.1);
-	cv::cvtColor(src1, src1, cv::COLOR_RGB2GRAY);
+	cv::cvtColor(src1, src2, cv::COLOR_RGB2GRAY);
 
 	auto t0 = std::chrono::high_resolution_clock::now();
 
-	float angle = bujo::transform::getTextAngle(src1);
-	src2 = bujo::transform::rotateImage(src1, -angle);
-	int lineDelta = bujo::transform::getTextLineDelta(src2) - 1;
-	//src3 = bujo::transform::applyVarianceCutoff(src2, lineDelta / 2, lineDelta / 2, 0.9);
+	float angle = bujo::transform::getTextAngle(src2);
+	src3 = bujo::transform::rotateImage(src2, -angle);
+	std::cout << src3.rows << " " << src3.cols << "\n";
+	int lineDelta = bujo::transform::getTextLineDelta(src3) - 1;
+	
+	src4 = bujo::transform::applyVarianceCutoff(src3, lineDelta / 2, lineDelta / 2, 0.9);
+	src5 = bujo::transform::coarseImage(src4);
 
 	auto t1 = std::chrono::high_resolution_clock::now();
 
@@ -35,8 +39,8 @@ void dev04()
 	std::cout << "Text angle is " << angle << " radians, line-delta is " << lineDelta << " pixels\n\n";
 	//std::cout << "Cutoff is " << unsigned(cutoff) << "\n\n";
 
-	cv::namedWindow("Src2", cv::WINDOW_AUTOSIZE);
-	cv::imshow("Src2", src2);
+	cv::namedWindow("Src", cv::WINDOW_AUTOSIZE);
+	cv::imshow("Src", src5);
 
 	cv::waitKey(0);
 }

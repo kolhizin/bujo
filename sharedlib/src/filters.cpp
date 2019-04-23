@@ -44,7 +44,7 @@ xt::xarray<float> bujo::filters::filterQuantile2D(const xt::xarray<float>& src, 
 	for(unsigned i = 0; i < res.shape()[0]; i++)
 		for (unsigned j = 0; j < res.shape()[1]; j++)
 		{
-			auto x = xt::view(src, xt::range(i, i + size_w), xt::range(j, j + size_h));
+			auto x = xt::view(src, xt::range(i, i + size_h), xt::range(j, j + size_w));
 			float f = bujo::util::calculateQuantile(x.cbegin(), x.cend(), quantile, &vbuffer[0], vbuffer.size());
 			res.at(i, j) = f;
 		}

@@ -12,12 +12,12 @@ xt::xarray<float> set_uniform_offset_range_(const xt::xarray<float>& src, unsign
 
 std::tuple<int, int> get_line_range_(float off, float slope, unsigned s0, unsigned s1)
 {
-	if(slope == 0.0f) //exact test with zero is alright
-		throw std::logic_error("Function get_line_range_() expects non-zero slope!");
+	if (std::fabsf(slope) < 1e-7f)
+		return std::make_tuple(0, int(s0) - 1);
 
 	float f1 = -(off + 0.5f) / slope;
 	float f2 = (s1 - 0.5f - off) / slope;
-	if (slope > 0.0f)
+	if (slope >= 0.0f)
 	{
 		int rmin = std::max(int(0), int(std::ceilf(f1)));
 		int rmax = std::min(int(s0) - 1, int(std::floorf(f2)));
@@ -131,7 +131,6 @@ std::tuple<xt::xarray<float>, xt::xarray<float>> impl_optimized_radon_(const xt:
 					res += src(y, x);
 				}
 				radon_res(i, j) = res;
-				
 			}
 		}
 	}
