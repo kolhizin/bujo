@@ -1,5 +1,5 @@
 #pragma once
-#include <xtensor/xarray.hpp>
+#include <xtensor/xtensor.hpp>
 
 namespace bujo
 {
@@ -7,7 +7,7 @@ namespace bujo
 	{
 		enum TransformType {RT_RADON_VANILLA, RT_RADON, RT_HOUGH};
 
-		std::tuple<xt::xarray<float>, xt::xarray<float>> radon(const xt::xarray<float> &src, const xt::xarray<float> &angles,
+		std::tuple<xt::xtensor<float, 2>, xt::xtensor<float, 1>> radon(const xt::xtensor<float, 2>&src, const xt::xtensor<float, 1> &angles,
 								unsigned num_offset, unsigned transformType);
 	}
 }

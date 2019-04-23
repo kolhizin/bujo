@@ -3,44 +3,35 @@
 #include <iostream>
 #include <exception>
 #include <xtensor/xarray.hpp>
+#include <xtensor/xtensor.hpp>
 #include <xtensor/xview.hpp>
 #include <xtensor/xsort.hpp>
 #include <xtensor/xrandom.hpp>
 #include <algorithm>
-#include <src/util/utils.h>
-#include <src/radon.h>
 #include <chrono>
-#include <src/transform.h>
-#include <src/filters.h>
+#include <src/util/utils.h>
+//#include <src/radon.h>
+
+//#include <src/transform.h>
+//#include <src/filters.h>
 
 void dev05()
 {
-	cv::Mat src0, src1, src2, src3, src4, src5;
-	src0 = cv::imread("D:\\Data\\bujo_sample\\20190309_125151.jpg", cv::IMREAD_COLOR);
-	//src0 = cv::imread("D:\\Data\\bujo_sample\\test_rot30.jpg", cv::IMREAD_COLOR);
-	if (src0.empty()) // Check for invalid input
-		throw std::runtime_error("Could not open file with test image!");
-	cv::resize(src0, src1, cv::Size(), 0.1, 0.1);
-	cv::cvtColor(src1, src2, cv::COLOR_RGB2GRAY);
-
-	auto t0 = std::chrono::high_resolution_clock::now();
-
-	float angle = bujo::transform::getTextAngle(src2);
-	src3 = bujo::transform::rotateImage(src2, -angle);
-	std::cout << src3.rows << " " << src3.cols << "\n";
-	int lineDelta = bujo::transform::getTextLineDelta(src3) - 1;
+	cv::Mat cv0, cv1;
+	cv0 = cv::imread("D:\\Data\\bujo_sample\\20190309_125151.jpg", cv::IMREAD_COLOR);
+	cv::cvtColor(cv0, cv0, cv::COLOR_RGB2GRAY);
+	//cv0 = cv::imread("D:\\Data\\bujo_sample\\test_rot30.jpg", cv::IMREAD_COLOR);
 	
-	src4 = bujo::transform::applyVarianceCutoff(src3, lineDelta / 2, lineDelta / 2, 0.9);
-	src5 = bujo::transform::coarseImage(src4);
+	if (cv0.empty()) // Check for invalid input
+		throw std::runtime_error("Could not open file with test image!");
 
-	auto t1 = std::chrono::high_resolution_clock::now();
+	auto src0 = bujo::util::cv2xt(cv0);
+	cv1 = bujo::util::xt2cv(src0, CV_8U);
 
-	std::cout << "Elapsed: " << std::chrono::duration<float>(t1 - t0).count() << "s.\n";
-	std::cout << "Text angle is " << angle << " radians, line-delta is " << lineDelta << " pixels\n\n";
-	//std::cout << "Cutoff is " << unsigned(cutoff) << "\n\n";
+	std::cout << src0.shape()[0] << " " << src0.shape()[1] << "\n";
 
 	cv::namedWindow("Src", cv::WINDOW_AUTOSIZE);
-	cv::imshow("Src", src5);
+	cv::imshow("Src", cv1);
 
 	cv::waitKey(0);
 }

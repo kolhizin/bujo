@@ -5,9 +5,9 @@
 #include <xtensor/xview.hpp>
 #include <xtensor/xsort.hpp>
 
-using namespace bujo::transform;
+//using namespace bujo::transform;
 constexpr float pi_f = 3.1415926f;
-
+/*
 float bujo::transform::getTextAngle(const cv::Mat& src)
 {
 	float sz = std::sqrtf(static_cast<float>(src.cols * src.cols + src.rows * src.rows));
@@ -92,3 +92,4 @@ cv::Mat bujo::transform::coarseImage(const cv::Mat& src, float scale, float sigm
 	//cv::threshold(tmp1, res, gaussian_threshold, 1.0f, cv::THRESH_BINARY);
 	return tmp2;
 }
+*/

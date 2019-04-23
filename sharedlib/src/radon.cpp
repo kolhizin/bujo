@@ -3,7 +3,7 @@
 
 using namespace bujo::radon;
 
-xt::xarray<float> set_uniform_offset_range_(const xt::xarray<float>& src, unsigned num_offsets)
+xt::xtensor<float, 1> set_uniform_offset_range_(const xt::xtensor<float, 2>& src, unsigned num_offsets)
 {
 	float sz = std::sqrtf(static_cast<float>(src.shape()[0]*src.shape()[0] + src.shape()[1]*src.shape()[1])) * 0.5f;
 	float diff = sz / num_offsets;
@@ -30,12 +30,12 @@ std::tuple<int, int> get_line_range_(float off, float slope, unsigned s0, unsign
 }
 
 
-std::tuple<xt::xarray<float>, xt::xarray<float>> impl_vanilla_radon_(const xt::xarray<float>& src, const xt::xarray<float>& angles, unsigned num_offsets)
+std::tuple<xt::xtensor<float, 2>, xt::xtensor<float, 1>> impl_vanilla_radon_(const xt::xtensor<float, 2>& src, const xt::xtensor<float, 1>& angles, unsigned num_offsets)
 {
 	unsigned num_angles = static_cast<unsigned>(angles.size());
-	xt::xarray<float> offsets = set_uniform_offset_range_(src, num_offsets);
+	xt::xtensor<float, 1> offsets = set_uniform_offset_range_(src, num_offsets);
 	float a_cutoff = 1.0f / std::sqrtf(2.0f);
-	xt::xarray<float> radon_res = xt::zeros<float>({ angles.size(), offsets.size() });
+	xt::xtensor<float, 2> radon_res = xt::zeros<float>({ angles.size(), offsets.size() });
 
 	float x_min = -float(src.shape()[1]) * 0.5f;
 	float y_min = -float(src.shape()[0]) * 0.5f;
@@ -83,12 +83,12 @@ std::tuple<xt::xarray<float>, xt::xarray<float>> impl_vanilla_radon_(const xt::x
 }
 
 
-std::tuple<xt::xarray<float>, xt::xarray<float>> impl_optimized_radon_(const xt::xarray<float>& src, const xt::xarray<float>& angles,unsigned num_offsets)
+std::tuple<xt::xtensor<float, 2>, xt::xtensor<float, 1>> impl_optimized_radon_(const xt::xtensor<float, 2>& src, const xt::xtensor<float, 1>& angles,unsigned num_offsets)
 {
 	unsigned num_angles = static_cast<unsigned>(angles.size());
-	xt::xarray<float> offsets = set_uniform_offset_range_(src, num_offsets);
+	xt::xtensor<float, 1> offsets = set_uniform_offset_range_(src, num_offsets);
 	float a_cutoff = 1.0f / std::sqrtf(2.0f);
-	xt::xarray<float> radon_res = xt::zeros<float>({ angles.size(), offsets.size() });
+	xt::xtensor<float, 2> radon_res = xt::zeros<float>({ angles.size(), offsets.size() });
 
 	float x_min = -float(src.shape()[1]) * 0.5f;
 	float y_min = -float(src.shape()[0]) * 0.5f;
@@ -143,13 +143,8 @@ void impl_vanila_hough_(cv::Mat& dst, cv::Mat& offsets, const cv::Mat& src, cons
 
 }
 */
-std::tuple<xt::xarray<float>, xt::xarray<float>> bujo::radon::radon(const xt::xarray<float>& src, const xt::xarray<float>& angles, unsigned num_offset, unsigned transformType)
+std::tuple<xt::xtensor<float, 2>, xt::xtensor<float, 1>> bujo::radon::radon(const xt::xtensor<float, 2>& src, const xt::xtensor<float, 1>& angles, unsigned num_offset, unsigned transformType)
 {
-	if (angles.shape().size() != 1)
-		throw std::logic_error("Function radon() expects angles to be 1d-array, got otherwise!");
-	if (src.shape().size() != 2)
-		throw std::logic_error("Function radon() expects src to be 2d-array, got otherwise!");
-
 	if (transformType == TransformType::RT_RADON_VANILLA)
 		return impl_vanilla_radon_(src, angles, num_offset);
 	else if (transformType == TransformType::RT_RADON)

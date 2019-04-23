@@ -3,13 +3,9 @@
 #include <exception>
 #include <vector>
 #include "util/quantiles.h"
-
-xt::xarray<float> bujo::filters::filterVariance2DV(const xt::xarray<float>& src, unsigned size)
+/*
+xt::xtensor<float, 2> bujo::filters::filterVariance2DV(const xt::xtensor<float, 2>& src, unsigned size)
 {
-	/* python implementation:
-	var = np.cumsum(np.abs(src[1:,:]-src[:-1,:]), axis=0)
-	mean = (var[sz[0]:,:]-var[:-sz[0],:]) / sz[0]
-	*/
 	auto x1 = xt::view(src, xt::range(1, xt::placeholders::_), xt::all()) -
 		xt::view(src, xt::range(xt::placeholders::_, -1), xt::all());
 	auto x2 = xt::cumsum(xt::abs(x1), 0);
@@ -18,12 +14,8 @@ xt::xarray<float> bujo::filters::filterVariance2DV(const xt::xarray<float>& src,
 	return x3 / float(size);
 }
 
-xt::xarray<float> bujo::filters::filterVariance2DH(const xt::xarray<float>& src, unsigned size)
+xt::xtensor<float, 2> bujo::filters::filterVariance2DH(const xt::xtensor<float, 2>& src, unsigned size)
 {
-	/* python implementation:
-	var = np.cumsum(np.abs(src[:,1:]-src[:,:-1]), axis=1)
-	mean = (var[:,sz[1]:]-var[:,:-sz[1]]) / sz[1]
-	*/
 	auto x1 = xt::view(src, xt::all(), xt::range(1, xt::placeholders::_)) -
 		xt::view(src, xt::all(), xt::range(xt::placeholders::_, -1));
 	auto x2 = xt::cumsum(xt::abs(x1), 1);
@@ -32,7 +24,7 @@ xt::xarray<float> bujo::filters::filterVariance2DH(const xt::xarray<float>& src,
 	return x3 / float(size);
 }
 
-xt::xarray<float> bujo::filters::filterQuantile2D(const xt::xarray<float>& src, unsigned size_w, unsigned size_h, float quantile)
+xt::xtensor<float, 2> bujo::filters::filterQuantile2D(const xt::xtensor<float, 2>& src, unsigned size_w, unsigned size_h, float quantile)
 {
 	std::vector<float> vbuffer(size_w * size_h);
 	int res_h = static_cast<int>(src.shape()[0]) - static_cast<int>(size_h) + 1;
@@ -40,7 +32,7 @@ xt::xarray<float> bujo::filters::filterQuantile2D(const xt::xarray<float>& src, 
 	if ((res_w <= 0) || (res_h <= 0))
 		throw std::runtime_error("Function filterQuantile2D() received kernel size that is greater than image!");
 
-	xt::xarray<float> res = xt::zeros<float>({ res_h, res_w });
+	xt::xtensor<float, 2><float> res = xt::zeros<float>({ res_h, res_w });
 	for(unsigned i = 0; i < res.shape()[0]; i++)
 		for (unsigned j = 0; j < res.shape()[1]; j++)
 		{
@@ -51,19 +43,20 @@ xt::xarray<float> bujo::filters::filterQuantile2D(const xt::xarray<float>& src, 
 	return res;
 }
 
-xt::xarray<float> bujo::filters::filterVarianceQuantileV(const xt::xarray<float>& src, unsigned size_w, unsigned size_h, float quantile)
+xt::xtensor<float, 2> bujo::filters::filterVarianceQuantileV(const xt::xtensor<float, 2>& src, unsigned size_w, unsigned size_h, float quantile)
 {
 	return filterQuantile2D(filterVariance2DV(src, size_h), size_w, 1, quantile);
 }
 
-xt::xarray<float> bujo::filters::filterVarianceQuantileH(const xt::xarray<float>& src, unsigned size_w, unsigned size_h, float quantile)
+xt::xtensor<float, 2> bujo::filters::filterVarianceQuantileH(const xt::xtensor<float, 2>& src, unsigned size_w, unsigned size_h, float quantile)
 {
 	return filterQuantile2D(filterVariance2DH(src, size_w), 1, size_h, quantile);
 }
 
-xt::xarray<float> bujo::filters::filterVarianceQuantileVH(const xt::xarray<float>& src, unsigned size_w, unsigned size_h, float quantile_v, float quantile_h)
+xt::xtensor<float, 2> bujo::filters::filterVarianceQuantileVH(const xt::xtensor<float, 2>& src, unsigned size_w, unsigned size_h, float quantile_v, float quantile_h)
 {
 	auto xh = filterVarianceQuantileH(src, size_w, size_h, quantile_h);
 	auto xv = filterVarianceQuantileV(src, size_w, size_h, quantile_v);
 	return xt::view(xv, xt::all(), xt::range(1, -1)) * xt::view(xh, xt::range(1, -1), xt::all());
 }
+*/
