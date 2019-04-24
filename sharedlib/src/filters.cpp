@@ -119,3 +119,41 @@ xt::xtensor<float, 2> bujo::filters::filterGaussian2D(const xt::xtensor<float, 2
 		}
 	return res;
 }
+
+xt::xtensor<float, 1> bujo::filters::filterMax1D(const xt::xtensor<float, 1>& src, unsigned window)
+{
+	xt::xtensor<float, 1>::shape_type shp = { src.size() };
+	xt::xtensor<float, 1> res(shp);
+	int dneg = window / 2;
+	int dpos = window - dneg;
+	for (int i = 0; i < res.size(); i++)
+	{
+		int start = std::max(0, i - dneg);
+		int end = std::min(static_cast<int>(src.size()), i + dpos);
+		float fres = src[start];
+		for (int j = start + 1; j < end; j++)
+			fres = std::max(fres, src[j]);
+
+		res.at(i) = fres;
+	}
+	return res;
+}
+
+xt::xtensor<float, 1> bujo::filters::filterMin1D(const xt::xtensor<float, 1>& src, unsigned window)
+{
+	xt::xtensor<float, 1>::shape_type shp = { src.size() };
+	xt::xtensor<float, 1> res(shp);
+	int dneg = window / 2;
+	int dpos = window - dneg;
+	for (int i = 0; i < res.size(); i++)
+	{
+		int start = std::max(0, i - dneg);
+		int end = std::min(static_cast<int>(src.size()), i + dpos);
+		float fres = src[start];
+		for (int j = start + 1; j < end; j++)
+			fres = std::min(fres, src[j]);
+				
+		res.at(i) = fres;
+	}
+	return res;
+}

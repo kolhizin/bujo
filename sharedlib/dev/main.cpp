@@ -2,10 +2,7 @@
 
 int main()
 {
-	//dev01();
-	//dev02();
-	//dev03();
-	//dev04();
-	dev05();
+	//dev05();
+	dev06();
 	return 0;
 }
