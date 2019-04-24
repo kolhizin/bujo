@@ -61,3 +61,61 @@ xt::xtensor<float, 2> bujo::filters::filterVarianceQuantileVH(const xt::xtensor<
 	auto xv = filterVarianceQuantileV(src, size_w, size_h, quantile_h);
 	return xt::view(xv, xt::all(), xt::range(1, -1)) * xt::view(xh, xt::range(1, -1), xt::all());
 }
+
+xt::xtensor<float, 2> kernel_gaussian_(float sigma, float cutoff)
+{
+	double sigma2 = sigma * sigma;
+	
+	size_t ksize = 1;
+	while (1)
+	{
+		double dst2 = ksize * ksize; //check only (0, ksize) point
+		double wgt = std::exp(-dst2 / (2.0 * sigma2)) / (2.0 * 3.1415 * sigma2); //actual normalization coef is not relevant
+		if (wgt < cutoff)
+			break;
+
+		ksize++;
+	}
+	if (!(ksize & 1))
+		ksize++;
+
+	int c = ksize >> 1;
+	xt::xtensor<double, 2> res({ ksize, ksize });
+	for(unsigned i = 0; i < ksize; i++)
+		for (unsigned j = 0; j < ksize; j++)
+		{
+			int dx = static_cast<int>(i) - c;
+			int dy = static_cast<int>(j) - c;
+			double dst2 = dx * dx + dy * dy;
+			res.at(i, j) = std::exp(-dst2 / (2.0 * sigma2)); //do not normalize
+		}
+	return xt::cast<float>(res / xt::sum(res)[0]);
+}
+
+//very suboptimal implementation -- can implement as two blurs -- horizontal and vertical
+xt::xtensor<float, 2> bujo::filters::filterGaussian2D(const xt::xtensor<float, 2>& src, float sigma)
+{
+	xt::xtensor<float, 2> res({src.shape()[0], src.shape()[1]});
+	auto kernel = kernel_gaussian_(sigma, 1e-3);
+	int ksize = kernel.shape()[0];
+	int center = ksize >> 1;
+
+
+	for(int i = 0; i < res.shape()[0]; i++)
+		for (int j = 0; j < res.shape()[1]; j++)
+		{
+			float tres = 0.0;
+			for(int di = -center; di <= center; di++)
+				for (int dj = -center; dj <= center; dj++)
+				{
+					int si = i + di, sj = j + dj;
+					if ((si < 0) || (si >= src.shape()[0]))
+						continue;
+					if ((sj < 0) || (sj >= src.shape()[1]))
+						continue;
+					tres += kernel.at(di + center, dj + center) * src.at(si, sj);
+				}
+			res.at(i, j) = tres;
+		}
+	return res;
+}

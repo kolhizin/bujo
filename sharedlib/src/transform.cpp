@@ -135,26 +135,11 @@ xt::xtensor<float, 2> bujo::transform::thresholdImage(const xt::xtensor<float, 2
 	return xt::cast<float>(xt::greater(src, cutoff));
 }
 
-/*
-cv::Mat bujo::transform::applyVarianceCutoff(const cv::Mat& src, unsigned size_w, unsigned size_h,
-	float cutoff_q, float cutoff_coef)
+xt::xtensor<float, 2> bujo::transform::coarseImage(const xt::xtensor<float, 2>& src, float scale, float sigma, float cutoff)
 {
-	auto xsrc = bujo::util::cv2xtf(src);
-	auto xres = bujo::filters::filterVarianceQuantileVH(xsrc, size_w, size_h, 0.5f, 0.5f);
-	std::vector<float> buffer(xres.size());
-	float cutoff = bujo::util::calculateQuantile(xres.cbegin(), xres.cend(), cutoff_q, &buffer[0], buffer.size());
-	auto xres_final = xt::cast<float>(xt::greater(xres, cutoff * cutoff_coef));
-	return bujo::util::xt2cv(xres_final, CV_8U);
+	return bujo::transform::thresholdImage(
+				bujo::filters::filterGaussian2D(
+					bujo::transform::resizeImage(src, scale),
+					sigma),
+				cutoff);
 }
-
-cv::Mat bujo::transform::coarseImage(const cv::Mat& src, float scale, float sigma, float gaussian_threshold)
-{
-	cv::Mat tmp1, tmp2;
-	cv::resize(src, tmp1, cv::Size(), scale, scale);
-	cv::threshold(tmp1, tmp2, 0.0, 255.0, cv::THRESH_BINARY);
-	cv::GaussianBlur(tmp2, tmp1, cv::Size(20, 20), sigma, sigma);
-	//cv::threshold(tmp1, res, gaussian_threshold, 1.0f, cv::THRESH_BINARY);
-	return tmp2;
-}
-*/
-

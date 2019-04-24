@@ -34,15 +34,16 @@ void dev05()
 	auto src2 = bujo::transform::filterVarianceQuantile(src1, textLineDelta / 2, textLineDelta / 2, 0.5f, 0.5f);
 	float cutoff = bujo::transform::calculateQuantile(src2, 0.9f) * 0.5f;
 	auto src3 = bujo::transform::thresholdImage(src2, cutoff);
+	auto src4 = bujo::transform::coarseImage(src3, 0.25f, 0.5f, 0.2f);
 
-	cv1 = bujo::util::xt2cv(src3, CV_8U);
+	cv1 = bujo::util::xt2cv(src4, CV_8U);
 
 	auto t1 = std::chrono::system_clock::now();
 	std::cout << "Elapsed " << std::chrono::duration<float>(t1 - t0).count() << "s.\n\n";
 	std::cout << "Text angle is " << textAngle << " radians\n";
 	std::cout << "Text line delta is " << textLineDelta << " pixels\n";
 	std::cout << "Cutoff is " << cutoff << "\n";
-	std::cout << src1.shape()[0] << " " << src1.shape()[1] << "\n";
+	std::cout << src4.shape()[0] << " " << src4.shape()[1] << "\n";
 
 	cv::namedWindow("Src", cv::WINDOW_AUTOSIZE);
 	cv::imshow("Src", cv1);
