@@ -1,7 +1,5 @@
 #pragma once
 #include <xtensor/xtensor.hpp>
-#include <functional>
-#include <optional>
 
 namespace bujo
 {
@@ -15,11 +13,12 @@ namespace bujo
 		struct RegionSplit
 		{
 			float angle, offset;
+			int direction;
 
 			SplitStat stats;
 		};
 
-		std::optional<RegionSplit> findBestVSplit(const xt::xtensor<float, 2>& src, const xt::xtensor<float, 1>& angles,
-			unsigned num_offsets, unsigned window_size, float minimal_abs_split_intensity, float maximal_abs_intersection);
+		RegionSplit findBestVSplit(const xt::xtensor<float, 2>& src, const xt::xtensor<float, 1>& angles,
+			unsigned num_offsets, unsigned window_size, float minimal_abs_split_intensity, float maximal_abs_intersection, float minimal_pct_split);
 	}
 }

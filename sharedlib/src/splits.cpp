@@ -127,14 +127,14 @@ std::vector<std::tuple<unsigned, unsigned>> get_radon_local_minimas_2d_(const xt
 SplitStat calc_split_stat_(const xt::xtensor<float, 1>& src, const xt::xtensor<float, 1>& offsets, unsigned offset_id)
 {
 	SplitStat res;
-	
+
 	res.volume_inside = src.at(offset_id);
 	res.volume_before = res.volume_after = 0.0f;
-	if(offset_id > 0)
+	if (offset_id > 0)
 		res.volume_before = xt::sum(xt::view(src, xt::range(xt::placeholders::_, offset_id)))[0];
-	if(offset_id < src.size() - 1)
-		res.volume_after = xt::sum(xt::view(src, xt::range(offset_id+1, xt::placeholders::_)))[0];
-	
+	if (offset_id < src.size() - 1)
+		res.volume_after = xt::sum(xt::view(src, xt::range(offset_id + 1, xt::placeholders::_)))[0];
+
 	int i_left = offset_id;
 	int i_right = offset_id;
 	while (i_left > 0)
@@ -143,7 +143,7 @@ SplitStat calc_split_stat_(const xt::xtensor<float, 1>& src, const xt::xtensor<f
 			break;
 		i_left--;
 	}
-	while (i_right < src.size()-1)
+	while (i_right < src.size() - 1)
 	{
 		if (src.at(i_right) > src.at(offset_id))
 			break;
@@ -154,20 +154,48 @@ SplitStat calc_split_stat_(const xt::xtensor<float, 1>& src, const xt::xtensor<f
 	return res;
 }
 
-std::optional<RegionSplit> bujo::splits::findBestVSplit(const xt::xtensor<float, 2>& src, const xt::xtensor<float, 1>& angles,
+bool challenge_split_(const SplitStat& chmp, const SplitStat& chlg)
+{
+	if (chlg.volume_inside < chmp.volume_inside)
+		return true;
+	if (chlg.volume_inside > chmp.volume_inside + 1e-7)
+		return false;
+	if (chlg.margin_before + chlg.margin_after < chmp.margin_before + chmp.margin_after)
+		return true;
+	if (chlg.margin_before + chlg.margin_after > chmp.margin_before + chmp.margin_after + 1e-7)
+		return false;
+	if (std::min(chlg.volume_before, chlg.volume_after) > std::min(chmp.volume_before, chmp.volume_after))
+		return true;
+	return false;
+}
+
+RegionSplit bujo::splits::findBestVSplit(const xt::xtensor<float, 2>& src, const xt::xtensor<float, 1>& angles,
 	unsigned num_offsets, unsigned window_size,
-	float minimal_abs_split_intensity, float maximal_abs_intersection)
+	float minimal_abs_split_intensity, float maximal_abs_intersection, float minimal_pct_split)
 {
 	auto rtr = bujo::radon::radon(src, angles, num_offsets, bujo::radon::RT_RADON);
 	auto mins = std::move(get_radon_local_minimas_2d_(std::get<0>(rtr), window_size, maximal_abs_intersection, minimal_abs_split_intensity));
 
+	RegionSplit res;
+	res.direction = 0;
+	res.stats.volume_inside = 1e30f;
 	if (mins.empty())
 		return {};
 
-	RegionSplit res;
 	for (unsigned i = 0; i < mins.size(); i++)
 	{
-
+		RegionSplit tmp;
+		tmp.stats = calc_split_stat_(xt::view(std::get<0>(rtr), std::get<0>(mins[i]), xt::all()),
+			std::get<1>(rtr), std::get<1>(mins[i]));
+		if (std::min(tmp.stats.volume_before, tmp.stats.volume_after) < minimal_pct_split * (tmp.stats.volume_before + tmp.stats.volume_after))
+			continue;
+		if (challenge_split_(res.stats, tmp.stats))
+		{
+			res.angle = angles[std::get<0>(mins[i])];
+			res.offset = std::get<1>(rtr).at(std::get<1>(mins[1]));
+			res.direction = (res.stats.volume_before < res.stats.volume_after ? 1 : -1);
+			res.stats = tmp.stats;
+		}
 	}
 	return res;
 }
