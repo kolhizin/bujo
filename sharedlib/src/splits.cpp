@@ -1,5 +1,7 @@
 #include "splits.h"
 #include "radon.h"
+#include "extremum.h"
+#include <xtensor/xview.hpp>
 
 using namespace bujo::splits;
 
@@ -50,15 +52,122 @@ def search_region_vsplit(src, min_angle, num_angles,
 		return sorted(tmp, key=lambda x: x[2])[0]
 */
 
-RegionSplit bujo::splits::findBestVSplit(const xt::xtensor<float, 2>& src, const xt::xtensor<float, 1>& angles)
-{
-	unsigned numRadonOffsets = static_cast<unsigned>(std::ceilf(std::sqrtf(src.shape()[0]*src.shape()[0]+ src.shape()[1]*src.shape()[1])));
-	auto rtr = bujo::radon::radon(src, angles, numRadonOffsets, bujo::radon::RT_RADON);
-	/*
-		gradon = local_radon.calc_local_radon(grid, tmp, 0, tmp.shape[0], 0, tmp.shape[1])
 
-		mins = local_radon.get_local_minimas_2d(gradon, window_size_1d, max_value, zero_threshold)
-	
+/*
+"""Returns indices of local maximas in arr1d using window_size and cutoff value of min_value (i.e. they are local maximas and global maximas inside window_size and greater than min_value).
+
+	Keyword arguments:
+	window_size -- width of window to be global maxima inside
+	min_value -- cutoff value for local maxima
+
+	Returns array of indices
+	"""
+	idf = np.array(range(1, len(arr1d)-1))[(arr1d[:-2]<=arr1d[1:-1])&(arr1d[2:]<=arr1d[1:-1])]
+	if len(idf) == 0:
+		return idf
+	maxf = scipy.ndimage.maximum_filter1d(arr1d, window_size, mode='nearest')
+	return idf[(maxf[idf]<=arr1d[idf])&(arr1d[idf]>=min_value)]
+*/
+std::vector<unsigned> get_radon_local_minimas_1d_(const xt::xtensor<float, 1>& src,
+	unsigned window, float max_value, float zero_threshold)
+{
+	std::vector<unsigned> tmp = std::move(bujo::extremum::getLocalMinimas(src));
+	std::vector<unsigned> res;
+	res.reserve(tmp.size());
+	int dneg = window / 2;
+	int dpos = window - dneg;
+	for (int i = 0; i < tmp.size(); i++)
+	{
+		if (src[tmp[i]] > max_value)
+			continue;
+		int j0 = std::max(0, static_cast<int>(tmp[i]) - dneg);
+		int j1 = std::min(static_cast<int>(src.size()), static_cast<int>(tmp[i]) + dpos);
+		float wmin = xt::amin(xt::view(src, xt::range(j0, j1)))[0];
+		if (src[tmp[i]] > wmin)
+			continue;
+		res.push_back(tmp[i]);
+	}
+	return res;
+}
+
+/*
+Returns indices of local minimas in arr2d using window_size_1d and cutoff value of max_value (i.e. they are local minimas and global minimas inside window_size and less than max_value).
+
+Keyword arguments:
+	window_size_1d -- width of window to be global minima inside
+	max_value -- cutoff value for local minima
+	zero_threshold -- value above which to start consider relevant information of Radon transform (i.e. start and end points of value at least zero_threshold)
+
+Returns array of tuples (angle_id, offset_id)
+*/
+std::vector<std::tuple<unsigned, unsigned>> get_radon_local_minimas_2d_(const xt::xtensor<float, 2>& src,
+	unsigned window, float max_value, float zero_threshold)
+{
+	/*
+	(t0, t1) = get_positive_range(arr2d-zero_threshold)
+	res = [(i, t0[i]+get_local_minimas_1d(arr2d[i, t0[i]:(t1[i]+1)], window_size_1d, max_value)) for i in range(len(t0))]
+	return [(row[0], x, arr2d[row[0], x], np.sum(arr2d[row[0], :x]), np.sum(arr2d[row[0], (x+1):]))
+			for row in res if len(row[1])>0 for x in row[1]]
+
 	*/
-	return RegionSplit();
+	std::vector<std::tuple<unsigned, unsigned>> res;
+	res.reserve(src.shape()[0] * src.shape()[1] / 100);
+	for (unsigned i = 0; i < src.shape()[0]; i++)
+	{
+		std::tuple<unsigned, unsigned> jrng = bujo::extremum::getPositiveSuperRange(
+			xt::view(src, i, xt::all()) - zero_threshold);
+		std::vector<unsigned> ids = std::move(get_radon_local_minimas_1d_(xt::view(src, i,
+			xt::range(std::get<0>(jrng), std::get<1>(jrng))), window, max_value));
+		for (unsigned k = 0; k < ids.size(); k++)
+			res.emplace_back(i, std::get<0>(jrng) + ids[k]);
+	}
+	return res;
+}
+
+SplitStat calc_split_stat_(const xt::xtensor<float, 1>& src, const xt::xtensor<float, 1>& offsets, unsigned offset_id)
+{
+	SplitStat res;
+	
+	res.volume_inside = src.at(offset_id);
+	res.volume_before = res.volume_after = 0.0f;
+	if(offset_id > 0)
+		res.volume_before = xt::sum(xt::view(src, xt::range(xt::placeholders::_, offset_id)))[0];
+	if(offset_id < src.size() - 1)
+		res.volume_after = xt::sum(xt::view(src, xt::range(offset_id+1, xt::placeholders::_)))[0];
+	
+	int i_left = offset_id;
+	int i_right = offset_id;
+	while (i_left > 0)
+	{
+		if (src.at(i_left) > src.at(offset_id))
+			break;
+		i_left--;
+	}
+	while (i_right < src.size()-1)
+	{
+		if (src.at(i_right) > src.at(offset_id))
+			break;
+		i_right++;
+	}
+	res.margin_after = std::fabsf(offsets.at(offset_id) - offsets.at(i_right));
+	res.margin_before = std::fabsf(offsets.at(offset_id) - offsets.at(i_right));
+	return res;
+}
+
+std::optional<RegionSplit> bujo::splits::findBestVSplit(const xt::xtensor<float, 2>& src, const xt::xtensor<float, 1>& angles,
+	unsigned num_offsets, unsigned window_size,
+	float minimal_abs_split_intensity, float maximal_abs_intersection)
+{
+	auto rtr = bujo::radon::radon(src, angles, num_offsets, bujo::radon::RT_RADON);
+	auto mins = std::move(get_radon_local_minimas_2d_(std::get<0>(rtr), window_size, maximal_abs_intersection, minimal_abs_split_intensity));
+
+	if (mins.empty())
+		return {};
+
+	RegionSplit res;
+	for (unsigned i = 0; i < mins.size(); i++)
+	{
+
+	}
+	return res;
 }

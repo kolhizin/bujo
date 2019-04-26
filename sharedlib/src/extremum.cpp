@@ -22,6 +22,25 @@ std::tuple<unsigned, unsigned> bujo::extremum::getNonTrivialRange(const xt::xten
 	return std::tuple<unsigned, unsigned>(first, last+1);
 }
 
+std::tuple<unsigned, unsigned> bujo::extremum::getPositiveSuperRange(const xt::xtensor<float, 1>& src)
+{
+	unsigned first = 0, last = 0;
+	bool found = false;
+	for (unsigned i = 0; i < src.size(); i++)
+		if (src[i] > 0.0f)
+		{
+			if (!found)
+			{
+				first = i;
+				found = true;
+			}
+			last = i;
+		}
+	if (!found)
+		return std::tuple<unsigned, unsigned>(src.size(), 0);
+	return std::tuple<unsigned, unsigned>(first, last + 1);
+}
+
 std::vector<std::tuple<unsigned, unsigned>> bujo::extremum::getPositiveRanges(const xt::xtensor<float, 1>& src)
 {
 	bool positive = false;
