@@ -13,6 +13,7 @@
 #include <src/transform.h>
 #include <src/filters.h>
 #include <src/extremum.h>
+#include <src/splits.h>
 
 void dev06()
 {
@@ -36,13 +37,11 @@ void dev06()
 	auto src3 = bujo::transform::thresholdImage(src2, cutoff);
 	auto src4 = bujo::transform::coarseImage(src3, 0.25f, 0.5f, 0.2f);
 
-	auto src5 = xt::view(src4, 10);
-	auto src61 = xt::greater_equal(xt::view(src5, xt::range(1, -1)),
-		xt::view(src5, xt::range(xt::placeholders::_, -2)));
-	auto src62 = xt::greater_equal(xt::view(src5, xt::range(1, -1)),
-		xt::view(src5, xt::range(2, xt::placeholders::_)));
-	auto src63 = src61 * src62;
+	auto spltAngles = xt::concatenate(std::make_tuple(xt::linspace(-3.1415f * 0.5f, -0.5f, 30),
+		xt::linspace(0.5f, 3.1415f * 0.5f, 30)));
+	auto splt = bujo::splits::findBestVSplit(src4, spltAngles, 100, 15, 10.0f, 2.0f, 0.05f);
 	
+	std::cout << splt.direction << " " << splt.angle << " " << splt.offset;
 	cv1 = bujo::util::xt2cv(src4, CV_8U);
 
 	auto t1 = std::chrono::system_clock::now();

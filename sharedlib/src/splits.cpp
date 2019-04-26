@@ -69,7 +69,7 @@ def search_region_vsplit(src, min_angle, num_angles,
 	return idf[(maxf[idf]<=arr1d[idf])&(arr1d[idf]>=min_value)]
 */
 std::vector<unsigned> get_radon_local_minimas_1d_(const xt::xtensor<float, 1>& src,
-	unsigned window, float max_value, float zero_threshold)
+	unsigned window, float max_value)
 {
 	std::vector<unsigned> tmp = std::move(bujo::extremum::getLocalMinimas(src));
 	std::vector<unsigned> res;
