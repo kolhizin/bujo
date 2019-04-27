@@ -143,3 +143,38 @@ xt::xtensor<float, 2> bujo::transform::coarseImage(const xt::xtensor<float, 2>& 
 					sigma),
 				cutoff);
 }
+
+std::vector<bujo::splits::RegionSplit> bujo::transform::findVSplits(const xt::xtensor<float, 2>& src, float min_angle, unsigned num_angles, float minimal_abs_split_intensity, float maximal_abs_intersection, float minimal_pct_split)
+{
+	xt::xtensor<float, 2> tmp({ src.shape()[0], src.shape()[1] });
+	for (unsigned i = 0; i < src.shape()[0]; i++)
+		for (unsigned j = 0; j < src.shape()[1]; j++)
+			tmp.at(i, j) = src.at(i, j);
+
+	std::vector<bujo::splits::RegionSplit> res;
+	auto angles = xt::concatenate(std::make_tuple(xt::linspace(-pi_f * 0.5f, -min_angle, num_angles / 2 + 1),
+		xt::linspace(min_angle, pi_f * 0.5f, num_angles / 2 + 1)));
+
+	float diag_size = std::sqrtf(src.shape()[0] * src.shape()[0] + src.shape()[1] * src.shape()[1]);
+	unsigned num_offsets = unsigned(std::ceilf(diag_size));
+	unsigned window_size = unsigned(std::ceilf(diag_size * 0.1f));
+	 
+	while (1)
+	{
+		auto splt = bujo::splits::findBestVSplit(tmp, angles, num_offsets, window_size,
+			minimal_abs_split_intensity, maximal_abs_intersection, minimal_pct_split);
+		if (splt.desc.direction == 0)
+			break;
+		res.push_back(splt);
+		bujo::splits::setRegionValue(tmp, splt.desc, 1, 0.0f);
+	}
+
+	return res;
+}
+
+void bujo::transform::setRegionsValue(xt::xtensor<float, 2>& src, std::vector<bujo::splits::RegionSplit> splits, float dsize, float value)
+{
+	for (unsigned i = 0; i < splits.size(); i++)
+		bujo::splits::setRegionValue(src,
+			bujo::splits::rescaleSplit(splits[i].desc, dsize), 1, value);
+}
