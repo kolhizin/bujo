@@ -120,6 +120,51 @@ xt::xtensor<float, 2> bujo::filters::filterGaussian2D(const xt::xtensor<float, 2
 	return res;
 }
 
+/*
+Calculates local maxima filter and applies cutoff
+
+Keyword arguments:
+	i -- row id
+	d1 -- width of local-maxima
+	d2 -- test-range for local-maxima
+	cutoff -- minimal value for local_maxima
+
+Returns ndarray of shape src.shape
+*/
+xt::xtensor<float, 2> bujo::filters::filterLocalMax2DV(const xt::xtensor<float, 2>& src,
+	unsigned window_size, unsigned slack_size, float threshold)
+{
+	/*
+def local_maxima_v(src, d1, d2, cutoff):
+	def row_local_maxima_v(i):
+		ilo1 = max(0, i-d1)
+		ilo2 = max(0, i-d2)
+		ihi1 = min(src.shape[0], i+d1+1)
+		ihi2 = min(src.shape[0], i+d2+1)
+		m1 = np.max(src[ilo1:ihi1], axis=0)
+		m2 = np.max(src[ilo2:ihi2], axis=0)
+		return (m1 >= m2)*(m2 > cutoff)
+	return np.array([row_local_maxima_v(i) for i in range(src.shape[0])])
+	*/
+	int dwin_neg = window_size / 2;
+	int dwin_pos = window_size - dwin_neg;
+	int dslack_neg = slack_size / 2;
+	int dslack_pos = slack_size - dslack_neg;
+
+	xt::xtensor<float, 2> res({ src.shape()[0], src.shape()[1] });
+	for (int i = 0; i < src.shape()[0]; i++)
+	{
+		int window_lo = std::max(0, i - dwin_neg);
+		int window_hi = std::min(static_cast<int>(src.shape()[0]), i + dwin_pos);
+		int slack_lo = std::max(0, i - dslack_neg);
+		int slack_hi = std::min(static_cast<int>(src.shape()[0]), i + dslack_pos);
+		auto m_window = xt::amax(xt::view(src, xt::range(window_lo, window_hi), xt::all()), 0);
+		auto m_slack = xt::amax(xt::view(src, xt::range(slack_lo, slack_hi), xt::all()), 0);
+		xt::view(res, i, xt::all()) = xt::cast<float>((m_slack >= m_window) * (m_window >= threshold));
+	}
+	return res;
+}
+
 xt::xtensor<float, 1> bujo::filters::filterMax1D(const xt::xtensor<float, 1>& src, unsigned window)
 {
 	xt::xtensor<float, 1>::shape_type shp = { src.size() };
