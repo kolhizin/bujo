@@ -1,6 +1,7 @@
 #include "splits.h"
 #include "radon.h"
 #include "extremum.h"
+#include "util/quantiles.h"
 #include <xtensor/xview.hpp>
 
 using namespace bujo::splits;
@@ -200,25 +201,39 @@ RegionSplit bujo::splits::findBestVSplit(const xt::xtensor<float, 2>& src, const
 	return res;
 }
 
-void bujo::splits::updateRegion(xt::xtensor<float, 2>& src, const SplitDesc& split, float value, int direction)
+void bujo::splits::setRegionValue(xt::xtensor<float, 2>& src, const SplitDesc& split, int direction, float value)
 {
-	/*
-	grid = local_radon.create_grid(src, numpy.array([x[0] for x in splits]))
-	res[(grid[:,:,i]-off*dsz)*direction > 0] = 0
+	transformRegion(src, split, direction, [=](auto & v) {v = value; });
+}
 
-	return res
-	*/
-	float x_min = -float(src.shape()[1]) * 0.5f;
-	float y_min = -float(src.shape()[0]) * 0.5f;
-	float a_x = std::sinf(split.angle), a_y = -std::cosf(split.angle);
-	float r_offset = x_min * a_x + y_min * a_y;
-	int f_dir = split.direction * direction;
+float bujo::splits::calcRegionQuantile(const xt::xtensor<float, 2>& src, const SplitDesc& split, int direction, float quantile)
+{
+	std::vector<float> data;
 
-	for(int i = 0; i < src.shape()[0]; i++)
-		for (int j = 0; j < src.shape()[1]; j++)
-		{
-			float val = (i * a_y + j * a_x - split.offset + r_offset);
-			if (val * f_dir > 0)
-				src.at(i, j) = value;
-		}
+	transformRegion(src, split, direction, [&data](const auto & v) { data.push_back(v); });
+
+	std::vector<float> buff(data.size());
+
+	return bujo::util::calculateQuantile(data.begin(), data.end(), quantile, &buff[0], buff.size());
+}
+
+std::tuple<float, float> bujo::splits::calcRegionMeanStd(const xt::xtensor<float, 2>& src, const SplitDesc& split, int direction)
+{
+	double sum_x = 0.0f, sum_x2 = 0.0f, cnt = 0.0f;
+	transformRegion(src, split, direction, [&sum_x, &sum_x2, &cnt](const auto & v) {
+		sum_x += v;
+		sum_x2 += v * v;
+		cnt += 1.0;
+		});
+
+	return std::make_tuple(float(sum_x/cnt), float((sum_x2 - sum_x*sum_x / cnt) / cnt));
+}
+
+SplitDesc bujo::splits::rescaleSplit(const SplitDesc& desc, float dsize)
+{
+	SplitDesc res;
+	res.angle = desc.angle;
+	res.direction = desc.direction;
+	res.offset = desc.offset * dsize;
+	return res;
 }
