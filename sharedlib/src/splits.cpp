@@ -177,7 +177,7 @@ RegionSplit bujo::splits::findBestVSplit(const xt::xtensor<float, 2>& src, const
 	auto mins = std::move(get_radon_local_minimas_2d_(std::get<0>(rtr), window_size, maximal_abs_intersection, minimal_abs_split_intensity));
 
 	RegionSplit res;
-	res.direction = 0;
+	res.desc.direction = 0;
 	res.stats.volume_inside = 1e30f;
 	if (mins.empty())
 		return {};
@@ -191,11 +191,34 @@ RegionSplit bujo::splits::findBestVSplit(const xt::xtensor<float, 2>& src, const
 			continue;
 		if (challenge_split_(res.stats, tmp.stats))
 		{
-			res.angle = angles[std::get<0>(mins[i])];
-			res.offset = std::get<1>(rtr).at(std::get<1>(mins[1]));
-			res.direction = (res.stats.volume_before < res.stats.volume_after ? 1 : -1);
+			res.desc.angle = angles[std::get<0>(mins[i])];
+			res.desc.offset = std::get<1>(rtr).at(std::get<1>(mins[1]));
+			res.desc.direction = (res.stats.volume_before < res.stats.volume_after ? -1 : 1);
 			res.stats = tmp.stats;
 		}
 	}
 	return res;
+}
+
+void bujo::splits::updateRegion(xt::xtensor<float, 2>& src, const SplitDesc& split, float value, int direction)
+{
+	/*
+	grid = local_radon.create_grid(src, numpy.array([x[0] for x in splits]))
+	res[(grid[:,:,i]-off*dsz)*direction > 0] = 0
+
+	return res
+	*/
+	float x_min = -float(src.shape()[1]) * 0.5f;
+	float y_min = -float(src.shape()[0]) * 0.5f;
+	float a_x = std::sinf(split.angle), a_y = -std::cosf(split.angle);
+	float r_offset = x_min * a_x + y_min * a_y;
+	int f_dir = split.direction * direction;
+
+	for(int i = 0; i < src.shape()[0]; i++)
+		for (int j = 0; j < src.shape()[1]; j++)
+		{
+			float val = (i * a_y + j * a_x - split.offset + r_offset);
+			if (val * f_dir > 0)
+				src.at(i, j) = value;
+		}
 }

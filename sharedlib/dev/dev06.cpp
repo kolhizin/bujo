@@ -40,8 +40,11 @@ void dev06()
 	auto spltAngles = xt::concatenate(std::make_tuple(xt::linspace(-3.1415f * 0.5f, -0.5f, 30),
 		xt::linspace(0.5f, 3.1415f * 0.5f, 30)));
 	auto splt = bujo::splits::findBestVSplit(src4, spltAngles, 100, 15, 10.0f, 2.0f, 0.05f);
+
+	bujo::splits::updateRegion(src4, splt.desc, 0.0f, 1);
 	
-	std::cout << splt.direction << " " << splt.angle << " " << splt.offset;
+	std::cout << splt.desc.direction << " " << splt.desc.angle << " " << splt.desc.offset << "\n";
+	std::cout << splt.stats.volume_inside << " " << splt.stats.volume_before << " " << splt.stats.volume_after << "\n\n";
 	cv1 = bujo::util::xt2cv(src4, CV_8U);
 
 	auto t1 = std::chrono::system_clock::now();
