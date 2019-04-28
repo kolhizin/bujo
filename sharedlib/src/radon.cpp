@@ -168,11 +168,14 @@ float bujo::radon::findAngle(const xt::xtensor<float, 2>& src, const xt::xtensor
 	*/
 	if (xt::mean(xt::abs(src))[0] < 1e-3)
 		return 0.0f;
+	
 	auto rtransform = std::get<0>(radon(src, angles, num_offset, transformType));
-	auto stds = xt::stddev(rtransform, 1);
+	auto x1mean = xt::mean(rtransform, 1);
+	auto x2mean = xt::mean(xt::pow(rtransform, 2.0f), 1);
+	auto vars = x2mean - xt::pow(x1mean, 2.0f);
 	float max_angle = xt::amax(xt::abs(angles))[0];
 	auto regs0 = (reg_coef + max_angle - xt::abs(angles)) / (reg_coef + max_angle);
 	auto regs = xt::pow(regs0, reg_power);
-	int idx = xt::argmax(regs * stds)[0];
+	int idx = xt::argmax(regs * vars)[0];
 	return angles.at(idx);
 }

@@ -39,3 +39,14 @@ void plot_xmark(cv::Mat& img, float x, float y, float size)
 	cv::line(img, a0, a1, color);
 	cv::line(img, b0, b1, color);
 }
+
+void plot(cv::Mat& img, const bujo::curves::Curve& curve)
+{	
+	cv::Scalar color(255.0);
+	int num_segs = curve.len_param.size();
+	for (int i = 1; i < num_segs; i++)
+	{
+		cv::Point p1(curve.x_value[i - 1], curve.y_value[i - 1]), p2(curve.x_value[i], curve.y_value[i]);
+		cv::line(img, p1, p2, color);
+	}
+}

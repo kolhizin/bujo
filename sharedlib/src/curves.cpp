@@ -1,5 +1,6 @@
 #include "curves.h"
 #include "extremum.h"
+#include "radon.h"
 #include <xtensor/xview.hpp>
 #include <xtensor/xsort.hpp>
 
@@ -56,73 +57,128 @@ std::vector<std::tuple<unsigned, unsigned>> bujo::curves::selectSupportPoints(co
 	return res;
 }
 
-std::vector<std::tuple<float, float>> makeCurve1_(const xt::xtensor<float, 2>& src,)
-
-Curve bujo::curves::generateCurve(const xt::xtensor<float, 2>& src, CurveGenerationOptions options)
+/*
+Performs checks on arguments, creates specified views and returns result. Just fancy wrapper.
+*/
+float getLocalAngle_(const xt::xtensor<float, 2>& src, const xt::xtensor<float, 1>& angles, int i0, int i1, int j0, int j1,
+	const CurveGenerationOptions &options)
 {
-	return Curve();
+	int ri0 = std::max(0, std::min(i0, i1));
+	int ri1 = std::min(static_cast<int>(src.shape()[0]), std::max(i0, i1));
+
+	int rj0 = std::max(0, std::min(j0, j1));
+	int rj1 = std::min(static_cast<int>(src.shape()[0]), std::max(j0, j1));
+
+	return bujo::radon::findAngle(xt::view(src, xt::range(ri0, ri1), xt::range(rj0, rj1)),
+		angles, options.num_radon_offsets, bujo::radon::RT_RADON,
+		options.angle_regularization_coef, options.angle_regularization_power);
+}
+
+/*
+Calculates curve from starting position (i0, j0) with directed step. Each step is in direction of regularized local angle.
+
+Keyword arguments:
+	src -- source image
+	i0, j0 -- starting position
+	dir -- direction of search
+*/
+
+std::vector<std::tuple<int, int>> makeCurve1_(const xt::xtensor<float, 2>& src, int i0, int j0, int dir,
+	const CurveGenerationOptions& options)
+{
+	
+	int window_size_x = static_cast<int>(std::ceilf(src.shape()[1] * options.rel_window_size_x));
+	int window_size_y = static_cast<int>(std::ceilf(src.shape()[0] * options.rel_window_size_y));
+	int di_neg = window_size_y / 2;
+	int di_pos = window_size_y - di_neg;
+	int dj_neg = window_size_x / 2;
+	int dj_pos = window_size_x - dj_neg;
+
+	auto angles = xt::linspace(-options.max_angle, options.max_angle, options.num_radon_angles);
+	float step = dir * (options.rel_step_size * src.shape()[1]);
+	
+	std::vector<std::tuple<int, int>> res;
+	res.reserve(static_cast<size_t>(std::ceilf(1.5f / options.rel_step_size)));
+	res.emplace_back(i0, j0);
+	
+	while (1)
+	{
+		int ci = std::get<0>(res.back());
+		int cj = std::get<1>(res.back());
+		//step like Runge-Kutta, i.e. we take 0.5 step in local angle, calculate new angle and take full step in that direction
+		float angle0 = getLocalAngle_(src, angles, ci-di_neg, ci+di_pos, cj-dj_neg, cj+dj_pos, options);
+		float di0 = step * std::sinf(angle0) * 0.5f;
+		float dj0 = step * std::cosf(angle0) * 0.5f;
+		int ni0 = static_cast<int>(std::roundf(ci + di0));
+		int nj0 = static_cast<int>(std::roundf(cj + dj0));
+
+		float angle1 = getLocalAngle_(src, angles, ni0 - di_neg, ni0 + di_pos, nj0 - dj_neg, nj0 + dj_pos, options);
+		float di1 = step * std::sinf(angle1);
+		float dj1 = step * std::cosf(angle1);
+		int ni1 = static_cast<int>(std::roundf(ci + di1));
+		int nj1 = static_cast<int>(std::roundf(cj + dj1));
+		
+		if ((ni1 < 0) || (ni1 >= src.shape()[0]) || (nj1 < 0) || (nj1 >= src.shape()[1]))
+		{
+			int ri = std::max(0, std::min(static_cast<int>(src.shape()[0] - 1), ni1));
+			int rj = std::max(0, std::min(static_cast<int>(src.shape()[1] - 1), nj1));
+			float rdi = 1.0f, rdj = 1.0f;
+			
+			if (std::fabsf(di1) > 1e-5)
+				rdi = float(ri - ci) / di1;
+			if (std::fabsf(dj1) > 1e-5)
+				rdj = float(rj - cj) / dj1;
+
+			float rstep = std::min(rdi, rdj) * 0.9f;
+
+			ni1 = static_cast<int>(std::roundf(ci + di1 * rstep));
+			nj1 = static_cast<int>(std::roundf(cj + dj1 * rstep));
+			res.emplace_back(ni1, nj1);
+			break;
+		}
+		else
+			res.emplace_back(ni1, nj1);
+	}
+	return res;
+}
+
+std::vector<std::tuple<int, int>> makeCurve2_(const xt::xtensor<float, 2>& src, int i0, int j0,
+	const CurveGenerationOptions& options)
+{
+	auto crv_p = std::move(makeCurve1_(src, i0, j0, 1, options));
+	auto crv_n = std::move(makeCurve1_(src, i0, j0, -1, options));
+	int crv_neg_size = crv_n.size() - 1;
+	std::vector<std::tuple<int, int>> res(crv_p.size() + crv_neg_size);
+	for (int i = 0; i < crv_neg_size; i++)
+		res[i] = crv_n[crv_neg_size - i];
+	for (int i = 0; i < crv_p.size(); i++)
+		res[crv_neg_size + i] = crv_p[i];
+	return res;
 }
 
 
-/*
-
-def make_curve_1way(i0, j0, step, src, grid, angles, kernel_size, reg_coef, reg_power):
-	"""Calculates curve from starting position (i0, j0) with directed step. Each step is in direction of regularized local angle.
-
-	Keyword arguments:
-	i0, j0 -- starting position
-	step -- maximal step
-	src -- ndarray of source values
-	grid -- global grid
-	angles -- array with angles in radians
-	kernel_size -- size of region to determine local angle
-	reg_coef -- mean value in subregion will be normalized on this value, i.e. np.mean(subgrid)/reg_coef
-	reg_power -- np.power(np.mean(subgrid)/reg_coef, reg_power) -- full regularization term
-
-	Returns list of (i, j)-coordinates of curve
-	"""
-	isz = kernel_size[0]//2
-	jsz = kernel_size[1]//2
-	def calc_angle(i, j): #function to calculate local angle
-		r_i0 = max(0, i-isz)
-		r_i1 = min(src.shape[0], i+isz+1)
-		r_j0 = max(0, j-jsz)
-		r_j1 = min(src.shape[1], j+jsz+1)
-		return local_radon.find_local_angle(src, grid, angles, r_i0, r_i1, r_j0, r_j1, reg_coef, reg_power)
-
-	res = [(i0, j0)]
-	while True:
-		ci, cj = res[-1]
-		# step like Runge-Kutta, i.e. we take 0.5 step in local angle, calculate new angle and take full step in that direction
-		angle0 = calc_angle(ci, cj)
-		di = step * np.sin(-angle0) * 0.5
-		dj = step * np.cos(-angle0) * 0.5
-		angle = calc_angle(int(np.round(ci+di)), int(np.round(cj+dj)))
-		di = step * np.sin(-angle)
-		dj = step * np.cos(-angle)
-		ni = int(np.round(ci+di))
-		nj = int(np.round(cj+dj))
-
-		if ni < 0 or ni >= src.shape[0] or nj < 0 or nj >= src.shape[1]:
-			# renormalize when we hit border
-			ri = max(0, min(src.shape[0]-1, ni))
-			rj = max(0, min(src.shape[1]-1, nj))
-
-			rdi = 1.0
-			rdj = 1.0
-			if np.abs(di) > 1e-5:
-				rdi = (ri - ci) / di
-			if np.abs(dj) > 1e-5:
-				rdj = (rj - cj) / dj
-
-			rstep = min(rdi, rdj) * 0.9
-
-			ni = int(np.round(ci+di*rstep))
-			nj = int(np.round(cj+dj*rstep))
-			res.append((ni, nj))
-			break
-
-		res.append((ni, nj))
-	return res
-
-*/
+Curve bujo::curves::generateCurve(const xt::xtensor<float, 2>& src, int i0, int j0, const CurveGenerationOptions &options)
+{
+	auto crv0 = makeCurve2_(src, i0, j0, options);
+	float length = 0.0f;
+	Curve res;
+	res.len_param.resize({ crv0.size() });
+	res.x_value.resize({ crv0.size() });
+	res.y_value.resize({ crv0.size() });
+	
+	for (int i = 0; i < crv0.size(); i++)
+	{
+		res.y_value[i] = std::get<0>(crv0[i]);
+		res.x_value[i] = std::get<1>(crv0[i]);
+		if (i > 0)
+		{
+			float dx = res.x_value[i] - res.x_value[i - 1];
+			float dy = res.y_value[i] - res.y_value[i - 1];
+			float dl = std::sqrtf(dx * dx + dy * dy);
+			length += dl;
+		}
+		res.len_param[i] = length;
+	}
+	res.len_param /= length;
+	return res;
+}

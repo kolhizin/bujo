@@ -44,6 +44,10 @@ void dev08()
 	bujo::transform::setRegionsValue(src5, splits, 4.0f, 0.0f);
 	auto src6 = bujo::filters::filterLocalMax2DV(src5, textLineDelta, 1, textCutoff);
 	auto start_points = bujo::curves::selectSupportPoints(src6, 6, 0.5f, 0.5f);
+
+	bujo::curves::CurveGenerationOptions curveOptions;
+	auto curve0 = bujo::curves::generateCurve(src6,
+		std::get<0>(start_points[0]), std::get<1>(start_points[0]), curveOptions);
 	
 	cv1 = bujo::util::xt2cv(src6, CV_8U);
 	for (int i = 0; i < start_points.size(); i++)
@@ -51,6 +55,8 @@ void dev08()
 		plot_xmark(cv1, std::get<1>(start_points[i]), std::get<0>(start_points[i]), 3);
 	}
 	
+	plot(cv1, curve0);
+
 	auto t1 = std::chrono::system_clock::now();
 	std::cout << "Elapsed " << std::chrono::duration<float>(t1 - t0).count() << "s.\n\n";
 	std::cout << "Text angle is " << textAngle << " radians\n";
