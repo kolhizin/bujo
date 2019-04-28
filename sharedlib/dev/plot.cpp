@@ -21,3 +21,21 @@ void plot2d(cv::Mat& img, xt::xtensor<float, 2> xy)
 		plot2d(img, xt::view(xy, xt::all(), 0), xt::view(xy, xt::all(), 1));
 	else throw std::logic_error("plot2d(xy) expected 2xN or Nx2 matrix!");
 }
+
+void plot_aabb(cv::Mat& img, float x0, float x1, float y0, float y1)
+{
+	cv::Scalar color(255.0);
+	cv::line(img, cv::Point(x0, y0), cv::Point(x1, y0), color);
+	cv::line(img, cv::Point(x1, y0), cv::Point(x1, y1), color);
+	cv::line(img, cv::Point(x1, y1), cv::Point(x0, y1), color);
+	cv::line(img, cv::Point(x0, y1), cv::Point(x0, y0), color);
+}
+
+void plot_xmark(cv::Mat& img, float x, float y, float size)
+{
+	cv::Scalar color(255.0);
+	cv::Point a0(x - size, y - size), a1(x + size, y + size);
+	cv::Point b0(x + size, y - size), b1(x - size, y + size);
+	cv::line(img, a0, a1, color);
+	cv::line(img, b0, b1, color);
+}

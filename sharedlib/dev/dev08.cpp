@@ -12,6 +12,8 @@
 #include <src/util/utils.h>
 #include <src/transform.h>
 #include <src/filters.h>
+#include <src/extremum.h>
+#include <src/curves.h>
 #include "devutils.h"
 
 void dev08()
@@ -41,21 +43,14 @@ void dev08()
 	auto src5 = src2;
 	bujo::transform::setRegionsValue(src5, splits, 4.0f, 0.0f);
 	auto src6 = bujo::filters::filterLocalMax2DV(src5, textLineDelta, 1, textCutoff);
-
-
-	std::cout << "Num splits: " << splits.size() << "\nSplits description\n";
-	for (int i = 0; i < splits.size(); i++)
-	{
-		auto& splt = splits[i];
-		std::cout << i << ": " << splt.desc.direction << " " << splt.desc.angle << " " << splt.desc.offset << "\n";
-		std::cout << i << ": " << splt.stats.volume_inside << " " << splt.stats.volume_before << " " << splt.stats.volume_after << "\n\n";
-	}
-	std::cout << "Splits end\n\n";
-
+	auto start_points = bujo::curves::selectSupportPoints(src6, 6, 0.5f, 0.5f);
+	
 	cv1 = bujo::util::xt2cv(src6, CV_8U);
-
-	plot2d(cv1, { 0, 1, 200 }, { 0, 1, 200 });
-
+	for (int i = 0; i < start_points.size(); i++)
+	{
+		plot_xmark(cv1, std::get<1>(start_points[i]), std::get<0>(start_points[i]), 3);
+	}
+	
 	auto t1 = std::chrono::system_clock::now();
 	std::cout << "Elapsed " << std::chrono::duration<float>(t1 - t0).count() << "s.\n\n";
 	std::cout << "Text angle is " << textAngle << " radians\n";

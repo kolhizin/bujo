@@ -21,5 +21,7 @@ namespace bujo
 		std::vector<bujo::splits::RegionSplit> findVSplits(const xt::xtensor<float, 2>& src, float min_angle, unsigned num_angles,
 			float minimal_abs_split_intensity, float maximal_abs_intersection, float minimal_pct_split);
 		void setRegionsValue(xt::xtensor<float, 2>& src, std::vector<bujo::splits::RegionSplit> splits, float dsize, float value);
+
+
 	}
 }

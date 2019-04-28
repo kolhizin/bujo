@@ -1,5 +1,6 @@
 #include "radon.h"
 #include <exception>
+#include <xtensor/xsort.hpp>
 
 using namespace bujo::radon;
 
@@ -152,4 +153,26 @@ std::tuple<xt::xtensor<float, 2>, xt::xtensor<float, 1>> bujo::radon::radon(cons
 	//else if (transformType == TransformType::RT_HOUGH)
 	//	return impl_vanila_hough_(src, angles, num_offset);
 	else throw std::logic_error("Function radon() got unexpected transformType argument!");
+}
+
+float bujo::radon::findAngle(const xt::xtensor<float, 2>& src, const xt::xtensor<float, 1>& angles, unsigned num_offset, unsigned transformType,
+	float reg_coef, float reg_power)
+{
+	/*
+	if np.mean(src[i0:i1,j0:j1]) < 1e-3:
+		return 0
+	angs = calc_local_radon_angle(grid, src, i0, i1, j0, j1)
+	max_ang = np.max(np.abs(angles))
+	reg_mult = np.power((reg_coef + max_ang - np.abs(angles)) / (reg_coef + max_ang), reg_power)
+	return angles[np.argmax(angs * reg_mult)]
+	*/
+	if (xt::mean(xt::abs(src))[0] < 1e-3)
+		return 0.0f;
+	auto rtransform = std::get<0>(radon(src, angles, num_offset, transformType));
+	auto stds = xt::stddev(rtransform, 1);
+	float max_angle = xt::amax(xt::abs(angles))[0];
+	auto regs0 = (reg_coef + max_angle - xt::abs(angles)) / (reg_coef + max_angle);
+	auto regs = xt::pow(regs0, reg_power);
+	int idx = xt::argmax(regs * stds)[0];
+	return angles.at(idx);
 }

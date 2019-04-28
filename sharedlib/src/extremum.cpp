@@ -1,4 +1,5 @@
 #include "extremum.h"
+#include "util/quantiles.h"
 
 using namespace bujo::extremum;
 
@@ -66,6 +67,13 @@ std::vector<std::tuple<unsigned, unsigned>> bujo::extremum::getPositiveRanges(co
 			}
 		}
 	return res;
+}
+
+std::tuple<unsigned, unsigned> bujo::extremum::getSuperRangeQuantile(const xt::xtensor<float, 1>& src, float quantile)
+{
+	std::vector<float> buff(src.size());
+	float qres = bujo::util::calculateQuantile(src.cbegin(), src.cend(), quantile, &buff[0], buff.size());
+	return getPositiveSuperRange(src - qres);
 }
 
 std::vector<unsigned> bujo::extremum::getLocalMinimas(const xt::xtensor<float, 1>& src)
