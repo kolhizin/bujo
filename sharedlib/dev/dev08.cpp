@@ -45,24 +45,27 @@ void dev08()
 	auto src6 = bujo::filters::filterLocalMax2DV(src5, textLineDelta, 1, textCutoff);
 	auto start_points = bujo::curves::selectSupportPoints(src6, 6, 0.5f, 0.5f);
 
-	bujo::curves::CurveGenerationOptions curveOptions;
-	auto curve0 = bujo::curves::generateCurve(src6,
-		std::get<0>(start_points[0]), std::get<1>(start_points[0]), curveOptions);
 	
 	cv1 = bujo::util::xt2cv(src6, CV_8U);
 	for (int i = 0; i < start_points.size(); i++)
 	{
 		plot_xmark(cv1, std::get<1>(start_points[i]), std::get<0>(start_points[i]), 3);
+
+		bujo::curves::CurveGenerationOptions curveOptions;
+		curveOptions.rel_window_size_x = 0.15f;
+		curveOptions.rel_window_size_y = 0.15f;
+		curveOptions.rel_step_size = 0.05f;
+		auto curve0 = bujo::curves::generateCurve(src6,
+			std::get<0>(start_points[i]), std::get<1>(start_points[i]), curveOptions);
+		plot(cv1, curve0);
 	}
-	
-	plot(cv1, curve0);
 
 	auto t1 = std::chrono::system_clock::now();
 	std::cout << "Elapsed " << std::chrono::duration<float>(t1 - t0).count() << "s.\n\n";
 	std::cout << "Text angle is " << textAngle << " radians\n";
 	std::cout << "Text line delta is " << textLineDelta << " pixels\n";
 	std::cout << "Cutoff is " << textCutoff << "\n";
-	std::cout << src4.shape()[0] << " " << src4.shape()[1] << "\n";
+	std::cout << src6.shape()[0] << " " << src6.shape()[1] << "\n";
 
 	cv::namedWindow("Src", cv::WINDOW_AUTOSIZE);
 	cv::imshow("Src", cv1);
