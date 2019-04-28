@@ -12,6 +12,7 @@
 #include <src/util/utils.h>
 #include <src/transform.h>
 #include <src/filters.h>
+#include "devutils.h"
 
 void dev08()
 {
@@ -41,6 +42,7 @@ void dev08()
 	bujo::transform::setRegionsValue(src5, splits, 4.0f, 0.0f);
 	auto src6 = bujo::filters::filterLocalMax2DV(src5, textLineDelta, 1, textCutoff);
 
+
 	std::cout << "Num splits: " << splits.size() << "\nSplits description\n";
 	for (int i = 0; i < splits.size(); i++)
 	{
@@ -51,6 +53,8 @@ void dev08()
 	std::cout << "Splits end\n\n";
 
 	cv1 = bujo::util::xt2cv(src6, CV_8U);
+
+	plot2d(cv1, { 0, 1, 200 }, { 0, 1, 200 });
 
 	auto t1 = std::chrono::system_clock::now();
 	std::cout << "Elapsed " << std::chrono::duration<float>(t1 - t0).count() << "s.\n\n";
