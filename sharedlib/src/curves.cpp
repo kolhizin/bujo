@@ -183,6 +183,54 @@ Curve bujo::curves::generateCurve(const xt::xtensor<float, 2>& src, int i0, int 
 	return res;
 }
 
+struct RecursiveSegmentInfo
+{
+	int i0, i1, offset;
+	float integral_value;
+	RecursiveSegmentInfo* pLeft = nullptr;
+	RecursiveSegmentInfo* pRight = nullptr;
+};
+
+void clearRecursive_(RecursiveSegmentInfo* segInfo)
+{
+	if (!segInfo)
+		return;
+	clearRecursive_(segInfo->pLeft);
+	clearRecursive_(segInfo->pRight);
+	delete segInfo;
+}
+
+RecursiveSegmentInfo* buildRecursiveOffsets_(const xt::xtensor<float, 2>& arr2d, int i0, int i1, int offset, int min_window)
+{
+	float integral_value = xt::view(arr2d, -1, offset)[0] - xt::view(arr2d, 0, offset)[0];
+
+	RecursiveSegmentInfo* res = new RecursiveSegmentInfo;
+	res->i0 = i0;
+	res->i1 = i1;
+	res->integral_value = integral_value;
+	res->offset = offset;
+	res->pLeft = nullptr;
+	res->pRight = nullptr;
+
+	if ((arr2d.shape()[0] < min_window) || (integral_value <= 1e-7))
+		return res;
+
+	size_t midpoint = arr2d.shape()[0] / 2;
+	auto arr_l = xt::view(arr2d, midpoint, xt::all()) - xt::view(arr2d, 0, xt::all());
+	auto arr_r = xt::view(arr2d, -1, xt::all()) - xt::view(arr2d, midpoint, xt::all());
+	/*
+	midpoint = arr2d.shape[0] // 2
+	arr_l = arr2d[midpoint,:] - arr2d[0,:]
+	arr_r = arr2d[-1,:] - arr2d[midpoint,:]
+	off_l = find_local_maximum_by_ascend(arr_l, offset)
+	off_r = find_local_maximum_by_ascend(arr_r, offset)
+	return (i0, i1, offset, integral_value,
+			calc_recursive_offsets_by_midpoint(arr2d[:midpoint], i0, i0+midpoint, off_l, min_window),
+			calc_recursive_offsets_by_midpoint(arr2d[midpoint:], i0+midpoint, i1, off_r, min_window))
+
+	*/
+}
+
 Curve bujo::curves::optimizeCurve(const xt::xtensor<float, 2>& src, const Curve& curve, int max_offset_y, int max_window_x)
 {
 	int num_offsets = max_offset_y * 2 + 1;

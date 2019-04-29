@@ -139,3 +139,71 @@ std::vector<unsigned> bujo::extremum::getLocalMaximas(const xt::xtensor<float, 1
 
 	return ids;
 }
+
+unsigned bujo::extremum::findLocalMaximaByGradient(const xt::xtensor<float, 1>& src, unsigned i0, bool strictExtremum)
+{
+	int i = std::max(0, std::min(static_cast<int>(src.size()) - 1, static_cast<int>(i0)));
+	int iprev = i;
+	while (1)
+	{
+		float dpos = (i >= src.size() - 1 ? -1.0f : src[i + 1] - src[i]);
+		float dneg = (i <= 0 ? -1.0f : src[i - 1] - src[i]);
+		if ((dpos < 0.0f) && (dneg < 0.0f))
+			return static_cast<unsigned>(i);
+		if (dpos > dneg)
+		{
+			iprev = i;
+			i++;
+			continue;
+		}
+		if (dpos < dneg)
+		{
+			iprev = i;
+			i--;
+			continue;
+		}
+		if (!strictExtremum)
+			return static_cast<unsigned>(i);
+		int di = i - iprev;
+		iprev = i;
+		if (di == 0)
+			i += 1;
+		else
+			i += di;
+	}
+	return 0;
+}
+
+unsigned bujo::extremum::findLocalMinimaByGradient(const xt::xtensor<float, 1>& src, unsigned i0, bool strictExtremum)
+{
+	int i = std::max(0, std::min(static_cast<int>(src.size()) - 1, static_cast<int>(i0)));
+	int iprev = i;
+	while (1)
+	{
+		float dpos = (i >= src.size() - 1 ? 1.0f : src[i + 1] - src[i]);
+		float dneg = (i <= 0 ? 1.0f : src[i - 1] - src[i]);
+		if ((dpos > 0.0f) && (dneg > 0.0f))
+			return static_cast<unsigned>(i);
+		if (dpos < dneg)
+		{
+			iprev = i;
+			i++;
+			continue;
+		}
+		if (dpos > dneg)
+		{
+			iprev = i;
+			i--;
+			continue;
+		}
+		if (!strictExtremum)
+			return static_cast<unsigned>(i);
+		int di = i - iprev;
+		iprev = i;
+		if (di == 0)
+			i += 1;
+		else
+			i += di;
+	}
+	return 0;
+}
