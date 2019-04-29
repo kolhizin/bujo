@@ -170,16 +170,8 @@ Curve bujo::curves::generateCurve(const xt::xtensor<float, 2>& src, int i0, int 
 	{
 		res.y_value[i] = std::get<0>(crv0[i]);
 		res.x_value[i] = std::get<1>(crv0[i]);
-		if (i > 0)
-		{
-			float dx = res.x_value[i] - res.x_value[i - 1];
-			float dy = res.y_value[i] - res.y_value[i - 1];
-			float dl = std::sqrtf(dx * dx + dy * dy);
-			length += dl;
-		}
-		res.len_param[i] = length;
 	}
-	res.len_param /= length;
+	res.calculateLenParametrization();
 	return res;
 }
 
@@ -187,30 +179,19 @@ struct RecursiveSegmentInfo
 {
 	int i0, i1, offset;
 	float integral_value;
-	RecursiveSegmentInfo* pLeft = nullptr;
-	RecursiveSegmentInfo* pRight = nullptr;
+	std::unique_ptr<RecursiveSegmentInfo> pLeft;
+	std::unique_ptr<RecursiveSegmentInfo> pRight;
 };
 
-void clearRecursive_(RecursiveSegmentInfo* segInfo)
-{
-	if (!segInfo)
-		return;
-	clearRecursive_(segInfo->pLeft);
-	clearRecursive_(segInfo->pRight);
-	delete segInfo;
-}
-
-RecursiveSegmentInfo* buildRecursiveOffsets_(const xt::xtensor<float, 2>& arr2d, int i0, int i1, int offset, int min_window)
+std::unique_ptr<RecursiveSegmentInfo> buildRecursiveOffsets_(const xt::xtensor<float, 2>& arr2d, int i0, int i1, int offset, int min_window)
 {
 	float integral_value = xt::view(arr2d, -1, offset)[0] - xt::view(arr2d, 0, offset)[0];
 
-	RecursiveSegmentInfo* res = new RecursiveSegmentInfo;
+	std::unique_ptr<RecursiveSegmentInfo> res(new RecursiveSegmentInfo);
 	res->i0 = i0;
 	res->i1 = i1;
 	res->integral_value = integral_value;
 	res->offset = offset;
-	res->pLeft = nullptr;
-	res->pRight = nullptr;
 
 	if ((arr2d.shape()[0] < min_window) || (integral_value <= 1e-7))
 		return res;
@@ -218,17 +199,28 @@ RecursiveSegmentInfo* buildRecursiveOffsets_(const xt::xtensor<float, 2>& arr2d,
 	size_t midpoint = arr2d.shape()[0] / 2;
 	auto arr_l = xt::view(arr2d, midpoint, xt::all()) - xt::view(arr2d, 0, xt::all());
 	auto arr_r = xt::view(arr2d, -1, xt::all()) - xt::view(arr2d, midpoint, xt::all());
-	/*
-	midpoint = arr2d.shape[0] // 2
-	arr_l = arr2d[midpoint,:] - arr2d[0,:]
-	arr_r = arr2d[-1,:] - arr2d[midpoint,:]
-	off_l = find_local_maximum_by_ascend(arr_l, offset)
-	off_r = find_local_maximum_by_ascend(arr_r, offset)
-	return (i0, i1, offset, integral_value,
-			calc_recursive_offsets_by_midpoint(arr2d[:midpoint], i0, i0+midpoint, off_l, min_window),
-			calc_recursive_offsets_by_midpoint(arr2d[midpoint:], i0+midpoint, i1, off_r, min_window))
+	int off_l = bujo::extremum::findLocalMaximaByGradient(arr_l, offset, false);
+	int off_r = bujo::extremum::findLocalMaximaByGradient(arr_r, offset, false);
+	res->pLeft = buildRecursiveOffsets_(xt::view(arr2d, xt::range(xt::placeholders::_, midpoint), xt::all()),
+		i0, i0 + midpoint, off_l, min_window);
+	res->pRight = buildRecursiveOffsets_(xt::view(arr2d, xt::range(midpoint, xt::placeholders::_), xt::all()),
+		i0 + midpoint, i1, off_r, min_window);
+	return res;
+}
 
-	*/
+void dumpRecursiveOffsetsLinear_(const std::unique_ptr<RecursiveSegmentInfo> &ptr, std::vector<std::tuple<float, float>>& res)
+{
+	if (!ptr)
+		return;
+	if ((!ptr->pLeft) && (!ptr->pRight))
+	{
+		res.emplace_back(static_cast<float>(ptr->i0 + ptr->i1) * 0.5f, static_cast<float>(ptr->offset));
+		return;
+	}
+	if ((!ptr->pLeft) || (!ptr->pRight))
+		throw std::runtime_error("dumpRecursiveOffsetsLinear_() incorrect combination of left & right pointers!");
+	dumpRecursiveOffsetsLinear_(ptr->pLeft, res);
+	dumpRecursiveOffsetsLinear_(ptr->pRight, res);
 }
 
 Curve bujo::curves::optimizeCurve(const xt::xtensor<float, 2>& src, const Curve& curve, int max_offset_y, int max_window_x)
@@ -240,9 +232,35 @@ Curve bujo::curves::optimizeCurve(const xt::xtensor<float, 2>& src, const Curve&
 		offsets[i] = i - max_offset_y;
 
 	xt::xtensor<float, 2> cumulativeIntegral = integral::calcAccumIntegralOverCurve(src, curve, offsets);
-	
-	Curve res;
 
+	std::vector<std::tuple<float, float>> midpoints;
+	midpoints.reserve(cumulativeIntegral.shape()[0] / max_window_x);
+	auto recOffsets = buildRecursiveOffsets_(cumulativeIntegral, 0, cumulativeIntegral.shape()[0], 0, max_window_x);
+	dumpRecursiveOffsetsLinear_(recOffsets, midpoints);
+	recOffsets.reset();
+
+	xt::xtensor<float, 1> vX, vY;
+	vX.resize({ midpoints.size() + 2 });
+	vY.resize({ midpoints.size() + 2 });
+	vX[0] = 0.0f;
+	vY[0] = std::get<1>(midpoints[0]);
+	for (int i = 0; i < midpoints.size(); i++)
+	{
+		vX[i + 1] = std::get<0>(midpoints[i]);
+		vY[i + 1] = std::get<1>(midpoints[i]);
+	}
+	vX[vX.size() - 1] = cumulativeIntegral.shape()[0];
+	vY[vY.size() - 1] = std::get<1>(midpoints.back());
+
+	auto denseCurve = interpolate::getDenseXY(curve);
+	const auto& denseX = std::get<0>(denseCurve);
+	auto denseOffsets = xt::interp(denseX - xt::amin(denseX)[0], vX, vY);
+
+	Curve res;
+	res.x_value = denseX;
+	res.y_value = std::get<1>(denseCurve) + denseOffsets;
+	res.len_param.resize({ res.x_value.size() });
+	res.calculateLenParametrization();
 	return res;
 }
 
@@ -322,3 +340,20 @@ std::tuple<xt::xtensor<float, 1>, xt::xtensor<float, 1>> bujo::curves::interpola
 
 	return std::make_tuple(std::move(resX), std::move(resY));
 }
+
+void bujo::curves::Curve::calculateLenParametrization()
+{
+	float length = 0.0f;
+	for (int i = 0; i < x_value.size(); i++)
+	{
+		if (i > 0)
+		{
+			float dx = x_value[i] - x_value[i - 1];
+			float dy = y_value[i] - y_value[i - 1];
+			float dl = std::sqrtf(dx * dx + dy * dy);
+			length += dl;
+		}
+		len_param[i] = length;
+	}
+}
+

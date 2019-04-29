@@ -15,6 +15,7 @@ namespace bujo
 			{
 				return (len_param.size() == x_value.size()) && (len_param.size() == y_value.size());
 			}
+			void calculateLenParametrization();
 		};
 
 		namespace interpolate
