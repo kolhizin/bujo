@@ -186,14 +186,13 @@ Curve bujo::curves::generateCurve(const xt::xtensor<float, 2>& src, int i0, int 
 Curve bujo::curves::optimizeCurve(const xt::xtensor<float, 2>& src, const Curve& curve, int max_offset_y, int max_window_x)
 {
 	int num_offsets = max_offset_y * 2 + 1;
-	xt::xtensor<float, 2> cumulativeIntegral({ src.shape()[1], num_offsets });
-	
+	xt::xtensor<float, 1> offsets;
+	offsets.resize({ static_cast<size_t>(num_offsets) });
 	for (int i = 0; i < num_offsets; i++)
-	{
-		int real_i = i - max_offset_y;
-		xt::view(cumulativeIntegral, xt::all(), i) = calcCumulativeIntegralWithOffset_();
-	}
+		offsets[i] = i - max_offset_y;
 
+	xt::xtensor<float, 2> cumulativeIntegral = integral::calcAccumIntegralOverCurve(src, curve, offsets);
+	
 	Curve res;
 
 	return res;
@@ -267,7 +266,7 @@ std::tuple<xt::xtensor<float, 1>, xt::xtensor<float, 1>> bujo::curves::interpola
 	int numPoints = jMax - jMin + 1;
 
 	xt::xtensor<float, 1> resX;
-	resX.resize(numPoints);
+	resX.resize({ static_cast<size_t>(numPoints) });
 	for (int j = 0; j < numPoints; j++)
 		resX[j] = jMin + j;
 

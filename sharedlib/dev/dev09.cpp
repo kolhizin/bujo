@@ -48,7 +48,7 @@ void dev09()
 	auto start_points = bujo::curves::selectSupportPoints(src6, 6, 0.5f, 0.5f);
 	supportCurves.reserve(start_points.size());
 	std::transform(start_points.cbegin(), start_points.cend(), std::back_inserter(supportCurves),
-		[&src6](const auto & v)
+		[&src6, &textLineDelta](const auto & v)
 		{ return bujo::curves::optimizeCurve(src6,
 			bujo::curves::generateCurve(src6, std::get<0>(v), std::get<1>(v), bujo::curves::CurveGenerationOptions()),
 			textLineDelta, 20); });
