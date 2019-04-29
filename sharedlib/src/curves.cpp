@@ -182,3 +182,96 @@ Curve bujo::curves::generateCurve(const xt::xtensor<float, 2>& src, int i0, int 
 	res.len_param /= length;
 	return res;
 }
+
+Curve bujo::curves::optimizeCurve(const xt::xtensor<float, 2>& src, const Curve& curve, int max_offset_y, int max_window_x)
+{
+	int num_offsets = max_offset_y * 2 + 1;
+	xt::xtensor<float, 2> cumulativeIntegral({ src.shape()[1], num_offsets });
+	
+	for (int i = 0; i < num_offsets; i++)
+	{
+		int real_i = i - max_offset_y;
+		xt::view(cumulativeIntegral, xt::all(), i) = calcCumulativeIntegralWithOffset_();
+	}
+
+	Curve res;
+
+	return res;
+}
+
+float bujo::curves::integral::calcIntegralOverCurve(const xt::xtensor<float, 2>& src, const Curve& curve, float offset)
+{
+	xt::xtensor<float, 1> off_tensor;
+	off_tensor.resize({ 1 });
+	off_tensor[0] = offset;
+	return integral::calcIntegralOverCurve(src, curve, off_tensor)[0];
+}
+
+xt::xtensor<float, 1> bujo::curves::integral::calcIntegralOverCurve(const xt::xtensor<float, 2>& src, const Curve& curve, const xt::xtensor<float, 1>& offsets)
+{
+	xt::xtensor<float, 1> res;
+	res.resize({ offsets.size() });
+	auto xyLocs = interpolate::getDenseXY(curve);
+	const auto& xLocs = std::get<0>(xyLocs);
+	const auto& yLocs = std::get<1>(xyLocs);
+	for (int i = 0; i < offsets.size(); i++)
+	{
+		float val = 0.0f;
+		for (int j = 0; j < xLocs.size(); j++)
+		{
+			int real_j = static_cast<int>(std::roundf(xLocs[j]));
+			int real_i = static_cast<int>(std::roundf(yLocs[j] + offsets[i]));
+			val += src.at(real_i, real_j);
+		}
+		res[i] = val;
+	}
+	return std::move(res);
+}
+
+xt::xtensor<float, 1> bujo::curves::integral::calcAccumIntegralOverCurve(const xt::xtensor<float, 2>& src, const Curve& curve, float offset)
+{
+	xt::xtensor<float, 1> off_tensor;
+	off_tensor.resize({ 1 });
+	off_tensor[0] = offset;
+	return xt::view(integral::calcAccumIntegralOverCurve(src, curve, off_tensor), xt::all(), 0);
+}
+
+xt::xtensor<float, 2> bujo::curves::integral::calcAccumIntegralOverCurve(const xt::xtensor<float, 2>& src, const Curve& curve, const xt::xtensor<float, 1>& offsets)
+{
+	auto xyLocs = interpolate::getDenseXY(curve);
+	const auto& xLocs = std::get<0>(xyLocs);
+	const auto& yLocs = std::get<1>(xyLocs);
+
+	xt::xtensor<float, 2> res({ xLocs.size(), offsets.size() });
+	
+	for (int i = 0; i < offsets.size(); i++)
+	{
+		float val = 0.0f;
+		for (int j = 0; j < xLocs.size(); j++)
+		{
+			int real_j = static_cast<int>(std::roundf(xLocs[j]));
+			int real_i = static_cast<int>(std::roundf(yLocs[j] + offsets[i]));
+			val += src.at(real_i, real_j);
+			res.at(j, i) = val;
+		}
+	}
+	return std::move(res);
+}
+
+
+std::tuple<xt::xtensor<float, 1>, xt::xtensor<float, 1>> bujo::curves::interpolate::getDenseXY(const Curve& curve)
+{
+	float xMin = xt::amin(curve.x_value)[0], xMax = xt::amax(curve.x_value)[0];
+	int jMin = static_cast<int>(std::floorf(xMin));
+	int jMax = static_cast<int>(std::ceilf(xMax));
+	int numPoints = jMax - jMin + 1;
+
+	xt::xtensor<float, 1> resX;
+	resX.resize(numPoints);
+	for (int j = 0; j < numPoints; j++)
+		resX[j] = jMin + j;
+
+	xt::xtensor<float, 1> resY = xt::interp(resX, curve.x_value, curve.y_value);
+
+	return std::make_tuple(std::move(resX), std::move(resY));
+}
