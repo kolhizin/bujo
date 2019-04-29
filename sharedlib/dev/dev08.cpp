@@ -43,24 +43,26 @@ void dev08()
 	auto src5 = src2;
 	bujo::transform::setRegionsValue(src5, splits, 4.0f, 0.0f);
 	auto src6 = bujo::filters::filterLocalMax2DV(src5, textLineDelta, 1, textCutoff);
-	auto start_points = bujo::curves::selectSupportPoints(src6, 6, 0.5f, 0.5f);
 
+	std::vector<bujo::curves::Curve> supportCurves;
+	bujo::curves::CurveGenerationOptions curveOptions;
+	curveOptions.rel_window_size_x = 0.15f;
+	curveOptions.rel_window_size_y = 0.15f;
+	curveOptions.rel_step_size = 0.05f;
+	
+	auto start_points = bujo::curves::selectSupportPoints(src6, 6, 0.5f, 0.5f);
+	supportCurves.reserve(start_points.size());
+	std::transform(start_points.cbegin(), start_points.cend(), std::back_inserter(supportCurves),
+		[&curveOptions, &src6](const auto & v)
+		{ return bujo::curves::generateCurve(src6, std::get<0>(v), std::get<1>(v), curveOptions); });
+	
+	auto t1 = std::chrono::system_clock::now();
 	
 	cv1 = bujo::util::xt2cv(src6, CV_8U);
-	for (int i = 0; i < start_points.size(); i++)
-	{
-		plot_xmark(cv1, std::get<1>(start_points[i]), std::get<0>(start_points[i]), 3);
+	for (int i = 0; i < supportCurves.size(); i++)
+		plot(cv1, supportCurves[i]);
 
-		bujo::curves::CurveGenerationOptions curveOptions;
-		curveOptions.rel_window_size_x = 0.15f;
-		curveOptions.rel_window_size_y = 0.15f;
-		curveOptions.rel_step_size = 0.05f;
-		auto curve0 = bujo::curves::generateCurve(src6,
-			std::get<0>(start_points[i]), std::get<1>(start_points[i]), curveOptions);
-		plot(cv1, curve0);
-	}
-
-	auto t1 = std::chrono::system_clock::now();
+	
 	std::cout << "Elapsed " << std::chrono::duration<float>(t1 - t0).count() << "s.\n\n";
 	std::cout << "Text angle is " << textAngle << " radians\n";
 	std::cout << "Text line delta is " << textLineDelta << " pixels\n";
