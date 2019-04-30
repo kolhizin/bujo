@@ -178,19 +178,15 @@ Curve bujo::curves::generateCurve(const xt::xtensor<float, 2>& src, int i0, int 
 struct RecursiveSegmentInfo
 {
 	int i0, i1, offset;
-	float integral_value;
 	std::unique_ptr<RecursiveSegmentInfo> pLeft;
 	std::unique_ptr<RecursiveSegmentInfo> pRight;
 };
 
 std::unique_ptr<RecursiveSegmentInfo> buildRecursiveOffsets_(const xt::xtensor<float, 2>& arr2d, int i0, int i1, int offset, int min_window, float reg_coef)
 {
-	float integral_value = arr2d.at(arr2d.shape()[0]-1, offset) - arr2d.at(0, offset);
-
 	std::unique_ptr<RecursiveSegmentInfo> res(new RecursiveSegmentInfo);
 	res->i0 = i0;
 	res->i1 = i1;
-	res->integral_value = integral_value;
 	res->offset = offset;
 
 	if (arr2d.shape()[0] < min_window)
@@ -206,9 +202,9 @@ std::unique_ptr<RecursiveSegmentInfo> buildRecursiveOffsets_(const xt::xtensor<f
 	int off_l = bujo::extremum::findLocalMaximaByGradient(arr_l + reg_1, offset, true);
 	int off_r = bujo::extremum::findLocalMaximaByGradient(arr_r + reg_1, offset, true);
 	res->pLeft = buildRecursiveOffsets_(xt::view(arr2d, xt::range(xt::placeholders::_, midpoint), xt::all()),
-		i0, i0 + midpoint, off_l, min_window);
+		i0, i0 + midpoint, off_l, min_window, reg_coef);
 	res->pRight = buildRecursiveOffsets_(xt::view(arr2d, xt::range(midpoint, xt::placeholders::_), xt::all()),
-		i0 + midpoint, i1, off_r, min_window);
+		i0 + midpoint, i1, off_r, min_window, reg_coef);
 	return res;
 }
 
@@ -264,6 +260,28 @@ Curve bujo::curves::optimizeCurve(const xt::xtensor<float, 2>& src, const Curve&
 	res.x_value = denseX;
 	res.y_value = std::get<1>(denseCurve) + denseOffsets;
 	res.len_param.resize({ res.x_value.size() });
+	res.calculateLenParametrization();
+	return res;
+}
+
+Curve bujo::curves::reparamByLength(const Curve& curve, unsigned numPoints)
+{
+	Curve res;
+	auto l_param = xt::linspace<float>(0, curve.len_param.at(curve.len_param.size()-1), numPoints);
+	res.x_value = xt::interp(l_param, curve.len_param, curve.x_value);
+	res.y_value = xt::interp(l_param, curve.len_param, curve.y_value);
+	res.calculateLenParametrization();
+	return res;
+}
+
+Curve bujo::curves::reparamByX(const Curve& curve, unsigned numPoints)
+{
+	Curve res;
+	float xmin = xt::amin(curve.x_value)[0];
+	float xmax = xt::amax(curve.x_value)[0];
+	auto x_param = xt::linspace<float>(xmin, xmax, numPoints);
+	res.x_value = x_param;
+	res.y_value = xt::interp(x_param, curve.x_value, curve.y_value);
 	res.calculateLenParametrization();
 	return res;
 }
@@ -348,6 +366,7 @@ std::tuple<xt::xtensor<float, 1>, xt::xtensor<float, 1>> bujo::curves::interpola
 void bujo::curves::Curve::calculateLenParametrization()
 {
 	float length = 0.0f;
+	len_param.resize({ x_value.size() });
 	for (int i = 0; i < x_value.size(); i++)
 	{
 		if (i > 0)

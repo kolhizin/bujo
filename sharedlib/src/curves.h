@@ -49,6 +49,7 @@ namespace bujo
 
 		Curve generateCurve(const xt::xtensor<float, 2>& src, int i0, int j0, const CurveGenerationOptions& options);
 		Curve optimizeCurve(const xt::xtensor<float, 2>& src, const Curve& curve, int max_offset_y, int max_window_x, float reg_coef);
-		//Curve rep
+		Curve reparamByLength(const Curve& curve, unsigned numPoints);
+		Curve reparamByX(const Curve& curve, unsigned numPoints);
 	}
 }

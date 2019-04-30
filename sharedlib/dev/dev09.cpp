@@ -47,11 +47,12 @@ void dev09()
 	std::vector<bujo::curves::Curve> supportCurves;
 	auto start_points = bujo::curves::selectSupportPoints(src6, 6, 0.5f, 0.5f);
 	supportCurves.reserve(start_points.size());
+	
 	std::transform(start_points.cbegin(), start_points.cend(), std::back_inserter(supportCurves),
 		[&src6, &textLineDelta](const auto & v)
-		{ return bujo::curves::optimizeCurve(src6,
+		{ return bujo::curves::reparamByLength(bujo::curves::optimizeCurve(src6,
 			bujo::curves::generateCurve(src6, std::get<0>(v), std::get<1>(v), bujo::curves::CurveGenerationOptions()),
-			textLineDelta, 50); });
+			textLineDelta, 50, 1000.1f), 40); });
 
 	auto t1 = std::chrono::system_clock::now();
 
