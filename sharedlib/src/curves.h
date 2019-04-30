@@ -47,8 +47,11 @@ namespace bujo
 		std::vector<std::tuple<unsigned, unsigned>> selectSupportPoints(const xt::xtensor<float, 2>& src,
 			unsigned num_points, float quantile_v, float quantile_h);
 
+		xt::xtensor<float, 2> extractCurveRegion(const xt::xtensor<float, 2>& src, const Curve& curve, unsigned dNeg, unsigned dPos);
+
 		Curve generateCurve(const xt::xtensor<float, 2>& src, int i0, int j0, const CurveGenerationOptions& options);
 		Curve optimizeCurve(const xt::xtensor<float, 2>& src, const Curve& curve, int max_offset_y, int max_window_x, float reg_coef);
+		//Curve optimizeCurve2(const xt::xtensor<float, 2>& src, const Curve& curve, int max_offset_y, int max_window_x, float reg_coef);
 		Curve reparamByLength(const Curve& curve, unsigned numPoints);
 		Curve reparamByX(const Curve& curve, unsigned numPoints);
 	}

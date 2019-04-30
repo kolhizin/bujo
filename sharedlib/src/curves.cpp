@@ -57,6 +57,20 @@ std::vector<std::tuple<unsigned, unsigned>> bujo::curves::selectSupportPoints(co
 	return res;
 }
 
+xt::xtensor<float, 2> bujo::curves::extractCurveRegion(const xt::xtensor<float, 2>& src, const Curve& curve, unsigned dNeg, unsigned dPos)
+{
+	unsigned num_y = dPos + dNeg + 1;
+	int min_x = static_cast<int>(std::floorf(xt::amin(curve.x_value)[0]));
+	int max_x = static_cast<int>(std::ceilf(xt::amax(curve.x_value)[0]));
+	xt::xtensor<float, 2> res({ num_y, max_x - min_x});
+
+	xt::xtensor<float, 1> yvals = xt::interp(xt::arange<float>(max_x - min_x) + min_x, curve.x_value, curve.y_value);
+	for(int i = 0; i < num_y; i++)
+		for (int j = 0; j < max_x - min_x; j++)
+			res.at(i, j) = src.at(yvals[j] + i - dNeg, j + min_x);
+	return res;
+}
+
 /*
 Performs checks on arguments, creates specified views and returns result. Just fancy wrapper.
 */
@@ -264,6 +278,106 @@ Curve bujo::curves::optimizeCurve(const xt::xtensor<float, 2>& src, const Curve&
 	return res;
 }
 
+float calcIntegralOverLine_(const xt::xtensor<float, 2>& arr2d, xt::xtensor<float, 1> xVals, xt::xtensor<float, 1> yVals)
+{
+	int min_x = static_cast<int>(std::floorf(xt::amin(xVals)[0]));
+	int max_x = static_cast<int>(std::ceilf(xt::amax(xVals)[0]));
+	xt::xtensor<float, 1> xs = xt::arange<float>(min_x, max_x + 1);
+	xt::xtensor<float, 1> ys = xt::interp(xs, xVals, yVals);
+	float res = 0.0f;
+	for (int i = 0; i < xs.size(); i++)
+	{
+		int i0 = static_cast<int>(std::floor(ys[i]));
+		float frac = ys[i] - i0;
+		int i1 = i0 + 1;
+
+		i0 = std::max(0, std::min(static_cast<int>(arr2d.shape()[0] - 1), i0));
+		i1 = std::max(0, std::min(static_cast<int>(arr2d.shape()[0] - 1), i1));
+		if (j + min_x >= arr2d.shape()[1])
+			continue;
+		float v0 = arr2d.at(i0, j + min_x);
+		float v1 = arr2d.at(i1, j + min_x);
+		res += v0 * (1 - frac) + v1 * frac;
+	}
+	return res;
+}
+
+xt::xtensor<float, 1> calcOffsetIntegrals_(const xt::xtensor<float, 2>& arr2d, xt::xtensor<float, 1> xVals, xt::xtensor<float, 1> yVals, float xNew)
+{
+	xt::xtensor<float, 1> res;
+	res.resize({arr2d.shape()[0]});
+	xt::xtensor<float, 1> xV, yV;
+	xV.resize({ xVals.size() + 1 });
+	yV.resize({ yVals.size() + 1 });
+	int jn = 0, chng_id=0;
+	for (int j = 0; j < xVals.size(); j++, jn++)
+	{
+		if ((xNew < xVals[j]) && (j == jn))
+		{
+			chng_id = jn;
+			xV[jn] = xNew;
+			yV[jn] = 0.0f;
+			jn++;
+		}
+		xV[jn] = xV[j];
+		yV[jn] = yV[j];
+	}
+	if (xVals.size() == jn)
+	{
+		chng_id = jn;
+		xV[jn] = xNew;
+		yV[jn] = 0.0f;
+	}
+	for (int i = 0; i < res.size(); i++)
+	{
+		yV[chng_id] = i;
+		res[i] = calcIntegralOverLine_(arr2d, xV, yV);
+	}
+	return res;
+}
+
+xt::xtensor<float, 2> calcBorderIntegrals_(const xt::xtensor<float, 2>& arr2d)
+{
+	xt::xtensor<float, 2> res({ arr2d.shape()[0], arr2d.shape()[0] });
+	xt::xtensor<float, 1> xV({ 0.0f, static_cast<float>(arr2d.shape()[1] - 1) });
+	xt::xtensor<float, 1> yV({ 0.0f, 0.0f });
+	for(int i = 0; i < arr2d.shape()[0]; i++)
+		for (int j = 0; j < arr2d.shape()[0]; j++)
+		{
+			yV[0] = i;
+			yV[1] = j;
+			res.at(i, j) = calcIntegralOverLine_(arr2d, xV, yV);
+		}
+	return res;
+}
+
+xt::xtensor<float, 1> findLineStart_(const xt::xtensor<float, 2>& arr2d, float reg_coef)
+{
+	int offset = arr2d.shape()[0] / 2;
+	xt::xtensor<float, 2> vals = calcBorderIntegrals_(arr2d);
+	for(int i = 0; i < vals.shape()[0]; i++)
+		for (int j = 0; j < vals.shape()[1]; j++)
+		{
+			int rx = i - offset;
+			int ry = j - offset;
+			int r = std::abs(rx + ry);
+			vals.at(i, j) += reg_coef * r;
+		}
+	return xt::cast<float>(xt::argmax(vals));
+}
+/*
+Curve bujo::curves::optimizeCurve2(const xt::xtensor<float, 2>& src, const Curve& curve, int max_offset_y, int max_window_x, float reg_coef)
+{
+	auto offData = extractCurveRegion(src, curve, max_offset_y, max_offset_y);
+	xt::xtensor<float, 1> xVals({ 0.0f, static_cast<float>(offData.shape()[1] - 1) });
+	auto yVals = findLineStart_(offData, 1.0f);
+	while (xVals[1] - xVals[0] > max_window_x)
+	{
+		for(int i = 0; i < )
+	}
+	return Curve();
+}
+*/
 Curve bujo::curves::reparamByLength(const Curve& curve, unsigned numPoints)
 {
 	Curve res;
