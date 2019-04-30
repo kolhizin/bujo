@@ -51,7 +51,7 @@ void dev09()
 		[&src6, &textLineDelta](const auto & v)
 		{ return bujo::curves::optimizeCurve(src6,
 			bujo::curves::generateCurve(src6, std::get<0>(v), std::get<1>(v), bujo::curves::CurveGenerationOptions()),
-			textLineDelta, 20); });
+			textLineDelta, 50); });
 
 	auto t1 = std::chrono::system_clock::now();
 

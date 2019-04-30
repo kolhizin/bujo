@@ -48,6 +48,7 @@ namespace bujo
 			unsigned num_points, float quantile_v, float quantile_h);
 
 		Curve generateCurve(const xt::xtensor<float, 2>& src, int i0, int j0, const CurveGenerationOptions& options);
-		Curve optimizeCurve(const xt::xtensor<float, 2>& src, const Curve& curve, int max_offset_y, int max_window_x);
+		Curve optimizeCurve(const xt::xtensor<float, 2>& src, const Curve& curve, int max_offset_y, int max_window_x, float reg_coef);
+		//Curve rep
 	}
 }
