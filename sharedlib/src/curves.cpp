@@ -185,7 +185,7 @@ struct RecursiveSegmentInfo
 
 std::unique_ptr<RecursiveSegmentInfo> buildRecursiveOffsets_(const xt::xtensor<float, 2>& arr2d, int i0, int i1, int offset, int min_window)
 {
-	float integral_value = xt::view(arr2d, -1, offset)[0] - xt::view(arr2d, 0, offset)[0];
+	float integral_value = arr2d.at(arr2d.shape()[0]-1, offset) - arr2d.at(0, offset);
 
 	std::unique_ptr<RecursiveSegmentInfo> res(new RecursiveSegmentInfo);
 	res->i0 = i0;
@@ -193,7 +193,7 @@ std::unique_ptr<RecursiveSegmentInfo> buildRecursiveOffsets_(const xt::xtensor<f
 	res->integral_value = integral_value;
 	res->offset = offset;
 
-	if ((arr2d.shape()[0] < min_window) || (integral_value <= 1e-7))
+	if (arr2d.shape()[0] < min_window)
 		return res;
 
 	size_t midpoint = arr2d.shape()[0] / 2;

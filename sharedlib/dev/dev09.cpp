@@ -57,7 +57,10 @@ void dev09()
 
 	cv1 = bujo::util::xt2cv(src6, CV_8U);
 	for (int i = 0; i < supportCurves.size(); i++)
+	{
 		plot(cv1, supportCurves[i]);
+		std::cout << supportCurves[i].len_param.size() << " " << supportCurves[i].x_value.size() << "\n";
+	}
 
 
 	std::cout << "Elapsed " << std::chrono::duration<float>(t1 - t0).count() << "s.\n\n";

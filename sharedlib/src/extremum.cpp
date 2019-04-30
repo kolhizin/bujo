@@ -152,12 +152,16 @@ unsigned bujo::extremum::findLocalMaximaByGradient(const xt::xtensor<float, 1>& 
 			return static_cast<unsigned>(i);
 		if (dpos > dneg)
 		{
+			if(i + 1 == iprev)
+				return static_cast<unsigned>(i);
 			iprev = i;
 			i++;
 			continue;
 		}
 		if (dpos < dneg)
 		{
+			if (i - 1 == iprev)
+				return static_cast<unsigned>(i);
 			iprev = i;
 			i--;
 			continue;
@@ -186,12 +190,16 @@ unsigned bujo::extremum::findLocalMinimaByGradient(const xt::xtensor<float, 1>& 
 			return static_cast<unsigned>(i);
 		if (dpos < dneg)
 		{
+			if (i + 1 == iprev)
+				return static_cast<unsigned>(i);
 			iprev = i;
 			i++;
 			continue;
 		}
 		if (dpos > dneg)
 		{
+			if (i - 1 == iprev)
+				return static_cast<unsigned>(i);
 			iprev = i;
 			i--;
 			continue;
