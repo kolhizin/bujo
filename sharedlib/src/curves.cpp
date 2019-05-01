@@ -237,7 +237,7 @@ void dumpRecursiveOffsetsLinear_(const std::unique_ptr<RecursiveSegmentInfo> &pt
 	dumpRecursiveOffsetsLinear_(ptr->pRight, res);
 }
 
-Curve bujo::curves::optimizeCurve(const xt::xtensor<float, 2>& src, const Curve& curve, int max_offset_y, int max_window_x, float reg_coef)
+Curve bujo::curves::optimizeCurveBinarySplit(const xt::xtensor<float, 2>& src, const Curve& curve, int max_offset_y, int max_window_x, float reg_coef)
 {
 	int num_offsets = max_offset_y * 2 + 1;
 	xt::xtensor<float, 1> offsets;
@@ -276,6 +276,17 @@ Curve bujo::curves::optimizeCurve(const xt::xtensor<float, 2>& src, const Curve&
 	res.len_param.resize({ res.x_value.size() });
 	res.calculateLenParametrization();
 	return res;
+}
+
+xt::xtensor<float, 1> calcOffsetIntegrals()
+{
+
+}
+
+Curve bujo::curves::optimizeCurve(const xt::xtensor<float, 2>& src, const Curve& curve, int max_offset_y, float reg_coef)
+{
+	
+	return Curve();
 }
 
 float calcIntegralOverLine_(const xt::xtensor<float, 2>& arr2d, xt::xtensor<float, 1> xVals, xt::xtensor<float, 1> yVals)
@@ -368,6 +379,7 @@ xt::xtensor<float, 1> findLineStart_(const xt::xtensor<float, 2>& arr2d, float r
 /*
 Curve bujo::curves::optimizeCurve2(const xt::xtensor<float, 2>& src, const Curve& curve, int max_offset_y, int max_window_x, float reg_coef)
 {
+	//logic: insert new point between previous optimally and then reoptimize old points
 	auto offData = extractCurveRegion(src, curve, max_offset_y, max_offset_y);
 	xt::xtensor<float, 1> xVals({ 0.0f, static_cast<float>(offData.shape()[1] - 1) });
 	auto yVals = findLineStart_(offData, 1.0f);
