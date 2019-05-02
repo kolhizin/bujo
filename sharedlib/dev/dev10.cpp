@@ -85,7 +85,12 @@ void dev10()
 			bujo::curves::generateCurve(src6, std::get<0>(v), std::get<1>(v), bujo::curves::CurveGenerationOptions()),
 			textLineDelta, 25, 0.1f); });
 
+	auto curve_combos = bujo::curves::generateCurveCombinations(src6, supportCurves);
+	auto combo_values = bujo::curves::calculateCurveCombinationIntegral(src6, supportCurves, curve_combos);
+
 	auto t1 = std::chrono::system_clock::now();
+
+	std::cout << combo_values << "\n\n";
 
 	cv1 = bujo::util::xt2cv(src6, CV_8U);
 	for (int i = 0; i < supportCurves.size(); i++)

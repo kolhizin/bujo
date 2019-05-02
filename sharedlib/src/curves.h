@@ -18,6 +18,12 @@ namespace bujo
 			void calculateLenParametrization();
 		};
 
+		struct CurveCombination
+		{
+			int idx1, idx2;
+			float alpha, offset;
+		};
+
 		namespace interpolate
 		{
 			std::tuple<xt::xtensor<float, 1>, xt::xtensor<float, 1>> getDenseXY(const Curve& curve);
@@ -43,6 +49,7 @@ namespace bujo
 			float angle_regularization_power = 0.25f;
 		};
 
+
 		
 		std::vector<std::tuple<unsigned, unsigned>> selectSupportPoints(const xt::xtensor<float, 2>& src,
 			unsigned num_points, float quantile_v, float quantile_h);
@@ -58,5 +65,12 @@ namespace bujo
 
 		Curve shiftCurve(const Curve& src, float yOffset, float clampMin, float clampMax);
 		Curve interpolateCurves(const Curve& src1, const Curve& src2, float alpha);
+
+		std::vector<CurveCombination> generateCurveCombinations(const xt::xtensor<float, 2>& src, const std::vector<Curve> &supportCurves);
+		float calculateCurveCombinationIntegral(const xt::xtensor<float, 2>& src, const std::vector<Curve>& supportCurves,
+			const CurveCombination& combination);
+		xt::xtensor<float, 1> calculateCurveCombinationIntegral(const xt::xtensor<float, 2>& src, const std::vector<Curve>& supportCurves,
+			const std::vector<CurveCombination>& combination);
+		Curve generateCurve(const std::vector<Curve>& supportCurves, const CurveCombination& curveCombination, float clipMin, float clipMax);
 	}
 }

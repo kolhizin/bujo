@@ -580,6 +580,126 @@ Curve bujo::curves::interpolateCurves(const Curve& src1, const Curve& src2, floa
 	return res;
 }
 
+std::vector<CurveCombination> bujo::curves::generateCurveCombinations(const xt::xtensor<float, 2>& src, const std::vector<Curve>& supportCurves)
+{
+	//0 step -- check sort order
+	std::vector<float> chkOrder(supportCurves.size());
+	for (int i = 0; i < supportCurves.size(); i++)
+		chkOrder[i] = xt::mean(supportCurves[i].y_value)[0];
+	for (int i = 1; i < supportCurves.size(); i++)
+		if (chkOrder[i] < chkOrder[i - 1])
+			throw std::runtime_error("generateCurveCombinations() expects support curves to be in certain order (increasing mean-y values).");
+
+	std::vector<CurveCombination> res;
+	res.reserve(src.shape()[0]);
+	//1 step -- offset above, offset=0 not included
+	int off0 = static_cast<int>(std::ceilf(xt::amax(supportCurves[0].y_value)[0]));
+	for (int i = 0; i < off0; i++)
+	{
+		CurveCombination cmb;
+		cmb.idx1 = cmb.idx2 = 0;
+		cmb.alpha = 0.0f;
+		cmb.offset = -(off0 - i);
+		res.push_back(cmb);
+	}
+
+	//2 step -- interpolation between, alpha=0 not included
+	for (int i = 1; i < supportCurves.size(); i++)
+	{
+		int i0min = static_cast<int>(std::floorf(xt::amin(supportCurves[i - 1].y_value)[0]));
+		int i1max = static_cast<int>(std::ceilf(xt::amax(supportCurves[i].y_value)[0]));
+		float aprev = -1.0f;
+		for (int j = i0min + 1; j <= i1max; j++)
+		{
+			float alpha = static_cast<float>(j - i0min) / static_cast<float>(i1max - i0min);
+			if (alpha <= aprev)
+				continue;
+			aprev = alpha;
+
+			CurveCombination cmb;
+			cmb.idx1 = i - 1;
+			cmb.idx2 = i;
+			cmb.alpha = alpha;
+			cmb.offset = 0.0f;
+			res.push_back(cmb);
+		}
+	}
+	//3 step -- offset below, offset included
+	int off1 = static_cast<int>(std::floorf(xt::amin(supportCurves.back().y_value)[0]));
+	for (int i = 0; i < off1; i++)
+	{
+		CurveCombination cmb;
+		cmb.idx1 = cmb.idx2 = supportCurves.size() - 1;
+		cmb.alpha = 0.0f;
+		cmb.offset = i;
+		res.push_back(cmb);
+	}
+
+	return res;
+}
+
+float calcCombinedIntegral_(const xt::xtensor<float, 2>& src, const xt::xtensor<int, 1>& xvalues, const Curve& c1, const Curve& c2, float alpha, float offset)
+{
+	xt::xtensor<float, 1> y0 = xt::interp(xvalues, c1.x_value, c1.y_value);
+	if (alpha > 0.0f)
+		y0 = y0 * (1 - alpha) + xt::interp(xvalues, c2.x_value, c2.y_value) * alpha;
+
+	y0 = xt::clip(y0 + offset, 0.0f, src.shape()[0] - 1);
+
+	float res = 0.0f;
+	for (int j = 0; j < xvalues.size(); j++)
+	{
+		int i0 = static_cast<int>(std::floorf(y0[j]));
+		float frac = y0[j] - i0;
+		int i1 = i0 + 1;
+
+		float v = src.at(i0, xvalues[j]);
+		if ((frac > 1e-3f) && (i0 + 1 < src.shape()[0]))
+			v = v * (1 - frac) + src.at(i0 + 1, xvalues[j]) * frac;
+		res += v;
+	}
+	return res;
+}
+
+xt::xtensor<int, 1> generateCombinedXValues_(const Curve& c1, const Curve& c2, float alpha)
+{
+	float xMin = xt::amin(c1.x_value)[0];
+	float xMax = xt::amax(c1.x_value)[0];
+	if ((&c1 != &c2) && (alpha > 0.0f))
+	{
+		xMin = std::min(xMin, xt::amin(c2.x_value)[0]);
+		xMax = std::max(xMax, xt::amax(c2.x_value)[0]);
+	}
+	return xt::arange<int>(static_cast<int>(std::floorf(xMin)), static_cast<int>(std::ceilf(xMax)) + 1);
+}
+
+float bujo::curves::calculateCurveCombinationIntegral(const xt::xtensor<float, 2>& src, const std::vector<Curve>& supportCurves, const CurveCombination& combination)
+{
+	auto xvalues = generateCombinedXValues_(supportCurves.at(combination.idx1), supportCurves.at(combination.idx2), combination.alpha);
+	return calcCombinedIntegral_(src, xvalues, supportCurves.at(combination.idx1), supportCurves.at(combination.idx2),
+		combination.alpha, combination.offset);
+}
+
+xt::xtensor<float, 1> bujo::curves::calculateCurveCombinationIntegral(const xt::xtensor<float, 2>& src, const std::vector<Curve>& supportCurves, const std::vector<CurveCombination>& combination)
+{
+	int prev_idx1 = -1, prev_idx2 = -1;
+	xt::xtensor<float, 1> res, xvalues;
+	res.resize({ combination.size() });
+	for (int i = 0; i < combination.size(); i++)
+	{
+		if ((combination[i].idx1 != prev_idx1) || (combination[i].idx2 != prev_idx2))
+		{
+			xvalues = generateCombinedXValues_(supportCurves.at(combination[i].idx1), supportCurves.at(combination[i].idx2),
+				combination[i].alpha);
+			prev_idx1 = combination[i].idx1;
+			prev_idx2 = combination[i].idx2;
+		}
+		res[i] = calcCombinedIntegral_(src, xvalues, supportCurves.at(combination[i].idx1), supportCurves.at(combination[i].idx2),
+			combination[i].alpha, combination[i].offset);
+	}
+	return res;
+}
+
 float bujo::curves::integral::calcIntegralOverCurve(const xt::xtensor<float, 2>& src, const Curve& curve, float offset)
 {
 	xt::xtensor<float, 1> off_tensor;
