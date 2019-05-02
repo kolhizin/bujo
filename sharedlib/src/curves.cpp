@@ -700,6 +700,14 @@ xt::xtensor<float, 1> bujo::curves::calculateCurveCombinationIntegral(const xt::
 	return res;
 }
 
+Curve bujo::curves::generateCurve(const std::vector<Curve>& supportCurves, const CurveCombination& curveCombination, float clipMin, float clipMax)
+{
+	if ((curveCombination.idx1 != curveCombination.idx2) && (curveCombination.alpha > 0.0f))
+		return shiftCurve(interpolateCurves(supportCurves.at(curveCombination.idx1),
+			supportCurves.at(curveCombination.idx2), curveCombination.alpha), curveCombination.offset, clipMin, clipMax);
+	return shiftCurve(supportCurves.at(curveCombination.idx1), curveCombination.offset, clipMin, clipMax);
+}
+
 float bujo::curves::integral::calcIntegralOverCurve(const xt::xtensor<float, 2>& src, const Curve& curve, float offset)
 {
 	xt::xtensor<float, 1> off_tensor;

@@ -178,3 +178,10 @@ void bujo::transform::setRegionsValue(xt::xtensor<float, 2>& src, std::vector<bu
 		bujo::splits::setRegionValue(src,
 			bujo::splits::rescaleSplit(splits[i].desc, dsize), 1, value);
 }
+
+std::vector<bujo::curves::Curve> bujo::transform::locateCurves(const xt::xtensor<float, 2>& src, const std::vector<bujo::curves::Curve>& supportCurves)
+{
+	std::vector<bujo::curves::Curve> res;
+	auto curveCombinations = bujo::curves::generateCurveCombinations(src, supportCurves);
+	return res;
+}

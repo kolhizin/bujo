@@ -2,6 +2,7 @@
 #include <vector>
 #include <xtensor/xtensor.hpp>
 #include "splits.h"
+#include "curves.h"
 
 namespace bujo
 {
@@ -23,5 +24,7 @@ namespace bujo
 		void setRegionsValue(xt::xtensor<float, 2>& src, std::vector<bujo::splits::RegionSplit> splits, float dsize, float value);
 
 
+		std::vector<bujo::curves::Curve> locateCurves(const xt::xtensor<float, 2>& src,
+			const std::vector<bujo::curves::Curve>& supportCurves);
 	}
 }
