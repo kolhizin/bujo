@@ -559,6 +559,27 @@ Curve bujo::curves::reparamByX(const Curve& curve, unsigned numPoints)
 	return res;
 }
 
+Curve bujo::curves::shiftCurve(const Curve& src, float yOffset, float clampMin, float clampMax)
+{
+	Curve res;
+	res.x_value = src.x_value;
+	res.y_value = xt::clip(src.y_value + yOffset, clampMin, clampMax);
+	res.calculateLenParametrization();
+	return res;
+}
+
+Curve bujo::curves::interpolateCurves(const Curve& src1, const Curve& src2, float alpha)
+{
+	Curve res;
+	xt::xtensor<float, 1> tmp = xt::concatenate(std::make_tuple(src1.x_value, src2.x_value));
+	res.x_value = xt::unique(xt::sort(tmp));
+	auto y1 = xt::interp(res.x_value, src1.x_value, src1.y_value);
+	auto y2 = xt::interp(res.x_value, src2.x_value, src2.y_value);
+	res.y_value = y1 * (1 - alpha) + y2 * alpha;
+	res.calculateLenParametrization();
+	return res;
+}
+
 float bujo::curves::integral::calcIntegralOverCurve(const xt::xtensor<float, 2>& src, const Curve& curve, float offset)
 {
 	xt::xtensor<float, 1> off_tensor;

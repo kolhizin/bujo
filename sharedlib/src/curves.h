@@ -50,23 +50,13 @@ namespace bujo
 		xt::xtensor<float, 2> extractCurveRegion(const xt::xtensor<float, 2>& src, const Curve& curve, unsigned dNeg, unsigned dPos);
 
 		Curve generateCurve(const xt::xtensor<float, 2>& src, int i0, int j0, const CurveGenerationOptions& options);
-		/*
-		Optimize curve fit of src-image based on recursive binary split. It is fast, but has drawback: when splits are neighbours,
-		but belong to different hierarchies, result tends to be discontinuous.
-		*/
 		Curve optimizeCurveBinarySplit(const xt::xtensor<float, 2>& src, const Curve& curve, int max_offset_y, int min_window_x, float reg_coef);
 		Curve optimizeCurve(const xt::xtensor<float, 2>& src, const Curve& curve, int max_offset_y, int min_window_x, float reg_coef);
-		/*
-		Optimize curve by moving existing curve points hierarchically:
-		1) all points
-		2) two groups
-		3) four groups 
-		etc.
-		Calculate loss that depends on WHOLE curve and variation of applied delta.
-		*/
 		//Curve optimizeCurveLocal(const xt::xtensor<float, 2>& src, const Curve& curve, int max_offset_y, float quantile, float reg_coef);
-		//Curve optimizeCurve2(const xt::xtensor<float, 2>& src, const Curve& curve, int max_offset_y, int max_window_x, float reg_coef);
 		Curve reparamByLength(const Curve& curve, unsigned numPoints);
 		Curve reparamByX(const Curve& curve, unsigned numPoints);
+
+		Curve shiftCurve(const Curve& src, float yOffset, float clampMin, float clampMax);
+		Curve interpolateCurves(const Curve& src1, const Curve& src2, float alpha);
 	}
 }

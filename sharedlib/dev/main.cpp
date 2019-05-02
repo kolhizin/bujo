@@ -6,6 +6,7 @@ void dev06();
 void dev07();
 void dev08();
 void dev09();
+void dev10();
 
 int main()
 {
@@ -13,6 +14,7 @@ int main()
 	//dev06();
 	//dev07();
 	//dev08();
-	dev09();
+	//dev09();
+	dev10();
 	return 0;
 }
