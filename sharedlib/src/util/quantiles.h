@@ -19,7 +19,7 @@ namespace bujo
 			}
 			std::sort(buffer, buffer + cnt);
 			int qid = static_cast<int>(std::floor(quantile * cnt));
-			return buffer[qid];
+			return buffer[std::min(qid, static_cast<int>(buffer_size - 1))];
 		}
 	}
 }

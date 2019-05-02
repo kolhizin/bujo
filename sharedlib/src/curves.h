@@ -63,7 +63,7 @@ namespace bujo
 		etc.
 		Calculate loss that depends on WHOLE curve and variation of applied delta.
 		*/
-		Curve optimizeCurve(const xt::xtensor<float, 2>& src, const Curve& curve, int max_offset_y, float reg_coef);
+		Curve optimizeCurve(const xt::xtensor<float, 2>& src, const Curve& curve, int max_offset_y, float quantile, float reg_coef);
 		//Curve optimizeCurve2(const xt::xtensor<float, 2>& src, const Curve& curve, int max_offset_y, int max_window_x, float reg_coef);
 		Curve reparamByLength(const Curve& curve, unsigned numPoints);
 		Curve reparamByX(const Curve& curve, unsigned numPoints);

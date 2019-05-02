@@ -3,6 +3,9 @@
 #include "radon.h"
 #include <xtensor/xview.hpp>
 #include <xtensor/xsort.hpp>
+#include <xtensor/xio.hpp>
+#include <xtensor/xindex_view.hpp>
+#include "util/quantiles.h"
 
 using namespace bujo::curves;
 
@@ -62,7 +65,7 @@ xt::xtensor<float, 2> bujo::curves::extractCurveRegion(const xt::xtensor<float, 
 	unsigned num_y = dPos + dNeg + 1;
 	int min_x = static_cast<int>(std::floorf(xt::amin(curve.x_value)[0]));
 	int max_x = static_cast<int>(std::ceilf(xt::amax(curve.x_value)[0]));
-	xt::xtensor<float, 2> res({ num_y, max_x - min_x});
+	xt::xtensor<float, 2> res({ static_cast<size_t>(num_y), static_cast<size_t>(max_x - min_x)});
 
 	xt::xtensor<float, 1> yvals = xt::interp(xt::arange<float>(max_x - min_x) + min_x, curve.x_value, curve.y_value);
 	for(int i = 0; i < num_y; i++)
@@ -278,15 +281,115 @@ Curve bujo::curves::optimizeCurveBinarySplit(const xt::xtensor<float, 2>& src, c
 	return res;
 }
 
-xt::xtensor<float, 1> calcOffsetIntegrals()
+xt::xtensor<float, 2> calcDistanceFromCurve_(const xt::xtensor<float, 2>& src,
+	const xt::xtensor<int, 1> &xPositions, const xt::xtensor<int, 1> &yPositions, unsigned max_offset_y)
 {
-
+	xt::xtensor<float, 2> res({xPositions.size(), 2});
+	for (unsigned i = 0; i < xPositions.size(); i++)
+	{
+		int x0 = xPositions[i];
+		int y0 = yPositions[i];
+		auto v_pos = xt::view(src, xt::range(y0, y0 + static_cast<int>(max_offset_y)), x0);
+		auto v_neg = xt::view(src, xt::range(y0, y0 - static_cast<int>(max_offset_y), -1), x0);
+		int off_pos = xt::argmax(v_pos)[0];
+		int off_neg = xt::argmax(v_neg)[0];
+		if (src.at(y0 + off_pos, x0) < 0.5f)
+			off_pos = -1;
+		if (src.at(y0 - off_neg, x0) < 0.5f)
+			off_neg = -1;
+		res.at(i, 0) = off_neg;
+		res.at(i, 1) = off_pos;
+	}
+	return res;
 }
 
-Curve bujo::curves::optimizeCurve(const xt::xtensor<float, 2>& src, const Curve& curve, int max_offset_y, float reg_coef)
+xt::xtensor<float, 1> calcQuantileInterpolation_(const xt::xtensor<float, 1>& x, const xt::xtensor<float, 1> &xp, const xt::xtensor<float, 1>& yp, float quantile)
 {
-	
-	return Curve();
+	std::vector<float> buffer(xp.size());
+	xt::xtensor<float, 1> res;
+	res.resize({ x.size() });
+	int jprev = 0, jnext = 0;
+
+	for (unsigned i = 0; i < x.size(); i++)
+	{
+		float split_x = x[i];
+		if (i + 1 < x.size())
+			split_x = 0.5 * (split_x + x[i + 1]);
+		while ((jnext < xp.size()) && (xp[jnext] < split_x))
+			jnext++;
+
+		auto yv0 = xt::view(yp, xt::range(jprev, jnext));
+		auto yv = xt::filter(yv0, yv0 >= -0.1f);
+
+		if (yv0.size() < 3)
+			res.at(i) = -1.0f;
+		else
+			res.at(i) = bujo::util::calculateQuantile(yv.cbegin(), yv.cend(), quantile, &buffer[0], buffer.size());
+		jprev = jnext;
+	}
+	return res;
+}
+
+float calcCurveY2_(const xt::xtensor<float, 1>& x, const xt::xtensor<float, 2>& y)
+{
+	float res = 0.0f;
+	for (int i = 1; i < x.size(); i++)
+	{
+		float dy = y[i] - y[i - 1];
+		res += dy * dy;
+	}
+	return res;
+}
+float calcCurveDY2_(const xt::xtensor<float, 1>& x, const xt::xtensor<float, 2>& y)
+{
+	float res = 0.0f;
+	for (int i = 1; i < x.size(); i++)
+	{
+		if (std::fabsf(x[i] - x[i - 1]) < 1e-7)
+			continue;
+		float ddy = (y[i] - y[i - 1]) / (x[i] - x[i-1]);
+		res += ddy * ddy;
+	}
+	return res;
+}
+
+float calcCurveLoss_(const xt::xtensor<float, 2>& offRange, const xt::xtensor<float, 1>& offActual)
+{
+	double res = 0.0;
+	for (int i = 0; i < offActual.size(); i++)
+	{
+		if ((offRange.at(i, 0) < 0.0f) && (offRange.at(i, 1) < 0.0f))
+			continue;
+		float dneg = std::fabsf(offActual.at(i) + offRange.at(i, 0));
+		float dpos = std::fabsf(offActual.at(i) - offRange.at(i, 1));
+		float dres = 0.0f;
+		if ((offRange.at(i, 0) >= 0.0f) && (offRange.at(i, 1) >= 0.0f))
+			dres = std::min(dneg, dpos);
+		else
+		{
+			if (offRange.at(i, 0) < 0.0f)
+				dres = dpos;
+			else
+				dres = dneg;
+		}
+		res += dres;
+	}
+	return static_cast<float>(res);
+}
+
+Curve bujo::curves::optimizeCurve(const xt::xtensor<float, 2>& src, const Curve& curve, int max_offset_y, float quantile, float reg_coef)
+{
+	auto denseXY = bujo::curves::interpolate::getDenseXY(curve);
+	const auto& denseX = std::get<0>(denseXY);
+	const auto& denseY = std::get<1>(denseXY);
+	auto denseDst = calcDistanceFromCurve_(src, xt::cast<int>(denseX), xt::cast<int>(denseY), max_offset_y);
+	auto offsetNeg = calcQuantileInterpolation_(curve.x_value, denseX, xt::view(denseDst, xt::all(), 0), quantile);
+	auto offsetPos = calcQuantileInterpolation_(curve.x_value, denseX, xt::view(denseDst, xt::all(), 1), quantile);
+
+	std::cout << offsetNeg << "\n";
+	std::cout << offsetPos << "\n\n";
+
+	return curve;
 }
 
 float calcIntegralOverLine_(const xt::xtensor<float, 2>& arr2d, xt::xtensor<float, 1> xVals, xt::xtensor<float, 1> yVals)
@@ -304,10 +407,10 @@ float calcIntegralOverLine_(const xt::xtensor<float, 2>& arr2d, xt::xtensor<floa
 
 		i0 = std::max(0, std::min(static_cast<int>(arr2d.shape()[0] - 1), i0));
 		i1 = std::max(0, std::min(static_cast<int>(arr2d.shape()[0] - 1), i1));
-		if (j + min_x >= arr2d.shape()[1])
+		if (i + min_x >= arr2d.shape()[1])
 			continue;
-		float v0 = arr2d.at(i0, j + min_x);
-		float v1 = arr2d.at(i1, j + min_x);
+		float v0 = arr2d.at(i0, i + min_x);
+		float v1 = arr2d.at(i1, i + min_x);
 		res += v0 * (1 - frac) + v1 * frac;
 	}
 	return res;

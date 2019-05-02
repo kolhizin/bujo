@@ -15,9 +15,33 @@
 #include <src/extremum.h>
 #include <src/curves.h>
 #include "devutils.h"
+#include <xtensor/xio.hpp>
+
+void test_xtensor_views()
+{
+	xt::xtensor<float, 1> test({ 1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f });
+	std::cout << test << "\n\n";
+
+	std::cout << xt::view(test, xt::range(2, 2 + 2)) << "\n\n";
+	std::cout << xt::view(test, xt::range(2, 2 - 2, -1)) << "\n\n";
+	std::cout << xt::view(test, xt::range(2, 2 + 20)) << "\n\n";
+	std::cout << xt::view(test, xt::range(2, 2 - 20, -1)) << "\n\n";
+}
+
+
+void test_xtensor_argmax()
+{
+	xt::xtensor<float, 1> test({ 0.0f, 1.0f, 1.0f });
+	std::cout << test << "\n\n";
+
+	std::cout << xt::argmax(test) << "\n\n";
+}
 
 void dev09()
 {
+	//test_xtensor_views();
+	//test_xtensor_argmax();
+
 	cv::Mat cv0, cv1;
 	cv0 = cv::imread("D:\\Data\\bujo_sample\\20190309_125151.jpg", cv::IMREAD_COLOR);
 	//cv0 = cv::imread("D:\\Data\\bujo_sample\\test_rot30.jpg", cv::IMREAD_COLOR);
@@ -52,7 +76,7 @@ void dev09()
 		[&src6, &textLineDelta](const auto & v)
 		{ return bujo::curves::reparamByLength(bujo::curves::optimizeCurve(src6,
 			bujo::curves::generateCurve(src6, std::get<0>(v), std::get<1>(v), bujo::curves::CurveGenerationOptions()),
-			textLineDelta, 50, 1000.1f), 40); });
+			textLineDelta, 0.5f, 1.0f), 40); });
 
 	auto t1 = std::chrono::system_clock::now();
 
