@@ -54,7 +54,8 @@ namespace bujo
 		Optimize curve fit of src-image based on recursive binary split. It is fast, but has drawback: when splits are neighbours,
 		but belong to different hierarchies, result tends to be discontinuous.
 		*/
-		Curve optimizeCurveBinarySplit(const xt::xtensor<float, 2>& src, const Curve& curve, int max_offset_y, int max_window_x, float reg_coef);
+		Curve optimizeCurveBinarySplit(const xt::xtensor<float, 2>& src, const Curve& curve, int max_offset_y, int min_window_x, float reg_coef);
+		Curve optimizeCurve(const xt::xtensor<float, 2>& src, const Curve& curve, int max_offset_y, int min_window_x, float reg_coef);
 		/*
 		Optimize curve by moving existing curve points hierarchically:
 		1) all points
@@ -63,7 +64,7 @@ namespace bujo
 		etc.
 		Calculate loss that depends on WHOLE curve and variation of applied delta.
 		*/
-		Curve optimizeCurve(const xt::xtensor<float, 2>& src, const Curve& curve, int max_offset_y, float quantile, float reg_coef);
+		//Curve optimizeCurveLocal(const xt::xtensor<float, 2>& src, const Curve& curve, int max_offset_y, float quantile, float reg_coef);
 		//Curve optimizeCurve2(const xt::xtensor<float, 2>& src, const Curve& curve, int max_offset_y, int max_window_x, float reg_coef);
 		Curve reparamByLength(const Curve& curve, unsigned numPoints);
 		Curve reparamByX(const Curve& curve, unsigned numPoints);

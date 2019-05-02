@@ -3,7 +3,6 @@
 #include "radon.h"
 #include <xtensor/xview.hpp>
 #include <xtensor/xsort.hpp>
-#include <xtensor/xio.hpp>
 #include <xtensor/xindex_view.hpp>
 #include "util/quantiles.h"
 
@@ -240,7 +239,7 @@ void dumpRecursiveOffsetsLinear_(const std::unique_ptr<RecursiveSegmentInfo> &pt
 	dumpRecursiveOffsetsLinear_(ptr->pRight, res);
 }
 
-Curve bujo::curves::optimizeCurveBinarySplit(const xt::xtensor<float, 2>& src, const Curve& curve, int max_offset_y, int max_window_x, float reg_coef)
+Curve bujo::curves::optimizeCurveBinarySplit(const xt::xtensor<float, 2>& src, const Curve& curve, int max_offset_y, int min_window_x, float reg_coef)
 {
 	int num_offsets = max_offset_y * 2 + 1;
 	xt::xtensor<float, 1> offsets;
@@ -251,8 +250,8 @@ Curve bujo::curves::optimizeCurveBinarySplit(const xt::xtensor<float, 2>& src, c
 	xt::xtensor<float, 2> cumulativeIntegral = integral::calcAccumIntegralOverCurve(src, curve, offsets);
 
 	std::vector<std::tuple<float, float>> midpoints;
-	midpoints.reserve(cumulativeIntegral.shape()[0] / max_window_x);
-	auto recOffsets = buildRecursiveOffsets_(cumulativeIntegral, 0, cumulativeIntegral.shape()[0], max_offset_y, max_window_x, reg_coef);
+	midpoints.reserve(cumulativeIntegral.shape()[0] / min_window_x);
+	auto recOffsets = buildRecursiveOffsets_(cumulativeIntegral, 0, cumulativeIntegral.shape()[0], max_offset_y, min_window_x, reg_coef);
 	dumpRecursiveOffsetsLinear_(recOffsets, midpoints);
 	recOffsets.reset();
 
@@ -280,6 +279,49 @@ Curve bujo::curves::optimizeCurveBinarySplit(const xt::xtensor<float, 2>& src, c
 	res.calculateLenParametrization();
 	return res;
 }
+
+
+Curve bujo::curves::optimizeCurve(const xt::xtensor<float, 2>& src, const Curve& curve, int max_offset_y, int min_window_x, float reg_coef)
+{
+	int num_offsets = max_offset_y * 2 + 1;
+	xt::xtensor<float, 1> offsets;
+	offsets.resize({ static_cast<size_t>(num_offsets) });
+	for (int i = 0; i < num_offsets; i++)
+		offsets[i] = i - max_offset_y;
+
+	xt::xtensor<float, 2> cumulativeIntegral = integral::calcAccumIntegralOverCurve(src, curve, offsets);
+	xt::xtensor<int, 1> curOffsets;
+	curOffsets.resize({curve.x_value.size()});
+	for (int i = 0; i < curOffsets.size(); i++)
+		curOffsets[i] = max_offset_y;
+
+	unsigned window = cumulativeIntegral.shape()[0] << 1;
+	float xmin = xt::amin(curve.x_value)[0];
+	while (window > min_window_x)
+	{
+		int dneg = static_cast<int>(window / 2);
+		int dpos = window - dneg;
+		for (int i = 0; i < curOffsets.size(); i++)
+		{
+			int idx = static_cast<int>(std::floorf(curve.x_value[i] - xmin));
+			int idx0 = std::max(0, idx - dneg);
+			int idx1 = std::min(static_cast<int>(cumulativeIntegral.shape()[0] - 1), idx + dpos);
+			auto xv0 = (xt::view(cumulativeIntegral, idx1, xt::all())- xt::view(cumulativeIntegral, idx0, xt::all())) / static_cast<float>(idx1-idx0);
+			auto reg0 = (xt::arange<float>(0, xv0.size()) - curOffsets[i]) / static_cast<float>(xv0.size());
+			auto reg1 = -reg_coef * xt::pow(xt::abs(reg0), 2.0f);
+			curOffsets[i] = bujo::extremum::findLocalMaximaByGradient(xv0 + reg1, curOffsets[i], true);
+		}
+		window = window >> 1;
+	}
+
+	Curve res;
+	res.x_value = curve.x_value;
+	res.y_value = curve.y_value + xt::cast<float>(curOffsets - max_offset_y);
+	res.len_param.resize({ res.x_value.size() });
+	res.calculateLenParametrization();
+	return res;
+}
+
 
 xt::xtensor<float, 2> calcDistanceFromCurve_(const xt::xtensor<float, 2>& src,
 	const xt::xtensor<int, 1> &xPositions, const xt::xtensor<int, 1> &yPositions, unsigned max_offset_y)
@@ -377,8 +419,10 @@ float calcCurveLoss_(const xt::xtensor<float, 2>& offRange, const xt::xtensor<fl
 	return static_cast<float>(res);
 }
 
-Curve bujo::curves::optimizeCurve(const xt::xtensor<float, 2>& src, const Curve& curve, int max_offset_y, float quantile, float reg_coef)
+/*
+Curve bujo::curves::optimizeCurveLocal(const xt::xtensor<float, 2>& src, const Curve& curve, int max_offset_y, float quantile, float reg_coef)
 {
+	//previous attemp, local, hence unstable
 	auto denseXY = bujo::curves::interpolate::getDenseXY(curve);
 	const auto& denseX = std::get<0>(denseXY);
 	const auto& denseY = std::get<1>(denseXY);
@@ -388,9 +432,9 @@ Curve bujo::curves::optimizeCurve(const xt::xtensor<float, 2>& src, const Curve&
 
 	std::cout << offsetNeg << "\n";
 	std::cout << offsetPos << "\n\n";
-
+	
 	return curve;
-}
+}*/
 
 float calcIntegralOverLine_(const xt::xtensor<float, 2>& arr2d, xt::xtensor<float, 1> xVals, xt::xtensor<float, 1> yVals)
 {

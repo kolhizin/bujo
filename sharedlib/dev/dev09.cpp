@@ -74,9 +74,9 @@ void dev09()
 	
 	std::transform(start_points.cbegin(), start_points.cend(), std::back_inserter(supportCurves),
 		[&src6, &textLineDelta](const auto & v)
-		{ return bujo::curves::reparamByLength(bujo::curves::optimizeCurve(src6,
-			bujo::curves::generateCurve(src6, std::get<0>(v), std::get<1>(v), bujo::curves::CurveGenerationOptions()),
-			textLineDelta, 0.5f, 1.0f), 40); });
+		{ return bujo::curves::optimizeCurve(src6,
+				bujo::curves::generateCurve(src6, std::get<0>(v), std::get<1>(v), bujo::curves::CurveGenerationOptions()),
+			textLineDelta, 25, 0.1f); });
 
 	auto t1 = std::chrono::system_clock::now();
 
