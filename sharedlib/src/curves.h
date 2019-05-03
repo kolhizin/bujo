@@ -70,5 +70,7 @@ namespace bujo
 			const std::vector<CurveCombination>& combination);
 		std::vector<unsigned> selectCurveCandidates(const xt::xtensor<float, 1>& vals, unsigned window, float min_value, float max_ratio);
 		Curve generateCurve(const std::vector<Curve>& supportCurves, const CurveCombination& curveCombination, float clipMin, float clipMax);
+
+		std::tuple<unsigned, unsigned> getCurveHeight(const xt::xtensor<float, 2>& src, const Curve& curve, unsigned max_offset, float reg_coef);
 	}
 }

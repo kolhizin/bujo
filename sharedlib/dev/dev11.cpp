@@ -54,7 +54,8 @@ void dev11()
 	for (int i = 0; i < allCurves.size(); i++)
 	{
 		plot(cv1, allCurves[i]);
-		std::cout << allCurves[i].len_param.size() << " " << allCurves[i].x_value.size() << "\n";
+		auto curveHeight = bujo::curves::getCurveHeight(src6, allCurves[i], textLineDelta * 3, 0.001f);
+		std::cout << i << ": " << std::get<0>(curveHeight) << " " << std::get<1>(curveHeight) << "\n";
 	}
 	std::cout << "\n\n";
 

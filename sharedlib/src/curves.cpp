@@ -804,6 +804,39 @@ Curve bujo::curves::generateCurve(const std::vector<Curve>& supportCurves, const
 	return shiftCurve(supportCurves.at(curveCombination.idx1), curveCombination.offset, clipMin, clipMax);
 }
 
+inline unsigned getClosestLocalMin1D_(const xt::xtensor<float, 1>& arr)
+{
+	/*
+	off_less = np.argmax(arr1d[1:]<arr1d[:-1])
+	msk_min = arr1d[1:]>=arr1d[:-1]
+	off = np.argmax(msk_min[off_less:])+off_less
+	return off
+	*/
+	xt::xtensor<int, 1> arrL = xt::view(arr, xt::range(1, xt::placeholders::_)) < xt::view(arr, xt::range(xt::placeholders::_, -1));
+	xt::xtensor<int, 1> arrGE = xt::view(arr, xt::range(1, xt::placeholders::_)) >= xt::view(arr, xt::range(xt::placeholders::_, -1));
+	unsigned off0 = xt::argmax(arrL)[0];
+	return off0 + xt::argmax(xt::view(arrGE, xt::range(off0, xt::placeholders::_)))[0];
+}
+
+std::tuple<unsigned, unsigned> bujo::curves::getCurveHeight(const xt::xtensor<float, 2>& src, const Curve& curve, unsigned max_offset, float reg_coef)
+{
+	/*
+	offsets = np.arange(-max_offset, max_offset+1)
+	values = np.array([np.sum(src[np.maximum(0, np.minimum(src.shape[0]-1, crv_i+off)), crv_j]) for off in offsets])
+	off_r = get_closest_local_min(values[max_offset:]+additive_regularization)
+	off_l = get_closest_local_min(values[:(max_offset+1)][::-1]+additive_regularization)
+	return (-off_l, off_r)
+	*/
+	xt::xtensor<float, 1> offsets = xt::arange<float>(-static_cast<float>(max_offset), static_cast<float>(max_offset + 1));
+	auto integrals = bujo::curves::integral::calcIntegralOverCurve(src, curve, offsets);
+	xt::xtensor<float, 1> vreg = reg_coef * xt::pow(xt::linspace(0.0f, 2.0f, max_offset + 1), 2.0f);
+
+	auto vneg = xt::view(integrals, xt::range(max_offset, xt::placeholders::_, -1)) + vreg;
+	auto vpos = xt::view(integrals, xt::range(max_offset, xt::placeholders::_)) + vreg;
+
+	return std::make_tuple(getClosestLocalMin1D_(vneg), getClosestLocalMin1D_(vpos));
+}
+
 float bujo::curves::integral::calcIntegralOverCurve(const xt::xtensor<float, 2>& src, const Curve& curve, float offset)
 {
 	xt::xtensor<float, 1> off_tensor;
@@ -819,6 +852,7 @@ xt::xtensor<float, 1> bujo::curves::integral::calcIntegralOverCurve(const xt::xt
 	auto xyLocs = getDenseXY(curve);
 	const auto& xLocs = std::get<0>(xyLocs);
 	const auto& yLocs = std::get<1>(xyLocs);
+	int clampMax = static_cast<int>(src.shape()[0]) - 1;
 	for (int i = 0; i < offsets.size(); i++)
 	{
 		float val = 0.0f;
@@ -826,6 +860,7 @@ xt::xtensor<float, 1> bujo::curves::integral::calcIntegralOverCurve(const xt::xt
 		{
 			int real_j = static_cast<int>(std::roundf(xLocs[j]));
 			int real_i = static_cast<int>(std::roundf(yLocs[j] + offsets[i]));
+			real_i = std::max(0, std::min(clampMax, real_i));
 			val += src.at(real_i, real_j);
 		}
 		res[i] = val;
@@ -846,6 +881,7 @@ xt::xtensor<float, 2> bujo::curves::integral::calcAccumIntegralOverCurve(const x
 	auto xyLocs = getDenseXY(curve);
 	const auto& xLocs = std::get<0>(xyLocs);
 	const auto& yLocs = std::get<1>(xyLocs);
+	int clampMax = static_cast<int>(src.shape()[0]) - 1;
 
 	xt::xtensor<float, 2> res({ xLocs.size(), offsets.size() });
 	
@@ -856,6 +892,7 @@ xt::xtensor<float, 2> bujo::curves::integral::calcAccumIntegralOverCurve(const x
 		{
 			int real_j = static_cast<int>(std::roundf(xLocs[j]));
 			int real_i = static_cast<int>(std::roundf(yLocs[j] + offsets[i]));
+			real_i = std::max(0, std::min(clampMax, real_i));
 			val += src.at(real_i, real_j);
 			res.at(j, i) = val;
 		}
