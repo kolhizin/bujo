@@ -1,5 +1,6 @@
 #include "extremum.h"
 #include "util/quantiles.h"
+#include <xtensor/xview.hpp>
 
 using namespace bujo::extremum;
 
@@ -138,6 +139,25 @@ std::vector<unsigned> bujo::extremum::getLocalMaximas(const xt::xtensor<float, 1
 			ids.push_back(j);
 
 	return ids;
+}
+
+std::vector<unsigned> bujo::extremum::filterAdjacentExtremas(const std::vector<unsigned>& ids)
+{
+	std::vector<unsigned> res;
+	if (ids.empty())
+		return res;
+	res.reserve(ids.size());
+	unsigned i_start = 0;
+	for (unsigned i = 1; i < ids.size(); i++)
+		if (ids[i] == ids[i - 1] + 1)
+			continue;
+		else
+		{
+			res.push_back(ids[(i_start + i - 1) >> 1]);
+			i_start = i;
+		}
+	res.push_back(ids[(i_start + ids.size() - 1) >> 1]);
+	return res;
 }
 
 unsigned bujo::extremum::findLocalMaximaByGradient(const xt::xtensor<float, 1>& src, unsigned i0, bool strictExtremum)

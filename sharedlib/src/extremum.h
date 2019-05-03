@@ -16,6 +16,8 @@ namespace bujo
 		std::vector<unsigned> getLocalMinimas(const xt::xtensor<float, 1>& src);
 		std::vector<unsigned> getLocalMaximas(const xt::xtensor<float, 1>& src);
 
+		std::vector<unsigned> filterAdjacentExtremas(const std::vector<unsigned>& ids);
+
 		unsigned findLocalMaximaByGradient(const xt::xtensor<float, 1>& src, unsigned i0, bool strictExtremum);
 		unsigned findLocalMinimaByGradient(const xt::xtensor<float, 1>& src, unsigned i0, bool strictExtremum);
 	}

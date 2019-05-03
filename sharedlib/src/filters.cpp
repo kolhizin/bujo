@@ -167,38 +167,30 @@ def local_maxima_v(src, d1, d2, cutoff):
 
 xt::xtensor<float, 1> bujo::filters::filterMax1D(const xt::xtensor<float, 1>& src, unsigned window)
 {
-	xt::xtensor<float, 1>::shape_type shp = { src.size() };
-	xt::xtensor<float, 1> res(shp);
+	xt::xtensor<float, 1> res;
+	res.resize({ src.size() });
 	int dneg = window / 2;
 	int dpos = window - dneg;
-	for (int i = 0; i < res.size(); i++)
+	for (int i = 0; i < src.size(); i++)
 	{
-		int start = std::max(0, i - dneg);
-		int end = std::min(static_cast<int>(src.size()), i + dpos);
-		float fres = src[start];
-		for (int j = start + 1; j < end; j++)
-			fres = std::max(fres, src[j]);
-
-		res.at(i) = fres;
+		int i0 = std::max(0, i - dneg);
+		int i1 = std::min(static_cast<int>(src.size()) - 1, i + dpos);
+		res[i] = xt::amax(xt::view(src, xt::range(i0, i1)))[0];
 	}
 	return res;
 }
 
 xt::xtensor<float, 1> bujo::filters::filterMin1D(const xt::xtensor<float, 1>& src, unsigned window)
 {
-	xt::xtensor<float, 1>::shape_type shp = { src.size() };
-	xt::xtensor<float, 1> res(shp);
+	xt::xtensor<float, 1> res;
+	res.resize({ src.size() });
 	int dneg = window / 2;
 	int dpos = window - dneg;
-	for (int i = 0; i < res.size(); i++)
+	for (int i = 0; i < src.size(); i++)
 	{
-		int start = std::max(0, i - dneg);
-		int end = std::min(static_cast<int>(src.size()), i + dpos);
-		float fres = src[start];
-		for (int j = start + 1; j < end; j++)
-			fres = std::min(fres, src[j]);
-				
-		res.at(i) = fres;
+		int i0 = std::max(0, i - dneg);
+		int i1 = std::min(static_cast<int>(src.size()) - 1, i + dpos);
+		res[i] = xt::amin(xt::view(src, xt::range(i0, i1)))[0];
 	}
 	return res;
 }
