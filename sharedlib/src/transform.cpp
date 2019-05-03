@@ -208,8 +208,9 @@ std::vector<bujo::curves::Curve> bujo::transform::generateAllCurves(const xt::xt
 	allCurves.reserve(curve_candidates.size());
 	std::transform(curve_candidates.cbegin(), curve_candidates.cend(), std::back_inserter(allCurves),
 		[&src, &supportCurves, &curve_combos, &clip_max, &optimization_reg_coef, &window_y, &window_x](const auto & v)
-		{ return bujo::curves::optimizeCurve(src, bujo::curves::generateCurve(supportCurves, curve_combos[v], 0.0f, clip_max),
-			window_y, window_x, optimization_reg_coef); });
+		{ return bujo::curves::clipCurve(src, bujo::curves::optimizeCurve(src,
+			bujo::curves::generateCurve(supportCurves, curve_combos[v], 0.0f, clip_max),
+			window_y, window_x, optimization_reg_coef), window_y / 2, window_y / 2); });
 
 	return allCurves;
 }

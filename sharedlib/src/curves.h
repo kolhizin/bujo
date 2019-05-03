@@ -24,11 +24,6 @@ namespace bujo
 			float alpha, offset;
 		};
 
-		namespace interpolate
-		{
-			std::tuple<xt::xtensor<float, 1>, xt::xtensor<float, 1>> getDenseXY(const Curve& curve);
-		}
-
 		namespace integral
 		{
 			float calcIntegralOverCurve(const xt::xtensor<float, 2>& src, const Curve& curve, float offset = 0.0f);
@@ -55,6 +50,7 @@ namespace bujo
 			unsigned num_points, float quantile_v, float quantile_h);
 
 		xt::xtensor<float, 2> extractCurveRegion(const xt::xtensor<float, 2>& src, const Curve& curve, unsigned dNeg, unsigned dPos);
+		std::tuple<xt::xtensor<float, 1>, xt::xtensor<float, 1>> getDenseXY(const Curve& curve);
 
 		Curve generateCurve(const xt::xtensor<float, 2>& src, int i0, int j0, const CurveGenerationOptions& options);
 		Curve optimizeCurveBinarySplit(const xt::xtensor<float, 2>& src, const Curve& curve, int max_offset_y, int min_window_x, float reg_coef);
@@ -65,6 +61,7 @@ namespace bujo
 
 		Curve shiftCurve(const Curve& src, float yOffset, float clampMin, float clampMax);
 		Curve interpolateCurves(const Curve& src1, const Curve& src2, float alpha);
+		Curve clipCurve(const xt::xtensor<float, 2>& src, const Curve& curve, unsigned window, unsigned trim);
 
 		std::vector<CurveCombination> generateCurveCombinations(const xt::xtensor<float, 2>& src, const std::vector<Curve> &supportCurves);
 		float calculateCurveCombinationIntegral(const xt::xtensor<float, 2>& src, const std::vector<Curve>& supportCurves,

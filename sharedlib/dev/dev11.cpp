@@ -17,7 +17,6 @@
 #include "devutils.h"
 #include <xtensor/xio.hpp>
 
-
 void dev11()
 {
 	cv::Mat cv0, cv1;

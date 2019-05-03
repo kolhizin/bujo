@@ -269,7 +269,7 @@ Curve bujo::curves::optimizeCurveBinarySplit(const xt::xtensor<float, 2>& src, c
 	vX[vX.size() - 1] = cumulativeIntegral.shape()[0];
 	vY[vY.size() - 1] = std::get<1>(midpoints.back());
 
-	auto denseCurve = interpolate::getDenseXY(curve);
+	auto denseCurve = getDenseXY(curve);
 	const auto& denseX = std::get<0>(denseCurve);
 	auto denseOffsets = xt::interp(denseX - xt::amin(denseX)[0], vX, vY);
 
@@ -424,7 +424,7 @@ float calcCurveLoss_(const xt::xtensor<float, 2>& offRange, const xt::xtensor<fl
 Curve bujo::curves::optimizeCurveLocal(const xt::xtensor<float, 2>& src, const Curve& curve, int max_offset_y, float quantile, float reg_coef)
 {
 	//previous attemp, local, hence unstable
-	auto denseXY = bujo::curves::interpolate::getDenseXY(curve);
+	auto denseXY = bujo::curves::getDenseXY(curve);
 	const auto& denseX = std::get<0>(denseXY);
 	const auto& denseY = std::get<1>(denseXY);
 	auto denseDst = calcDistanceFromCurve_(src, xt::cast<int>(denseX), xt::cast<int>(denseY), max_offset_y);
@@ -577,6 +577,69 @@ Curve bujo::curves::interpolateCurves(const Curve& src1, const Curve& src2, floa
 	auto y1 = xt::interp(res.x_value, src1.x_value, src1.y_value);
 	auto y2 = xt::interp(res.x_value, src2.x_value, src2.y_value);
 	res.y_value = y1 * (1 - alpha) + y2 * alpha;
+	res.calculateLenParametrization();
+	return res;
+}
+
+Curve bujo::curves::clipCurve(const xt::xtensor<float, 2>& src, const Curve& curve, unsigned window, unsigned trim)
+{
+	auto denseXY = bujo::curves::getDenseXY(curve);
+	auto &denseX = std::get<0>(denseXY);
+	auto &denseY = std::get<1>(denseXY);
+
+	int dneg = window / 2;
+	int dpos = window - dneg;
+
+	xt::xtensor<float, 1> r;
+	r.resize({ denseX.size() });
+	for (int i = 0; i < denseX.size(); i++)
+	{
+		int j = static_cast<int>(denseX[i]);
+		int i0 = std::max(0, static_cast<int>(std::floorf(denseY[i])) - dneg);
+		int i1 = std::min(static_cast<int>(src.shape()[0] - 1), static_cast<int>(std::ceilf(denseY[i])) + dpos);
+		r[i] = xt::mean(xt::view(src, xt::range(i0, i1), j))[0];
+	}
+
+	//find left offset
+	int offLeft = 0;
+	while (offLeft < r.size() && r[offLeft] <= 1e-3f)
+		offLeft++;
+	float xMin = denseX[std::min(static_cast<int>(r.size()-1) , std::max(0, offLeft - static_cast<int>(trim)))];
+	if (xMin < curve.x_value[0])
+		xMin = curve.x_value[0];
+
+	//find right offset
+	int offRight = r.size()-1;
+	while (offRight >= 0 && r[offRight] <= 1e-3f)
+		offRight--;
+	float xMax = denseX[std::min(static_cast<int>(r.size() - 1), std::max(0, offRight + static_cast<int>(trim)))];
+	if (xMax > curve.x_value[curve.x_value.size()-1])
+		xMax = curve.x_value[curve.x_value.size() - 1];
+
+	std::vector<float> xValues;
+	xValues.reserve(curve.x_value.size());
+	for (int i = 0; i < curve.x_value.size(); i++)
+	{
+		if (curve.x_value[i] < xMin)
+			continue;
+		if (curve.x_value[i] > xMax)
+			continue;
+		if (xValues.empty())
+		{
+			if (curve.x_value[i] > xMin + 1e-7)
+				xValues.push_back(xMin);
+		}
+		xValues.push_back(curve.x_value[i]);
+	}
+	if (xValues.back() < xMax - 1e-7)
+		xValues.push_back(xMax);
+
+
+	Curve res;
+	res.x_value.resize({ xValues.size() });
+	for (int i = 0; i < xValues.size(); i++)
+		res.x_value[i] = xValues[i];
+	res.y_value = xt::interp(res.x_value, curve.x_value, curve.y_value);
 	res.calculateLenParametrization();
 	return res;
 }
@@ -753,7 +816,7 @@ xt::xtensor<float, 1> bujo::curves::integral::calcIntegralOverCurve(const xt::xt
 {
 	xt::xtensor<float, 1> res;
 	res.resize({ offsets.size() });
-	auto xyLocs = interpolate::getDenseXY(curve);
+	auto xyLocs = getDenseXY(curve);
 	const auto& xLocs = std::get<0>(xyLocs);
 	const auto& yLocs = std::get<1>(xyLocs);
 	for (int i = 0; i < offsets.size(); i++)
@@ -780,7 +843,7 @@ xt::xtensor<float, 1> bujo::curves::integral::calcAccumIntegralOverCurve(const x
 
 xt::xtensor<float, 2> bujo::curves::integral::calcAccumIntegralOverCurve(const xt::xtensor<float, 2>& src, const Curve& curve, const xt::xtensor<float, 1>& offsets)
 {
-	auto xyLocs = interpolate::getDenseXY(curve);
+	auto xyLocs = getDenseXY(curve);
 	const auto& xLocs = std::get<0>(xyLocs);
 	const auto& yLocs = std::get<1>(xyLocs);
 
@@ -801,7 +864,7 @@ xt::xtensor<float, 2> bujo::curves::integral::calcAccumIntegralOverCurve(const x
 }
 
 
-std::tuple<xt::xtensor<float, 1>, xt::xtensor<float, 1>> bujo::curves::interpolate::getDenseXY(const Curve& curve)
+std::tuple<xt::xtensor<float, 1>, xt::xtensor<float, 1>> bujo::curves::getDenseXY(const Curve& curve)
 {
 	float xMin = xt::amin(curve.x_value)[0], xMax = xt::amax(curve.x_value)[0];
 	int jMin = static_cast<int>(std::floorf(xMin));
