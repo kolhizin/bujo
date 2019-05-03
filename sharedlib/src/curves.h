@@ -71,6 +71,7 @@ namespace bujo
 			const CurveCombination& combination);
 		xt::xtensor<float, 1> calculateCurveCombinationIntegral(const xt::xtensor<float, 2>& src, const std::vector<Curve>& supportCurves,
 			const std::vector<CurveCombination>& combination);
+		std::vector<unsigned> selectCurveCandidates(const xt::xtensor<float, 1>& vals, unsigned window, float min_value, float max_ratio);
 		Curve generateCurve(const std::vector<Curve>& supportCurves, const CurveCombination& curveCombination, float clipMin, float clipMax);
 	}
 }

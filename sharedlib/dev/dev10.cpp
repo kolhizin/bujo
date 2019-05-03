@@ -87,17 +87,27 @@ void dev10()
 
 	auto curve_combos = bujo::curves::generateCurveCombinations(src6, supportCurves);
 	auto combo_values = bujo::curves::calculateCurveCombinationIntegral(src6, supportCurves, curve_combos);
+	auto curve_candidates = bujo::curves::selectCurveCandidates(combo_values, textLineDelta, 5.0f, 0.8f);
+	
+	std::vector<bujo::curves::Curve> allCurves;
+	allCurves.reserve(curve_candidates.size());
+	std::transform(curve_candidates.cbegin(), curve_candidates.cend(), std::back_inserter(allCurves),
+		[&src6, &supportCurves, &curve_combos](const auto & v)
+		{ return bujo::curves::generateCurve(supportCurves, curve_combos[v], 0.0f, static_cast<float>(src6.size()-1)); });
 
 	auto t1 = std::chrono::system_clock::now();
 
 	std::cout << combo_values << "\n\n";
 
 	cv1 = bujo::util::xt2cv(src6, CV_8U);
-	for (int i = 0; i < supportCurves.size(); i++)
+	for (int i = 0; i < allCurves.size(); i++)
 	{
-		plot(cv1, supportCurves[i]);
-		std::cout << supportCurves[i].len_param.size() << " " << supportCurves[i].x_value.size() << "\n";
+		plot(cv1, allCurves[i]);
+		std::cout << allCurves[i].len_param.size() << " " << allCurves[i].x_value.size() << "\n";
 	}
+	for (int i = 0; i < curve_candidates.size(); i++)
+		std::cout << curve_candidates[i] << ", ";
+	std::cout << "\n\n";
 
 
 	std::cout << "Elapsed " << std::chrono::duration<float>(t1 - t0).count() << "s.\n\n";

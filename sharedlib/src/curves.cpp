@@ -1,6 +1,7 @@
 #include "curves.h"
 #include "extremum.h"
 #include "radon.h"
+#include "filters.h"
 #include <xtensor/xview.hpp>
 #include <xtensor/xsort.hpp>
 #include <xtensor/xindex_view.hpp>
@@ -698,6 +699,38 @@ xt::xtensor<float, 1> bujo::curves::calculateCurveCombinationIntegral(const xt::
 			combination[i].alpha, combination[i].offset);
 	}
 	return res;
+}
+
+std::vector<unsigned> bujo::curves::selectCurveCandidates(const xt::xtensor<float, 1>& vals, unsigned window, float min_value, float max_ratio)
+{
+	std::vector<unsigned> res;
+
+	//1 step locate local maximas
+	auto s1 = bujo::extremum::getLocalMaximas(vals);
+
+	//2 step filter by maxima in window and ratio value
+	auto wmax = bujo::filters::filterMax1D(vals, window);
+	auto wmin1 = bujo::filters::filterMin1D1Way(vals, static_cast<int>(window));
+	auto wmin2 = bujo::filters::filterMin1D1Way(vals, -static_cast<int>(window));
+	auto wmin = xt::maximum(wmin1, wmin2);
+
+	std::vector<unsigned> s2;
+	s2.reserve(s1.size());
+	for (int i = 0; i < s1.size(); i++)
+	{
+		if (vals[s1[i]] < min_value)
+			continue;
+		if (vals[s1[i]] < wmax[s1[i]])
+			continue;
+		if (wmin[s1[i]] / vals[s1[i]] > max_ratio)
+			continue;
+		s2.push_back(s1[i]);
+	}
+
+	//3 step filter "flat" regions, leaving only most center ones
+	auto s3 = bujo::extremum::filterAdjacentExtremas(s2);
+
+	return s3;
 }
 
 Curve bujo::curves::generateCurve(const std::vector<Curve>& supportCurves, const CurveCombination& curveCombination, float clipMin, float clipMax)

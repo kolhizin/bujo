@@ -217,12 +217,13 @@ xt::xtensor<float, 1> bujo::filters::filterMin1D1Way(const xt::xtensor<float, 1>
 	res.resize({ src.size() });
 	int dneg = window / 2;
 	int dpos = window - dneg;
+	int imax = static_cast<int>(src.size()) - 1;
 	for (int i = 0; i < src.size(); i++)
 	{
 		if (window >= 0)
-			res[i] = xt::amin(xt::view(src, xt::range(i, i + window)))[0];
+			res[i] = xt::amin(xt::view(src, xt::range(i, std::min(imax, i + window))))[0];
 		else
-			res[i] = xt::amin(xt::view(src, xt::range(i, i + window, -1)))[0];
+			res[i] = xt::amin(xt::view(src, xt::range(i, std::max(0, i + window), -1)))[0];
 	}
 	return res;
 }
