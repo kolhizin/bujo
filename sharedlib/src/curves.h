@@ -59,6 +59,8 @@ namespace bujo
 		Curve reparamByLength(const Curve& curve, unsigned numPoints);
 		Curve reparamByX(const Curve& curve, unsigned numPoints);
 
+		Curve extractCurve(const Curve& src, float p0, float p1);
+		Curve affineTransformCurve(const Curve& src, float x_offset, float x_scale, float y_offset, float y_scale);
 		Curve shiftCurve(const Curve& src, float yOffset, float clampMin, float clampMax);
 		Curve interpolateCurves(const Curve& src1, const Curve& src2, float alpha);
 		Curve clipCurve(const xt::xtensor<float, 2>& src, const Curve& curve, unsigned window, unsigned trim);

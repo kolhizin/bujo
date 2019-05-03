@@ -560,6 +560,43 @@ Curve bujo::curves::reparamByX(const Curve& curve, unsigned numPoints)
 	return res;
 }
 
+Curve bujo::curves::extractCurve(const Curve& src, float p0, float p1)
+{
+	std::vector<float> ps;
+	ps.reserve(src.len_param.size()+2);
+	ps.push_back(p0);
+	for (int i = 0; i < src.len_param.size(); i++)
+	{
+		if (src.len_param[i] <= p0)
+			continue;
+		if (src.len_param[i] > p1)
+			break;
+		ps.push_back(src.len_param[i]);
+	}
+	if (ps.back() < p1)
+		ps.push_back(p1);
+
+	xt::xtensor<float, 1> pt;
+	pt.resize({ ps.size() });
+	for (int i = 0; i < pt.size(); i++)
+		pt[i] = ps[i];
+
+	Curve res;
+	res.x_value = xt::interp(pt, src.len_param, src.x_value);
+	res.y_value = xt::interp(pt, src.len_param, src.y_value);
+	res.calculateLenParametrization();
+	return res;
+}
+
+Curve bujo::curves::affineTransformCurve(const Curve& src, float x_offset, float x_scale, float y_offset, float y_scale)
+{
+	Curve res;
+	res.x_value = src.x_value * x_scale + x_offset;
+	res.y_value = src.y_value * y_scale + y_offset;
+	res.calculateLenParametrization();
+	return res;
+}
+
 Curve bujo::curves::shiftCurve(const Curve& src, float yOffset, float clampMin, float clampMax)
 {
 	Curve res;
