@@ -59,8 +59,8 @@ void dev12()
 
 	auto t1 = std::chrono::system_clock::now();
 
-	auto tmp = bujo::words::locateWordsInLine(src7[0], 5, textCutoff);
-	auto tmp2 = bujo::words::extractWordFromLine(src7[0], tmp[4]);
+	auto tmp = bujo::words::locateWordsInLine(src7[0]> textCutoff, 5, textCutoff);
+	auto tmp2 = bujo::words::extractWordFromLine(src7[0], tmp[7]);
 
 	cv1 = bujo::util::xt2cv(tmp2 > textCutoff, CV_8U);
 

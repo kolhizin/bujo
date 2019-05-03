@@ -21,7 +21,7 @@ std::vector<Word> bujo::words::locateWordsInLine(const xt::xtensor<float, 2>& sr
 			continue;
 		int j0 = lms[i - 1];
 		int j1 = lms[i];
-		float val = xt::amax(xt::view(v0, xt::range(j0, j1)))[0];
+		float val = xt::mean(xt::view(v0, xt::range(j0, j1)))[0];
 		if (val < min_value)
 			continue;
 		Word w;
