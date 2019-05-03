@@ -179,9 +179,37 @@ void bujo::transform::setRegionsValue(xt::xtensor<float, 2>& src, std::vector<bu
 			bujo::splits::rescaleSplit(splits[i].desc, dsize), 1, value);
 }
 
-std::vector<bujo::curves::Curve> bujo::transform::locateCurves(const xt::xtensor<float, 2>& src, const std::vector<bujo::curves::Curve>& supportCurves)
+std::vector<bujo::curves::Curve> bujo::transform::generateSupportCurves(const xt::xtensor<float, 2>& src,
+	unsigned num_curves, float quantile_v, float quantile_h,
+	unsigned window_x, unsigned window_y, const bujo::curves::CurveGenerationOptions& options, float optimization_reg_coef)
 {
-	std::vector<bujo::curves::Curve> res;
-	auto curveCombinations = bujo::curves::generateCurveCombinations(src, supportCurves);
-	return res;
+	std::vector<bujo::curves::Curve> supportCurves;
+	auto start_points = bujo::curves::selectSupportPoints(src, num_curves, quantile_v, quantile_h);
+	supportCurves.reserve(start_points.size());
+
+	std::transform(start_points.cbegin(), start_points.cend(), std::back_inserter(supportCurves),
+		[&src, &window_y, &window_x, &options, &optimization_reg_coef](const auto & v)
+		{ return bujo::curves::optimizeCurve(src,
+			bujo::curves::generateCurve(src, std::get<0>(v), std::get<1>(v), options),
+			window_y, window_x, optimization_reg_coef); });
+	return supportCurves;
+}
+
+std::vector<bujo::curves::Curve> bujo::transform::generateAllCurves(const xt::xtensor<float, 2>& src, const std::vector<bujo::curves::Curve>& supportCurves,
+	unsigned window_x, unsigned window_y, float min_value, float max_ratio, float optimization_reg_coef)
+{
+	auto curve_combos = bujo::curves::generateCurveCombinations(src, supportCurves);
+	auto combo_values = bujo::curves::calculateCurveCombinationIntegral(src, supportCurves, curve_combos);
+	auto curve_candidates = bujo::curves::selectCurveCandidates(combo_values, window_y, min_value, max_ratio);
+
+	float clip_max = static_cast<float>(src.size() - 1);
+
+	std::vector<bujo::curves::Curve> allCurves;
+	allCurves.reserve(curve_candidates.size());
+	std::transform(curve_candidates.cbegin(), curve_candidates.cend(), std::back_inserter(allCurves),
+		[&src, &supportCurves, &curve_combos, &clip_max, &optimization_reg_coef, &window_y, &window_x](const auto & v)
+		{ return bujo::curves::optimizeCurve(src, bujo::curves::generateCurve(supportCurves, curve_combos[v], 0.0f, clip_max),
+			window_y, window_x, optimization_reg_coef); });
+
+	return allCurves;
 }
