@@ -20,5 +20,7 @@ namespace bujo
 
 		xt::xtensor<float, 1> filterMax1D(const xt::xtensor<float, 1>& src, unsigned window);
 		xt::xtensor<float, 1> filterMin1D(const xt::xtensor<float, 1>& src, unsigned window);
+		xt::xtensor<float, 1> filterMax1D1Way(const xt::xtensor<float, 1>& src, int window);
+		xt::xtensor<float, 1> filterMin1D1Way(const xt::xtensor<float, 1>& src, int window);
 	}
 }

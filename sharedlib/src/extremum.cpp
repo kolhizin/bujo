@@ -160,6 +160,36 @@ std::vector<unsigned> bujo::extremum::filterAdjacentExtremas(const std::vector<u
 	return res;
 }
 
+std::vector<unsigned> bujo::extremum::filterCloseMinimas(const xt::xtensor<float, 1>& src, const std::vector<unsigned>& ids, unsigned window)
+{
+	std::vector<unsigned> res;
+	res.reserve(ids.size());
+	for (int i = 0; i < ids.size(); i++)
+	{
+		if ((i < ids.size() - 1) && (std::labs(ids[i] - ids[i + 1]) < window) && (src[ids[i + 1]] < src[ids[i]]))
+			continue;
+		if ((i > 0) && (std::labs(ids[i] - ids[i - 1]) < window) && (src[ids[i - 1]] < src[ids[i]]))
+			continue;
+		res.push_back(ids[i]);
+	}
+	return res;
+}
+
+std::vector<unsigned> bujo::extremum::filterCloseMaximas(const xt::xtensor<float, 1>& src, const std::vector<unsigned>& ids, unsigned window)
+{
+	std::vector<unsigned> res;
+	res.reserve(ids.size());
+	for (int i = 0; i < ids.size(); i++)
+	{
+		if ((i < ids.size() - 1) && (std::labs(ids[i] - ids[i + 1]) < window) && (src[ids[i + 1]] > src[ids[i]]))
+			continue;
+		if ((i > 0) && (std::labs(ids[i] - ids[i - 1]) < window) && (src[ids[i - 1]] > src[ids[i]]))
+			continue;
+		res.push_back(ids[i]);
+	}
+	return res;
+}
+
 unsigned bujo::extremum::findLocalMaximaByGradient(const xt::xtensor<float, 1>& src, unsigned i0, bool strictExtremum)
 {
 	int i = std::max(0, std::min(static_cast<int>(src.size()) - 1, static_cast<int>(i0)));

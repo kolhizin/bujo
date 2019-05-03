@@ -194,3 +194,35 @@ xt::xtensor<float, 1> bujo::filters::filterMin1D(const xt::xtensor<float, 1>& sr
 	}
 	return res;
 }
+
+xt::xtensor<float, 1> bujo::filters::filterMax1D1Way(const xt::xtensor<float, 1>& src, int window)
+{
+	xt::xtensor<float, 1> res;
+	res.resize({ src.size() });
+	int dneg = window / 2;
+	int dpos = window - dneg;
+	for (int i = 0; i < src.size(); i++)
+	{
+		if (window >= 0)
+			res[i] = xt::amax(xt::view(src, xt::range(i, i + window)))[0];
+		else
+			res[i] = xt::amax(xt::view(src, xt::range(i, i + window, -1)))[0];
+	}
+	return res;
+}
+
+xt::xtensor<float, 1> bujo::filters::filterMin1D1Way(const xt::xtensor<float, 1>& src, int window)
+{
+	xt::xtensor<float, 1> res;
+	res.resize({ src.size() });
+	int dneg = window / 2;
+	int dpos = window - dneg;
+	for (int i = 0; i < src.size(); i++)
+	{
+		if (window >= 0)
+			res[i] = xt::amin(xt::view(src, xt::range(i, i + window)))[0];
+		else
+			res[i] = xt::amin(xt::view(src, xt::range(i, i + window, -1)))[0];
+	}
+	return res;
+}
