@@ -18,6 +18,7 @@ namespace bujo
 			void calculateLenParametrization();
 		};
 
+
 		struct CurveCombination
 		{
 			int idx1, idx2;
@@ -60,6 +61,10 @@ namespace bujo
 		Curve reparamByX(const Curve& curve, unsigned numPoints);
 
 		Curve extractCurve(const Curve& src, float p0, float p1);
+		inline Curve extractCurve(const Curve& src, const std::tuple<float, float> &param)
+		{
+			return extractCurve(src, std::get<0>(param), std::get<1>(param));
+		}
 		Curve affineTransformCurve(const Curve& src, float x_offset, float x_scale, float y_offset, float y_scale);
 		Curve shiftCurve(const Curve& src, float yOffset, float clampMin, float clampMax);
 		Curve interpolateCurves(const Curve& src1, const Curve& src2, float alpha);
@@ -74,5 +79,7 @@ namespace bujo
 		Curve generateCurve(const std::vector<Curve>& supportCurves, const CurveCombination& curveCombination, float clipMin, float clipMax);
 
 		std::tuple<unsigned, unsigned> getCurveHeight(const xt::xtensor<float, 2>& src, const Curve& curve, unsigned max_offset, float reg_coef);
+
+		std::vector<std::tuple<float, float>> locateWordsInLine(const xt::xtensor<float, 2>& srcLine, unsigned window, float min_value);
 	}
 }

@@ -14,17 +14,18 @@
 #include <src/filters.h>
 #include <src/extremum.h>
 #include <src/curves.h>
-#include <src/words.h>
 #include "devutils.h"
 #include <xtensor/xio.hpp>
 
 void dev12()
 {
-	cv::Mat cv0, cv1;
+	cv::Mat cv0, cv1, cvi;
 	cv0 = cv::imread("D:\\Data\\bujo_sample\\20190309_125151.jpg", cv::IMREAD_COLOR);
 	//cv0 = cv::imread("D:\\Data\\bujo_sample\\test_rot30.jpg", cv::IMREAD_COLOR);
-	cv::resize(cv0, cv0, cv::Size(), 0.1, 0.1);
 	cv::cvtColor(cv0, cv0, cv::COLOR_RGB2GRAY);
+	cv::resize(cv0, cvi, cv::Size(), 0.5, 0.5);
+	auto img0 = bujo::util::cv2xt(cvi);
+	cv::resize(cv0, cv0, cv::Size(), 0.1, 0.1);
 	if (cv0.empty()) // Check for invalid input
 		throw std::runtime_error("Could not open file with test image!");
 
@@ -49,27 +50,26 @@ void dev12()
 	auto supportCurves = bujo::transform::generateSupportCurves(src6, 6, 0.5f, 0.5f, 25, textLineDelta);
 	auto allCurves = bujo::transform::generateAllCurves(src6, supportCurves, 25, textLineDelta);
 
-	std::vector<xt::xtensor<float, 2>> src7;
-	src7.reserve(allCurves.size());
-	std::transform(allCurves.cbegin(), allCurves.cend(), std::back_inserter(src7),
-		[&src5, &src6, &textLineDelta, &textCutoff](const auto & v) {
-			auto h = bujo::curves::getCurveHeight(src6, v, textLineDelta * 2, 0.1f);
-			return bujo::curves::extractCurveRegion(src5, v, std::get<0>(h), std::get<1>(h));
+	std::vector<std::vector<bujo::transform::Word>> allWords;
+	allWords.reserve(allCurves.size());
+	std::transform(allCurves.cbegin(), allCurves.cend(), std::back_inserter(allWords),
+		[&src5, &textLineDelta, &textCutoff](const auto & v) {
+			return bujo::transform::generateWords(src5 > textCutoff, v, textLineDelta * 2, 0.1f, 5, 0.1f);
 		});
 
 	auto t1 = std::chrono::system_clock::now();
-
-	auto tmp = bujo::words::locateWordsInLine(src7[0]> textCutoff, 5, textCutoff);
-	auto tmp2 = bujo::words::extractWordFromLine(src7[0], tmp[7]);
-
-	cv1 = bujo::util::xt2cv(tmp2 > textCutoff, CV_8U);
-
-	for (int i = 0; i < tmp.size(); i++)
+	
+	std::cout << src1.shape()[0] << " " << src1.shape()[1] << "\n";
+	std::cout << src5.shape()[0] << " " << src5.shape()[1] << "\n";
+	for (int i = 0; i < allWords.size(); i++)
 	{
-		std::cout << i << ": " << tmp[i].param0 << " " << tmp[i].param1 << "\n";
+		std::cout << i << ": " << allWords[i].size() << "\n";
 	}
-	std::cout << "\n";
-
+	//auto tmp0 = bujo::curves::affineTransformCurve(allCurves[36], textLineDelta / 2 - 1, 5.0f, textLineDelta / 2 - 1, 5.0f);
+	//auto tmp1 = bujo::curves::extractCurveRegion(img0, tmp0, 25, 25);
+	auto tmp0 = bujo::transform::transformWord(allWords[35][1], textLineDelta / 2, 5.0f, textLineDelta / 2-1, 5.0f, 1.25f);
+	auto tmp1 = bujo::transform::extractWord(img0, tmp0);
+	cv1 = bujo::util::xt2cv(tmp1, CV_8U);
 
 	std::cout << "Elapsed " << std::chrono::duration<float>(t1 - t0).count() << "s.\n\n";
 	std::cout << "Text angle is " << textAngle << " radians\n";

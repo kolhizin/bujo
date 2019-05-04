@@ -214,3 +214,37 @@ std::vector<bujo::curves::Curve> bujo::transform::generateAllCurves(const xt::xt
 
 	return allCurves;
 }
+
+std::vector<Word> bujo::transform::generateWords(const xt::xtensor<float, 2>& src, const bujo::curves::Curve& curve, unsigned max_offset, float reg_coef, unsigned window, float cutoff_value)
+{
+	auto h = bujo::curves::getCurveHeight(src, curve, max_offset, reg_coef);
+	auto line = bujo::curves::extractCurveRegion(src, curve, std::get<0>(h), std::get<1>(h));
+	auto ranges = bujo::curves::locateWordsInLine(line, window, cutoff_value);
+	std::vector<Word> res;
+	res.reserve(ranges.size());
+	for (int i = 0; i < ranges.size(); i++)
+	{
+		Word wrd;
+		wrd.curve = bujo::curves::extractCurve(curve, ranges[i]);
+		wrd.neg_offset = std::get<0>(h);
+		wrd.pos_offset = std::get<1>(h);
+		res.push_back(std::move(wrd));
+	}
+	return std::move(res);
+}
+
+Word bujo::transform::transformWord(const Word& wrd, float x_offset, float x_factor, float y_offset, float y_factor, float h_factor)
+{
+	Word res;
+	res.curve = bujo::curves::affineTransformCurve(wrd.curve, x_offset, x_factor, y_offset, y_factor);
+	res.neg_offset = wrd.neg_offset * h_factor * y_factor;
+	res.pos_offset = wrd.pos_offset * h_factor * y_factor;
+	return res;
+}
+
+xt::xtensor<float, 2> bujo::transform::extractWord(const xt::xtensor<float, 2>& src, const Word& word)
+{
+	unsigned neg_offset = static_cast<unsigned>(std::ceilf(word.neg_offset));
+	unsigned pos_offset = static_cast<unsigned>(std::ceilf(word.pos_offset));
+	return bujo::curves::extractCurveRegion(src, word.curve, neg_offset, pos_offset);
+}

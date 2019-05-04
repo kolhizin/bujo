@@ -8,6 +8,12 @@ namespace bujo
 {
 	namespace transform
 	{
+		struct Word
+		{
+			bujo::curves::Curve curve;
+			float neg_offset, pos_offset;
+		};
+
 		xt::xtensor<float, 2> resizeImage(const xt::xtensor<float, 2>& src, float factor);
 		xt::xtensor<float, 2> rotateImage(const xt::xtensor<float, 2>& src, float angle);
 		
@@ -28,5 +34,11 @@ namespace bujo
 			float optimization_reg_coef=0.1f);
 		std::vector<bujo::curves::Curve> generateAllCurves(const xt::xtensor<float, 2>& src, const std::vector<bujo::curves::Curve> &supportCurves,
 			unsigned window_x, unsigned window_y, float min_value=5.0f, float max_ratio=0.8f, float optimization_reg_coef = 0.1f);
+
+		std::vector<Word> generateWords(const xt::xtensor<float, 2>& src, const bujo::curves::Curve& curve,
+			unsigned max_offset, float reg_coef, unsigned window, float cutoff_value);
+
+		Word transformWord(const Word& word, float x_offset, float x_factor, float y_offset, float y_factor, float h_factor);
+		xt::xtensor<float, 2> extractWord(const xt::xtensor<float, 2>& src, const Word& word);
 	}
 }

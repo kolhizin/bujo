@@ -591,8 +591,8 @@ Curve bujo::curves::extractCurve(const Curve& src, float p0, float p1)
 Curve bujo::curves::affineTransformCurve(const Curve& src, float x_offset, float x_scale, float y_offset, float y_scale)
 {
 	Curve res;
-	res.x_value = src.x_value * x_scale + x_offset;
-	res.y_value = src.y_value * y_scale + y_offset;
+	res.x_value = (src.x_value + x_offset) * x_scale;
+	res.y_value = (src.y_value + y_offset) * y_scale;
 	res.calculateLenParametrization();
 	return res;
 }
@@ -872,6 +872,30 @@ std::tuple<unsigned, unsigned> bujo::curves::getCurveHeight(const xt::xtensor<fl
 	auto vpos = xt::view(integrals, xt::range(max_offset, xt::placeholders::_)) + vreg;
 
 	return std::make_tuple(getClosestLocalMin1D_(vneg), getClosestLocalMin1D_(vpos));
+}
+
+std::vector<std::tuple<float, float>> bujo::curves::locateWordsInLine(const xt::xtensor<float, 2>& srcLine, unsigned window, float min_value)
+{
+	auto v0 = xt::amax(srcLine, 0);
+	auto vw = bujo::filters::filterMax1D(v0, window);
+	auto lms = bujo::extremum::getLocalMinimas(vw);
+
+	std::vector<std::tuple<float, float>> res;
+	res.reserve(lms.size());
+
+	for (int i = 1; i < lms.size(); i++)
+	{
+		if (lms[i] == lms[i - 1] + 1)
+			continue;
+		int j0 = lms[i - 1];
+		int j1 = lms[i];
+		float val = xt::mean(xt::view(v0, xt::range(j0, j1)))[0];
+		if (val < min_value)
+			continue;
+		res.emplace_back(static_cast<float>(j0), static_cast<float>(j1));
+	}
+
+	return res;
 }
 
 float bujo::curves::integral::calcIntegralOverCurve(const xt::xtensor<float, 2>& src, const Curve& curve, float offset)
