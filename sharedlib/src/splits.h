@@ -37,7 +37,7 @@ namespace bujo
 				for (int j = 0; j < src.shape()[1]; j++)
 				{
 					float val = (i * a_y + j * a_x - split.offset + r_offset);
-					if (val * f_dir > 0)
+					if (std::roundf(val * f_dir) >= 0.0f)
 						f(src.at(i, j));
 				}
 		}

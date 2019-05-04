@@ -7,6 +7,7 @@ void bujo::detector::Detector::clear_()
 {
 	supportCurves_.clear();
 	words_.clear();
+	allCurves_.clear();
 }
 
 void bujo::detector::Detector::loadImage(const xt::xtensor<float, 2>& src, float scale, const FilteringOptions& options)
@@ -24,6 +25,9 @@ void bujo::detector::Detector::loadImage(const xt::xtensor<float, 2>& src, float
 	textLineDelta_ = bujo::transform::getTextLineDelta(alignedImg_);
 	kernel_v_ = static_cast<unsigned>(std::floorf(textLineDelta_ * options.kernel_v_factor));
 	kernel_h_ = static_cast<unsigned>(std::floorf(textLineDelta_ * options.kernel_h_factor));
+
+	std::cout << textLineDelta_ << " " << kernel_h_ << " " << kernel_v_ << " " << textLineDelta_ / 2 << "\n";
+
 	filteredImg_ = bujo::transform::filterVarianceQuantile(alignedImg_, kernel_h_, kernel_v_,
 		options.quantile_h, options.quantile_v);
 	textCutoff_ = bujo::transform::calculateQuantile(filteredImg_, options.cutoff_quantile) * options.cutoff_coef;
@@ -54,11 +58,12 @@ void bujo::detector::Detector::selectSupportCurvesAuto(unsigned num_curves, unsi
 void bujo::detector::Detector::detectWords(unsigned curve_window, unsigned word_window, float word_cutoff, float reg_coef)
 {
 	words_.clear();
-	auto allCurves = bujo::transform::generateAllCurves(textImg_, supportCurves_, curve_window, textLineDelta_);
+	allCurves_.clear();
+	allCurves_ = bujo::transform::generateAllCurves(textImg_, supportCurves_, curve_window, textLineDelta_);
 	auto tmp = usedImg_ > textCutoff_;
 
-	words_.reserve(allCurves.size());
-	std::transform(allCurves.cbegin(), allCurves.cend(), std::back_inserter(words_),
+	words_.reserve(allCurves_.size());
+	std::transform(allCurves_.cbegin(), allCurves_.cend(), std::back_inserter(words_),
 		[this, &tmp, &reg_coef, &word_cutoff, &word_window](const auto & v) {
 			return bujo::transform::generateWords(tmp, v, textLineDelta_ * 2, word_cutoff, word_window, reg_coef);
 		});
@@ -69,4 +74,9 @@ xt::xtensor<float, 2> bujo::detector::Detector::extractWord(unsigned lineId, uns
 	auto tmp0 = bujo::transform::transformWord(words_.at(lineId).at(wordId),
 		kernel_h_, 1.0 / scale_, kernel_v_-1, 1.0 / scale_, height_scale);
 	return bujo::transform::extractWord(alignedOriginalImg_, tmp0);
+}
+xt::xtensor<float, 2> bujo::detector::Detector::extractLine(unsigned lineId, unsigned neg_height, unsigned pos_height) const
+{
+	auto tmp = bujo::curves::affineTransformCurve(allCurves_.at(lineId), kernel_h_, 1.0 / scale_, kernel_v_, 1.0 / scale_);
+	return bujo::curves::extractCurveRegion(alignedOriginalImg_, tmp, neg_height, pos_height);
 }

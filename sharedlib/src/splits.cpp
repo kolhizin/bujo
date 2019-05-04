@@ -159,11 +159,11 @@ bool challenge_split_(const SplitStat& chmp, const SplitStat& chlg)
 {
 	if (chlg.volume_inside < chmp.volume_inside)
 		return true;
-	if (chlg.volume_inside > chmp.volume_inside + 1e-7)
+	if (chlg.volume_inside > chmp.volume_inside + 1e-7f)
 		return false;
 	if (chlg.margin_before + chlg.margin_after < chmp.margin_before + chmp.margin_after)
 		return true;
-	if (chlg.margin_before + chlg.margin_after > chmp.margin_before + chmp.margin_after + 1e-7)
+	if (chlg.margin_before + chlg.margin_after > chmp.margin_before + chmp.margin_after + 1e-7f)
 		return false;
 	if (std::min(chlg.volume_before, chlg.volume_after) > std::min(chmp.volume_before, chmp.volume_after))
 		return true;

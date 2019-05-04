@@ -31,22 +31,30 @@ void dev13()
 	
 	bujo::detector::Detector det;
 	det.loadImage(img0, 0.2f);
-	det.updateRegionAuto();
-	det.selectSupportCurvesAuto(6, 25);
+	det.updateRegionAuto(0.5f, 120, 15.0f, 1.0f, 0.01f);
+
+	det.selectSupportCurvesAuto(6, 200);
 	det.detectWords(25, 5);
 	
 	auto t1 = std::chrono::system_clock::now();
-
+	/*
 	for (int i = 0; i < det.numLines(); i++)
 	{
 		std::cout << i << ": " << det.numWords(i) << "\n";
-	}
-	//cv1 = bujo::util::xt2cv(det.extractWord(0, 2, 1.25f), CV_8U);
-	cv1 = bujo::util::xt2cv(det.mainImage() > det.textCutoff(), CV_8U);
+	}*/
+	//cv1 = bujo::util::xt2cv(det.extractLine(6, 25, 25), CV_8U);
+	//cv1 = bujo::util::xt2cv(det.coarseImage(), CV_8U);
+	//cv1 = bujo::util::xt2cv(det.mainImage() > det.textCutoff(), CV_8U);
+	cv1 = bujo::util::xt2cv(det.textImage(), CV_8U);
+	for(int i = 0; i < 6; i++)
+		plot(cv1, det.getSupportLine(i));
+
 
 	std::cout << "Elapsed " << std::chrono::duration<float>(t1 - t0).count() << "s.\n\n";
 	std::cout << "Text angle is " << det.textAngle() << " radians\n";
 	std::cout << "Text line delta is " << det.textDelta() << " pixels\n";
+	std::cout << "Text cutoff is " << det.textCutoff() << "\n";
+	std::cout << det.mainImage().shape()[0] << " " << det.mainImage().shape()[1] << "\n";
 
 	cv::namedWindow("Src", cv::WINDOW_AUTOSIZE);
 	cv::imshow("Src", cv1);

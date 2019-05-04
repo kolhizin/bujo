@@ -30,6 +30,7 @@ void dev12()
 		throw std::runtime_error("Could not open file with test image!");
 
 	auto src0 = bujo::util::cv2xt(cv0);
+	//auto src0 = bujo::transform::resizeImage(img0, 0.2f);
 
 	auto t0 = std::chrono::system_clock::now();
 
@@ -41,7 +42,7 @@ void dev12()
 	auto src3 = bujo::transform::thresholdImage(src2, textCutoff);
 	auto src4 = bujo::transform::coarseImage(src3, 0.25f, 0.5f, 0.2f);
 
-	auto splits = bujo::transform::findVSplits(src4, 0.5f, 50, 10.0f, 2.0f, 0.05f);
+	auto splits = bujo::transform::findVSplits(src4, 0.5f, 50, 5.0f, 2.0f, 0.03f);
 
 	auto src5 = src2;
 	bujo::transform::setRegionsValue(src5, splits, 4.0f, 0.0f);
@@ -69,7 +70,8 @@ void dev12()
 	//auto tmp1 = bujo::curves::extractCurveRegion(img0, tmp0, 25, 25);
 	auto tmp0 = bujo::transform::transformWord(allWords[35][1], textLineDelta / 2, 5.0f, textLineDelta / 2-1, 5.0f, 1.25f);
 	auto tmp1 = bujo::transform::extractWord(img0, tmp0);
-	cv1 = bujo::util::xt2cv(tmp1, CV_8U);
+	//cv1 = bujo::util::xt2cv(tmp1, CV_8U);
+	cv1 = bujo::util::xt2cv(src5 > textCutoff, CV_8U);
 
 	std::cout << "Elapsed " << std::chrono::duration<float>(t1 - t0).count() << "s.\n\n";
 	std::cout << "Text angle is " << textAngle << " radians\n";

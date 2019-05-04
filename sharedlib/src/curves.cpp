@@ -29,7 +29,7 @@ std::vector<std::tuple<unsigned, unsigned>> bujo::curves::selectSupportPoints(co
 	{
 		int real_i = static_cast<int>(ispace.at(i));
 		int i_lo = std::max(0, real_i - dy);
-		int i_hi = std::min(static_cast<int>(src.shape()[0]), real_i + dy);
+		int i_hi = std::min(static_cast<int>(vmean.size()), real_i + dy);
 		int iidx = xt::argmax(xt::view(vmean, xt::range(i_lo, i_hi)))[0];
 		int best_i = iidx + i_lo;
 
@@ -67,10 +67,14 @@ xt::xtensor<float, 2> bujo::curves::extractCurveRegion(const xt::xtensor<float, 
 	int max_x = static_cast<int>(std::ceilf(xt::amax(curve.x_value)[0]));
 	xt::xtensor<float, 2> res({ static_cast<size_t>(num_y), static_cast<size_t>(max_x - min_x)});
 
+	int imax = static_cast<int>(src.shape()[0] - 1);
 	xt::xtensor<float, 1> yvals = xt::interp(xt::arange<float>(max_x - min_x) + min_x, curve.x_value, curve.y_value);
-	for(int i = 0; i < num_y; i++)
+	for (int i = 0; i < num_y; i++)
 		for (int j = 0; j < max_x - min_x; j++)
-			res.at(i, j) = src.at(yvals[j] + i - dNeg, j + min_x);
+		{
+			int ival = std::max(0, std::min(imax, static_cast<int>(yvals[j] + i - dNeg)));
+			res.at(i, j) = src.at(ival, j + min_x);
+		}
 	return res;
 }
 

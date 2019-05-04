@@ -24,7 +24,7 @@ namespace bujo
 
 			xt::xtensor<float, 2> usedImg_, textImg_;
 
-			std::vector<bujo::curves::Curve> supportCurves_;
+			std::vector<bujo::curves::Curve> supportCurves_, allCurves_;
 			std::vector<std::vector<bujo::transform::Word>> words_;
 
 			unsigned kernel_v_, kernel_h_;
@@ -47,6 +47,9 @@ namespace bujo
 			inline float textCutoff() const { return textCutoff_; }
 
 			const xt::xtensor<float, 2>& mainImage() const { return usedImg_; }
+			const xt::xtensor<float, 2>& coarseImage() const { return coarseImg_; }
+			const xt::xtensor<float, 2>& textImage() const { return textImg_; }
+
 
 			inline unsigned numLines() const { return words_.size(); }
 			inline unsigned numWords(unsigned line) const { return words_.at(line).size(); }
@@ -57,7 +60,9 @@ namespace bujo
 					res += words_[i].size();
 				return res;
 			}
-
+			const bujo::curves::Curve& getLine(unsigned lineId) const { return allCurves_.at(lineId); }
+			const bujo::curves::Curve& getSupportLine(unsigned supportLineId) const { return supportCurves_.at(supportLineId); }
+			xt::xtensor<float, 2> extractLine(unsigned lineId, unsigned neg_height, unsigned pos_height) const;
 			xt::xtensor<float, 2> extractWord(unsigned lineId, unsigned wordId, float height_scale=1.0f) const;
 		};
 	}
