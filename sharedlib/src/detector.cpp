@@ -1,0 +1,72 @@
+#include "detector.h"
+#include "filters.h"
+
+using namespace bujo::detector;
+
+void bujo::detector::Detector::clear_()
+{
+	supportCurves_.clear();
+	words_.clear();
+}
+
+void bujo::detector::Detector::loadImage(const xt::xtensor<float, 2>& src, float scale, const FilteringOptions& options)
+{
+	clear_();
+
+	originalImg_ = src;
+
+	sourceImg_ = bujo::transform::resizeImage(originalImg_, scale);
+	scale_ = static_cast<float>(sourceImg_.shape()[0])/originalImg_.shape()[0];
+
+	angle_ = bujo::transform::getTextAngle(sourceImg_);
+	alignedImg_ = bujo::transform::rotateImage(sourceImg_, -angle_);
+	alignedOriginalImg_ = bujo::transform::rotateImage(originalImg_, -angle_);
+	textLineDelta_ = bujo::transform::getTextLineDelta(alignedImg_);
+	kernel_v_ = static_cast<unsigned>(std::floorf(textLineDelta_ * options.kernel_v_factor));
+	kernel_h_ = static_cast<unsigned>(std::floorf(textLineDelta_ * options.kernel_h_factor));
+	filteredImg_ = bujo::transform::filterVarianceQuantile(alignedImg_, kernel_h_, kernel_v_,
+		options.quantile_h, options.quantile_v);
+	textCutoff_ = bujo::transform::calculateQuantile(filteredImg_, options.cutoff_quantile) * options.cutoff_coef;
+	
+	auto tmp = bujo::transform::thresholdImage(filteredImg_, textCutoff_);
+	coarseImg_ = bujo::transform::coarseImage(tmp, options.coarse_scale, options.coarse_sigma, options.coarse_cutoff);
+
+	usedImg_ = filteredImg_;
+	textImg_ = bujo::filters::filterLocalMax2DV(usedImg_, textLineDelta_, 1, textCutoff_);
+}
+
+void bujo::detector::Detector::updateRegionAuto(float min_angle, unsigned num_angles, float minimal_abs_split_intensity, float maximal_abs_intersection, float minimal_pct_split)
+{
+	float dsize = static_cast<float>(usedImg_.shape()[0]) / coarseImg_.shape()[0];
+	auto splits = bujo::transform::findVSplits(coarseImg_, min_angle, num_angles, minimal_abs_split_intensity,
+		maximal_abs_intersection, minimal_pct_split);
+	bujo::transform::setRegionsValue(usedImg_, splits, dsize, 0.0f);
+
+	textImg_ = bujo::filters::filterLocalMax2DV(usedImg_, textLineDelta_, 1, textCutoff_);
+}
+
+void bujo::detector::Detector::selectSupportCurvesAuto(unsigned num_curves, unsigned window, float quantile_v, float quantile_h)
+{
+	supportCurves_ = bujo::transform::generateSupportCurves(textImg_, num_curves,
+		quantile_v, quantile_h, window, textLineDelta_);
+}
+
+void bujo::detector::Detector::detectWords(unsigned curve_window, unsigned word_window, float word_cutoff, float reg_coef)
+{
+	words_.clear();
+	auto allCurves = bujo::transform::generateAllCurves(textImg_, supportCurves_, curve_window, textLineDelta_);
+	auto tmp = usedImg_ > textCutoff_;
+
+	words_.reserve(allCurves.size());
+	std::transform(allCurves.cbegin(), allCurves.cend(), std::back_inserter(words_),
+		[this, &tmp, &reg_coef, &word_cutoff, &word_window](const auto & v) {
+			return bujo::transform::generateWords(tmp, v, textLineDelta_ * 2, word_cutoff, word_window, reg_coef);
+		});
+}
+
+xt::xtensor<float, 2> bujo::detector::Detector::extractWord(unsigned lineId, unsigned wordId, float height_scale) const
+{
+	auto tmp0 = bujo::transform::transformWord(words_.at(lineId).at(wordId),
+		kernel_h_, 1.0 / scale_, kernel_v_-1, 1.0 / scale_, height_scale);
+	return bujo::transform::extractWord(alignedOriginalImg_, tmp0);
+}
