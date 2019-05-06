@@ -38,7 +38,8 @@ namespace bujo
 			void updateRegionAuto(float min_angle = 0.5f, unsigned num_angles = 50, float minimal_abs_split_intensity = 10.0f,
 				float maximal_abs_intersection = 2.0f, float minimal_pct_split = 0.05f);
 
-			void selectSupportCurvesAuto(unsigned num_curves, unsigned window, float quantile_v = 0.5f, float quantile_h = 0.5f);
+			void selectSupportCurvesAuto(unsigned num_curves, unsigned window, float quantile_v = 0.5f, float quantile_h = 0.5f, float reg_coef = 0.5f,
+				const bujo::curves::CurveGenerationOptions &options=bujo::curves::CurveGenerationOptions());
 
 			void detectWords(unsigned curve_window, unsigned word_window, float word_cutoff=0.1f, float reg_coef=0.1f);
 

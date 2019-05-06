@@ -36,7 +36,7 @@ void bujo::detector::Detector::loadImage(const xt::xtensor<float, 2>& src, float
 	coarseImg_ = bujo::transform::coarseImage(tmp, options.coarse_scale, options.coarse_sigma, options.coarse_cutoff);
 
 	usedImg_ = filteredImg_;
-	textImg_ = bujo::filters::filterLocalMax2DV(usedImg_, textLineDelta_, 1, textCutoff_);
+	textImg_ = bujo::filters::filterLocalMax2DV(usedImg_, textLineDelta_, 2, textCutoff_);
 }
 
 void bujo::detector::Detector::updateRegionAuto(float min_angle, unsigned num_angles, float minimal_abs_split_intensity, float maximal_abs_intersection, float minimal_pct_split)
@@ -46,13 +46,14 @@ void bujo::detector::Detector::updateRegionAuto(float min_angle, unsigned num_an
 		maximal_abs_intersection, minimal_pct_split);
 	bujo::transform::setRegionsValue(usedImg_, splits, dsize, 0.0f);
 
-	textImg_ = bujo::filters::filterLocalMax2DV(usedImg_, textLineDelta_, 1, textCutoff_);
+	textImg_ = bujo::filters::filterLocalMax2DV(usedImg_, textLineDelta_, 2, textCutoff_);
 }
 
-void bujo::detector::Detector::selectSupportCurvesAuto(unsigned num_curves, unsigned window, float quantile_v, float quantile_h)
+void bujo::detector::Detector::selectSupportCurvesAuto(unsigned num_curves, unsigned window, float quantile_v, float quantile_h, 
+	float reg_coef, const bujo::curves::CurveGenerationOptions& options)
 {
 	supportCurves_ = bujo::transform::generateSupportCurves(textImg_, num_curves,
-		quantile_v, quantile_h, window, textLineDelta_);
+		quantile_v, quantile_h, window, textLineDelta_, options, reg_coef);
 }
 
 void bujo::detector::Detector::detectWords(unsigned curve_window, unsigned word_window, float word_cutoff, float reg_coef)
