@@ -173,10 +173,12 @@ std::vector<bujo::splits::RegionSplit> bujo::transform::findVSplits(const xt::xt
 		break;*/
 		auto splt = bujo::splits::findBestVSplit(tmp, angles, num_offsets, window_size,
 			minimal_abs_split_intensity, maximal_abs_intersection, minimal_pct_split);
-		std::cout << splt.desc.direction << ": " << splt.stats.volume_before << " " << splt.stats.volume_inside << " " << splt.stats.volume_after << "\n";
-		std::cout << splt.desc.angle << " " << splt.desc.offset << " " << splt.desc.offset_margin << "\n";
+
+		//std::cout << splt.desc.direction << ": " << splt.stats.volume_before << " " << splt.stats.volume_inside << " " << splt.stats.volume_after << "\n";
+		//std::cout << splt.desc.angle << " " << splt.desc.offset << " " << splt.desc.offset_margin << "\n";
 
 
+		/*
 		float a_x = std::sinf(splt.desc.angle), a_y = -std::cosf(splt.desc.angle);
 		float r_offset = -0.5f * tmp.shape()[1] * a_x - 0.5f * tmp.shape()[0] * a_y;
 		//float offset = 29.5f; //splt.desc.offset - 5
@@ -187,7 +189,7 @@ std::vector<bujo::splits::RegionSplit> bujo::transform::findVSplits(const xt::xt
 		int j1 = static_cast<int>((-r_offset + offset - i1 * a_y) / a_x);
 		std::cout << r_offset << " " << splt.desc.offset << " " << a_x << " " << 5/a_x << "\n";
 		std::cout << "(" << j0 << ", " << i0 << ") - (" << j1 << ", " << i1 << ");\n";
-		
+		*/
 		if (splt.desc.direction == 0)
 			break;
 		res.push_back(splt);

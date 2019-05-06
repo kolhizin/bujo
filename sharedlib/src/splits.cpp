@@ -4,9 +4,9 @@
 #include "util/quantiles.h"
 #include <xtensor/xview.hpp>
 
-#include <xtensor/xio.hpp>
-#include <opencv2/opencv.hpp>
-#include "util/utils.h"
+//#include <xtensor/xio.hpp>
+//#include <opencv2/opencv.hpp>
+//#include "util/utils.h"
 
 using namespace bujo::splits;
 
@@ -135,10 +135,17 @@ SplitStat calc_split_stat_(const xt::xtensor<float, 1>& src, const xt::xtensor<f
 
 	res.volume_inside = src.at(offset_id);
 	res.volume_before = res.volume_after = 0.0f;
+	res.intensity_after = res.intensity_before = 0.0f;
 	if (offset_id > 0)
+	{
 		res.volume_before = xt::sum(xt::view(src, xt::range(xt::placeholders::_, offset_id)))[0];
+		res.intensity_before = xt::amax(xt::view(src, xt::range(xt::placeholders::_, offset_id)))[0];
+	}
 	if (offset_id < src.size() - 1)
+	{
 		res.volume_after = xt::sum(xt::view(src, xt::range(offset_id + 1, xt::placeholders::_)))[0];
+		res.intensity_after = xt::amax(xt::view(src, xt::range(offset_id + 1, xt::placeholders::_)))[0];
+	}
 
 	int i_left = offset_id;
 	int i_right = offset_id;
@@ -173,7 +180,7 @@ bool challenge_split_(const SplitStat& chmp, const SplitStat& chlg)
 		return true;
 	if (chlg.margin_before * chlg.margin_after < chmp.margin_before * chmp.margin_after - 1e-7f)
 		return false;
-	if (std::min(chlg.volume_before, chlg.volume_after) > std::min(chmp.volume_before, chmp.volume_after))
+	if (std::min(chlg.intensity_before, chlg.intensity_after) > std::min(chmp.intensity_before, chmp.intensity_after))
 		return true;
 	return false;
 }
@@ -184,13 +191,13 @@ RegionSplit bujo::splits::findBestVSplit(const xt::xtensor<float, 2>& src, const
 {
 	auto rtr = bujo::radon::radon(src, angles, num_offsets, bujo::radon::RT_RADON);
 	auto mins = std::move(get_radon_local_minimas_2d_(std::get<0>(rtr), window_size, maximal_abs_intersection, minimal_abs_split_intensity));
-
+	/*
 	std::cout << std::get<1>(rtr) << "\n\n";
 
 	cv::Mat cv1 = bujo::util::xt2cv(std::get<0>(rtr), CV_8U);
 	cv::namedWindow("Radon", cv::WINDOW_AUTOSIZE);
 	cv::imshow("Radon", cv1);
-
+	*/
 	RegionSplit res;
 	res.desc.direction = 0;
 	res.stats.volume_inside = 1e30f;
@@ -202,7 +209,8 @@ RegionSplit bujo::splits::findBestVSplit(const xt::xtensor<float, 2>& src, const
 		RegionSplit tmp;
 		tmp.stats = calc_split_stat_(xt::view(std::get<0>(rtr), std::get<0>(mins[i]), xt::all()),
 			std::get<1>(rtr), std::get<1>(mins[i]));
-		if (std::min(tmp.stats.volume_before, tmp.stats.volume_after) < minimal_pct_split * (tmp.stats.volume_before + tmp.stats.volume_after))
+		if (std::min(tmp.stats.intensity_before, tmp.stats.intensity_after) <
+			minimal_pct_split * (tmp.stats.intensity_before + tmp.stats.intensity_after))
 			continue;
 		if (challenge_split_(res.stats, tmp.stats))
 		{
@@ -211,12 +219,12 @@ RegionSplit bujo::splits::findBestVSplit(const xt::xtensor<float, 2>& src, const
 			res.desc.offset = std::get<1>(rtr).at(idx);
 			res.desc.direction = (res.stats.volume_before < res.stats.volume_after ? -1 : 1);
 			res.stats = tmp.stats;
-
+			/*
 			std::cout << "\n" << std::get<0>(mins[i]) << " " << std::get<1>(mins[i]) << "\n";
 			std::cout << res.desc.angle << " " << res.desc.offset << "\n";
 			std::cout << res.stats.volume_inside << " " << res.stats.margin_before << " " << res.stats.margin_after << "\n";
 			std::cout << "idx=" << idx << "\n" << xt::view(std::get<0>(rtr), std::get<0>(mins[i]), xt::all()) << "\n\n";
-
+			*/
 			float offset_margin = 0.0f;
 			int num_offset_margin = 0;
 			if (idx < std::get<1>(rtr).size() - 1)

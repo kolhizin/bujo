@@ -35,7 +35,7 @@ void dev13()
 	std::cout << xt::view(det.coarseImage(), 10, xt::all()) << "\n\n";
 	std::cout << xt::view(det.coarseImage(), 40, xt::all()) << "\n\n";
 	*/
-	det.updateRegionAuto(1.2f, 100, 1.0f, 0.0f, 0.01f);
+	det.updateRegionAuto(1.2f, 100, 10.0f, 0.0f, 0.05f);
 
 	//det.selectSupportCurvesAuto(6, 25);
 	//det.detectWords(25, 5);

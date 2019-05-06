@@ -8,6 +8,7 @@ namespace bujo
 		struct SplitStat
 		{
 			float volume_inside, volume_before, volume_after;
+			float intensity_before, intensity_after;
 			float margin_before, margin_after;
 		};
 		struct SplitDesc
