@@ -12,7 +12,7 @@ namespace bujo
 		};
 		struct SplitDesc
 		{
-			float angle, offset;
+			float angle, offset, offset_margin;
 			int direction;
 		};
 		struct RegionSplit
@@ -37,7 +37,7 @@ namespace bujo
 				for (int j = 0; j < src.shape()[1]; j++)
 				{
 					float val = (i * a_y + j * a_x - split.offset + r_offset);
-					if (std::roundf(val * f_dir) >= 0.0f)
+					if (val * f_dir > split.offset_margin)
 						f(src.at(i, j));
 				}
 		}

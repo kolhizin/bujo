@@ -84,6 +84,31 @@ std::tuple<xt::xtensor<float, 2>, xt::xtensor<float, 1>> impl_vanilla_radon_(con
 }
 
 
+std::tuple<xt::xtensor<float, 2>, xt::xtensor<float, 1>> impl_accurate_radon_(const xt::xtensor<float, 2>& src, const xt::xtensor<float, 1>& angles, unsigned num_offsets)
+{
+	unsigned num_angles = static_cast<unsigned>(angles.size());
+	xt::xtensor<float, 1> offsets = set_uniform_offset_range_(src, num_offsets);
+	xt::xtensor<float, 2> radon_res = xt::zeros<float>({ angles.size(), offsets.size() });
+	float margin = offsets[1] - offsets[0];
+
+	float x_min = -float(src.shape()[1]) * 0.5f;
+	float y_min = -float(src.shape()[0]) * 0.5f;
+
+	for (unsigned a = 0; a < num_angles; a++)
+	{
+		float a_x = std::sinf(angles[a]), a_y = -std::cosf(angles[a]);
+		float r_offset = x_min * a_x + y_min * a_y;
+		for(int y = 0; y < src.shape()[0]; y++)
+			for (int x = 0; x < src.shape()[1]; x++)
+			{
+				float val = x * a_x + y * a_y + r_offset;
+				int idx = static_cast<int>(std::floorf((val - offsets[0]) / margin));
+				radon_res.at(a, idx) += src.at(y, x);
+			}
+	}
+	return std::make_tuple(radon_res, offsets);
+}
+
 std::tuple<xt::xtensor<float, 2>, xt::xtensor<float, 1>> impl_optimized_radon_(const xt::xtensor<float, 2>& src, const xt::xtensor<float, 1>& angles,unsigned num_offsets)
 {
 	unsigned num_angles = static_cast<unsigned>(angles.size());
@@ -150,6 +175,8 @@ std::tuple<xt::xtensor<float, 2>, xt::xtensor<float, 1>> bujo::radon::radon(cons
 		return impl_vanilla_radon_(src, angles, num_offset);
 	else if (transformType == TransformType::RT_RADON)
 		return impl_optimized_radon_(src, angles, num_offset);
+	else if (transformType == TransformType::RT_RADON_ACCURATE)
+		return impl_accurate_radon_(src, angles, num_offset);
 	//else if (transformType == TransformType::RT_HOUGH)
 	//	return impl_vanila_hough_(src, angles, num_offset);
 	else throw std::logic_error("Function radon() got unexpected transformType argument!");

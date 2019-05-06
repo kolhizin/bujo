@@ -153,19 +153,52 @@ std::vector<bujo::splits::RegionSplit> bujo::transform::findVSplits(const xt::xt
 		xt::linspace(min_angle, pi_f * 0.5f, num_angles / 2 + 1)));
 
 	float diag_size = std::sqrtf(src.shape()[0] * src.shape()[0] + src.shape()[1] * src.shape()[1]);
-	unsigned num_offsets = unsigned(std::ceilf(diag_size)) * 2;
-	unsigned window_size = unsigned(std::ceilf(diag_size * 0.1f));
+	unsigned num_offsets = unsigned(std::ceilf(diag_size)*2);
+	unsigned window_size = unsigned(std::ceilf(diag_size * 0.4f));
 	 
 	while (1)
 	{
+		/*
+		auto tmpr1 = bujo::radon::radon(tmp, angles, num_offsets, bujo::radon::RT_RADON);
+		auto tmpr2 = bujo::radon::radon(tmp, angles, num_offsets, bujo::radon::RT_RADON_ACCURATE);
+
+
+		cv::Mat cv1 = bujo::util::xt2cv(std::get<0>(tmpr1), CV_8U);
+		cv::Mat cv2 = bujo::util::xt2cv(std::get<0>(tmpr2), CV_8U);
+		cv::namedWindow("Radon-optimal", cv::WINDOW_AUTOSIZE);
+		cv::imshow("Radon-optimal", cv1);
+		cv::namedWindow("Radon-accurate", cv::WINDOW_AUTOSIZE);
+		cv::imshow("Radon-accurate", cv2);
+
+		break;*/
 		auto splt = bujo::splits::findBestVSplit(tmp, angles, num_offsets, window_size,
 			minimal_abs_split_intensity, maximal_abs_intersection, minimal_pct_split);
-		//std::cout << splt.desc.direction << ": " << splt.stats.volume_before << " " << splt.stats.volume_inside << " " << splt.stats.volume_after << "\n";
-		//std::cout << splt.desc.angle << " " << splt.desc.offset << "\n";
+		std::cout << splt.desc.direction << ": " << splt.stats.volume_before << " " << splt.stats.volume_inside << " " << splt.stats.volume_after << "\n";
+		std::cout << splt.desc.angle << " " << splt.desc.offset << " " << splt.desc.offset_margin << "\n";
+
+
+		float a_x = std::sinf(splt.desc.angle), a_y = -std::cosf(splt.desc.angle);
+		float r_offset = -0.5f * tmp.shape()[1] * a_x - 0.5f * tmp.shape()[0] * a_y;
+		//float offset = 29.5f; //splt.desc.offset - 5
+		float offset = splt.desc.offset;
+		int i0 = 0;
+		int j0 = static_cast<int>((-r_offset + offset) / a_x);
+		int i1 = tmp.shape()[0] - 1;
+		int j1 = static_cast<int>((-r_offset + offset - i1 * a_y) / a_x);
+		std::cout << r_offset << " " << splt.desc.offset << " " << a_x << " " << 5/a_x << "\n";
+		std::cout << "(" << j0 << ", " << i0 << ") - (" << j1 << ", " << i1 << ");\n";
+		
 		if (splt.desc.direction == 0)
 			break;
 		res.push_back(splt);
 		bujo::splits::setRegionValue(tmp, splt.desc, 1, 0.0f);
+
+		//cv::Mat cv1 = bujo::util::xt2cv(tmp, CV_8U);
+		//cv::line(cv1, cv::Point(j0, i0), cv::Point(j1, i1), cv::Scalar(255));
+		//cv::namedWindow("Tmp", cv::WINDOW_AUTOSIZE);
+		//cv::imshow("Tmp", cv1);
+
+		//break;
 	}
 
 	return res;

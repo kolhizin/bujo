@@ -20,7 +20,7 @@ void dev13()
 	cv0 = cv::imread("D:\\Data\\bujo_sample\\20190309_125151.jpg", cv::IMREAD_COLOR);
 	//cv0 = cv::imread("D:\\Data\\bujo_sample\\test_rot30.jpg", cv::IMREAD_COLOR);
 	cv::cvtColor(cv0, cv0, cv::COLOR_RGB2GRAY);
-	cv::resize(cv0, cv0, cv::Size(), 0.1, 0.1);
+	cv::resize(cv0, cv0, cv::Size(), 0.5, 0.5);
 	if (cv0.empty()) // Check for invalid input
 		throw std::runtime_error("Could not open file with test image!");
 
@@ -30,21 +30,26 @@ void dev13()
 	auto t0 = std::chrono::system_clock::now();
 	
 	bujo::detector::Detector det;
-	det.loadImage(img0, 1.0f);
-	det.updateRegionAuto(0.5f, 100, 10.0f, 1.0f, 0.01f);
+	det.loadImage(img0, 0.2f);
+	/*
+	std::cout << xt::view(det.coarseImage(), 10, xt::all()) << "\n\n";
+	std::cout << xt::view(det.coarseImage(), 40, xt::all()) << "\n\n";
+	*/
+	det.updateRegionAuto(1.2f, 100, 1.0f, 0.0f, 0.01f);
 
-	det.selectSupportCurvesAuto(6, 25);
-	det.detectWords(25, 5);
+	//det.selectSupportCurvesAuto(6, 25);
+	//det.detectWords(25, 5);
 	
 	auto t1 = std::chrono::system_clock::now();
 	
+	/*
 	for (int i = 0; i < det.numLines(); i++)
 	{
 		std::cout << i << ": " << det.numWords(i) << "\n";
-	}
-	cv1 = bujo::util::xt2cv(det.extractWord(0, 1, 1.25f), CV_8U);
+	}*/
+	//cv1 = bujo::util::xt2cv(det.extractWord(0, 1, 1.25f), CV_8U);
 	//cv1 = bujo::util::xt2cv(det.coarseImage(), CV_8U);
-	//cv1 = bujo::util::xt2cv(det.mainImage() > det.textCutoff(), CV_8U);
+	cv1 = bujo::util::xt2cv(det.mainImage() > det.textCutoff(), CV_8U);
 	//cv1 = bujo::util::xt2cv(det.textImage(), CV_8U);
 	//for(int i = 0; i < 6; i++)
 	//	plot(cv1, det.getSupportLine(i));
