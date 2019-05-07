@@ -166,9 +166,13 @@ std::vector<unsigned> bujo::extremum::filterCloseMinimas(const xt::xtensor<float
 	res.reserve(ids.size());
 	for (int i = 0; i < ids.size(); i++)
 	{
-		if ((i < ids.size() - 1) && (std::labs(ids[i] - ids[i + 1]) < window) && (src[ids[i + 1]] < src[ids[i]]))
+		if ((i < static_cast<int>(ids.size()) - 1) &&
+			(std::labs(ids[i] - ids[i + 1]) < static_cast<int>(window)) &&
+			(src[ids[i + 1]] < src[ids[i]]))
 			continue;
-		if ((i > 0) && (std::labs(ids[i] - ids[i - 1]) < window) && (src[ids[i - 1]] < src[ids[i]]))
+		if ((i > 0) &&
+			(std::labs(ids[i] - ids[i - 1]) < static_cast<int>(window)) &&
+			(src[ids[i - 1]] < src[ids[i]]))
 			continue;
 		res.push_back(ids[i]);
 	}
@@ -181,9 +185,13 @@ std::vector<unsigned> bujo::extremum::filterCloseMaximas(const xt::xtensor<float
 	res.reserve(ids.size());
 	for (int i = 0; i < ids.size(); i++)
 	{
-		if ((i < ids.size() - 1) && (std::labs(ids[i] - ids[i + 1]) < window) && (src[ids[i + 1]] > src[ids[i]]))
+		if ((i < static_cast<int>(ids.size()) - 1) &&
+			(std::labs(ids[i] - ids[i + 1]) < static_cast<int>(window)) &&
+			(src[ids[i + 1]] > src[ids[i]]))
 			continue;
-		if ((i > 0) && (std::labs(ids[i] - ids[i - 1]) < window) && (src[ids[i - 1]] > src[ids[i]]))
+		if ((i > 0) &&
+			(std::labs(ids[i] - ids[i - 1]) < static_cast<int>(window)) &&
+			(src[ids[i - 1]] > src[ids[i]]))
 			continue;
 		res.push_back(ids[i]);
 	}

@@ -27,10 +27,10 @@ namespace bujo
 			std::vector<bujo::curves::Curve> supportCurves_, allCurves_;
 			std::vector<std::vector<bujo::transform::Word>> words_;
 
-			unsigned kernel_v_, kernel_h_;
+			unsigned kernel_v_ = 0, kernel_h_ = 0;
 
-			float angle_, textCutoff_, scale_;
-			unsigned textLineDelta_;
+			float angle_ = 0.0f, textCutoff_ = 0.0f, scale_ = 1.0f;
+			unsigned textLineDelta_ = 0;
 			void clear_();
 		public:
 			void loadImage(const xt::xtensor<float, 2>& src, float scale = 1.0f, const FilteringOptions &options = FilteringOptions());
@@ -52,13 +52,13 @@ namespace bujo
 			const xt::xtensor<float, 2>& textImage() const { return textImg_; }
 
 
-			inline unsigned numLines() const { return words_.size(); }
-			inline unsigned numWords(unsigned line) const { return words_.at(line).size(); }
+			inline unsigned numLines() const { return static_cast<unsigned>(words_.size()); }
+			inline unsigned numWords(unsigned line) const { return static_cast<unsigned>(words_.at(line).size()); }
 			inline unsigned numWords() const
 			{
 				unsigned res = 0;
 				for (unsigned i = 0; i < words_.size(); i++)
-					res += words_[i].size();
+					res += static_cast<unsigned>(words_[i].size());
 				return res;
 			}
 			const bujo::curves::Curve& getLine(unsigned lineId) const { return allCurves_.at(lineId); }

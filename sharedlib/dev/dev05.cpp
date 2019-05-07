@@ -9,7 +9,7 @@
 #include <xtensor/xrandom.hpp>
 #include <algorithm>
 #include <chrono>
-#include <src/util/utils.h>
+#include <src/util/cv_ops.h>
 #include <src/transform.h>
 #include <src/filters.h>
 

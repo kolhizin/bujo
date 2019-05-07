@@ -9,7 +9,7 @@
 #include <xtensor/xrandom.hpp>
 #include <algorithm>
 #include <chrono>
-#include <src/util/utils.h>
+#include <src/util/cv_ops.h>
 #include <src/transform.h>
 #include <src/filters.h>
 #include <src/extremum.h>
@@ -68,7 +68,8 @@ void dev12()
 	}
 	//auto tmp0 = bujo::curves::affineTransformCurve(allCurves[36], textLineDelta / 2 - 1, 5.0f, textLineDelta / 2 - 1, 5.0f);
 	//auto tmp1 = bujo::curves::extractCurveRegion(img0, tmp0, 25, 25);
-	auto tmp0 = bujo::transform::transformWord(allWords[35][1], textLineDelta / 2, 5.0f, textLineDelta / 2-1, 5.0f, 1.25f);
+	auto tmp0 = bujo::transform::transformWord(allWords[35][1], static_cast<float>(textLineDelta / 2), 5.0f,
+		static_cast<float>(textLineDelta / 2)-1, 5.0f, 1.25f);
 	auto tmp1 = bujo::transform::extractWord(img0, tmp0);
 	//cv1 = bujo::util::xt2cv(tmp1, CV_8U);
 	cv1 = bujo::util::xt2cv(src5 > textCutoff, CV_8U);

@@ -203,6 +203,6 @@ float bujo::radon::findAngle(const xt::xtensor<float, 2>& src, const xt::xtensor
 	float max_angle = xt::amax(xt::abs(angles))[0];
 	auto regs0 = (reg_coef + max_angle - xt::abs(angles)) / (reg_coef + max_angle);
 	auto regs = xt::pow(regs0, reg_power);
-	int idx = xt::argmax(regs * vars)[0];
+	auto idx = xt::argmax(regs * vars)[0];
 	return angles.at(idx);
 }

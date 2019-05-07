@@ -3,7 +3,6 @@
 #include <xtensor/xarray.hpp>
 #include <xtensor/xtensor.hpp>
 #include <exception>
-#include "quantiles.h"
 
 namespace bujo
 {

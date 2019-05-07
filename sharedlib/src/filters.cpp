@@ -69,7 +69,7 @@ xt::xtensor<float, 2> kernel_gaussian_(float sigma, float cutoff)
 	size_t ksize = 1;
 	while (1)
 	{
-		double dst2 = ksize * ksize; //check only (0, ksize) point
+		double dst2 = static_cast<double>(ksize * ksize); //check only (0, ksize) point
 		double wgt = std::exp(-dst2 / (2.0 * sigma2)) / (2.0 * 3.1415 * sigma2); //actual normalization coef is not relevant
 		if (wgt < cutoff)
 			break;
@@ -79,7 +79,7 @@ xt::xtensor<float, 2> kernel_gaussian_(float sigma, float cutoff)
 	if (!(ksize & 1))
 		ksize++;
 
-	int c = ksize >> 1;
+	int c = static_cast<int>(ksize >> 1);
 	xt::xtensor<double, 2> res({ ksize, ksize });
 	for(unsigned i = 0; i < ksize; i++)
 		for (unsigned j = 0; j < ksize; j++)
@@ -96,8 +96,8 @@ xt::xtensor<float, 2> kernel_gaussian_(float sigma, float cutoff)
 xt::xtensor<float, 2> bujo::filters::filterGaussian2D(const xt::xtensor<float, 2>& src, float sigma)
 {
 	xt::xtensor<float, 2> res({src.shape()[0], src.shape()[1]});
-	auto kernel = kernel_gaussian_(sigma, 1e-3);
-	int ksize = kernel.shape()[0];
+	auto kernel = kernel_gaussian_(sigma, 1e-3f);
+	int ksize = static_cast<int>(kernel.shape()[0]);
 	int center = ksize >> 1;
 
 

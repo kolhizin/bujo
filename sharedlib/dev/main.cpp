@@ -10,6 +10,7 @@ void dev10();
 void dev11();
 void dev12();
 void dev13();
+void dev14();
 
 int main()
 {
@@ -21,6 +22,7 @@ int main()
 	//dev10();
 	//dev11();
 	//dev12();
-	dev13();
+	//dev13();
+	dev14();
 	return 0;
 }

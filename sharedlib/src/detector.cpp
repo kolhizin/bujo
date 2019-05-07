@@ -73,11 +73,13 @@ void bujo::detector::Detector::detectWords(unsigned curve_window, unsigned word_
 xt::xtensor<float, 2> bujo::detector::Detector::extractWord(unsigned lineId, unsigned wordId, float height_scale) const
 {
 	auto tmp0 = bujo::transform::transformWord(words_.at(lineId).at(wordId),
-		kernel_h_, 1.0 / scale_, kernel_v_-1, 1.0 / scale_, height_scale);
+		static_cast<float>(kernel_h_), 1.0f / scale_, static_cast<float>(kernel_v_-1), 1.0f / scale_, height_scale);
 	return bujo::transform::extractWord(alignedOriginalImg_, tmp0);
 }
 xt::xtensor<float, 2> bujo::detector::Detector::extractLine(unsigned lineId, unsigned neg_height, unsigned pos_height) const
 {
-	auto tmp = bujo::curves::affineTransformCurve(allCurves_.at(lineId), kernel_h_, 1.0 / scale_, kernel_v_, 1.0 / scale_);
+	auto tmp = bujo::curves::affineTransformCurve(allCurves_.at(lineId),
+		static_cast<float>(kernel_h_), 1.0f / scale_,
+		static_cast<float>(kernel_v_-1), 1.0f / scale_);
 	return bujo::curves::extractCurveRegion(alignedOriginalImg_, tmp, neg_height, pos_height);
 }

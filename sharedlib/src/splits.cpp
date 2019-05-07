@@ -4,15 +4,9 @@
 #include "util/quantiles.h"
 #include <xtensor/xview.hpp>
 
-//#include <xtensor/xio.hpp>
-//#include <opencv2/opencv.hpp>
-//#include "util/utils.h"
-
 using namespace bujo::splits;
 
 /*
-
-
 def search_region_vsplit(src, min_angle, num_angles,
 						 window_size_1d, max_value, zero_threshold, min_split_abs, max_split_pct):
 	"""Find near-vertical splits that remove irrelevant regions. Returns list of splits.
@@ -138,13 +132,13 @@ SplitStat calc_split_stat_(const xt::xtensor<float, 1>& src, const xt::xtensor<f
 	res.intensity_after = res.intensity_before = 0.0f;
 	if (offset_id > 0)
 	{
-		res.volume_before = xt::sum(xt::view(src, xt::range(xt::placeholders::_, offset_id)))[0];
-		res.intensity_before = xt::amax(xt::view(src, xt::range(xt::placeholders::_, offset_id)))[0];
+		res.volume_before = static_cast<float>(xt::sum(xt::view(src, xt::range(xt::placeholders::_, offset_id)))[0]);
+		res.intensity_before = static_cast<float>(xt::amax(xt::view(src, xt::range(xt::placeholders::_, offset_id)))[0]);
 	}
 	if (offset_id < src.size() - 1)
 	{
-		res.volume_after = xt::sum(xt::view(src, xt::range(offset_id + 1, xt::placeholders::_)))[0];
-		res.intensity_after = xt::amax(xt::view(src, xt::range(offset_id + 1, xt::placeholders::_)))[0];
+		res.volume_after = static_cast<float>(xt::sum(xt::view(src, xt::range(offset_id + 1, xt::placeholders::_)))[0]);
+		res.intensity_after = static_cast<float>(xt::amax(xt::view(src, xt::range(offset_id + 1, xt::placeholders::_)))[0]);
 	}
 
 	int i_left = offset_id;
@@ -191,13 +185,7 @@ RegionSplit bujo::splits::findBestVSplit(const xt::xtensor<float, 2>& src, const
 {
 	auto rtr = bujo::radon::radon(src, angles, num_offsets, bujo::radon::RT_RADON);
 	auto mins = std::move(get_radon_local_minimas_2d_(std::get<0>(rtr), window_size, maximal_abs_intersection, minimal_abs_split_intensity));
-	/*
-	std::cout << std::get<1>(rtr) << "\n\n";
-
-	cv::Mat cv1 = bujo::util::xt2cv(std::get<0>(rtr), CV_8U);
-	cv::namedWindow("Radon", cv::WINDOW_AUTOSIZE);
-	cv::imshow("Radon", cv1);
-	*/
+	
 	RegionSplit res;
 	res.desc.direction = 0;
 	res.stats.volume_inside = 1e30f;
@@ -219,12 +207,7 @@ RegionSplit bujo::splits::findBestVSplit(const xt::xtensor<float, 2>& src, const
 			res.desc.offset = std::get<1>(rtr).at(idx);
 			res.desc.direction = (res.stats.volume_before < res.stats.volume_after ? -1 : 1);
 			res.stats = tmp.stats;
-			/*
-			std::cout << "\n" << std::get<0>(mins[i]) << " " << std::get<1>(mins[i]) << "\n";
-			std::cout << res.desc.angle << " " << res.desc.offset << "\n";
-			std::cout << res.stats.volume_inside << " " << res.stats.margin_before << " " << res.stats.margin_after << "\n";
-			std::cout << "idx=" << idx << "\n" << xt::view(std::get<0>(rtr), std::get<0>(mins[i]), xt::all()) << "\n\n";
-			*/
+			
 			float offset_margin = 0.0f;
 			int num_offset_margin = 0;
 			if (idx < std::get<1>(rtr).size() - 1)

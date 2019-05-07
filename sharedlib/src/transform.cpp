@@ -1,5 +1,5 @@
 #include "transform.h"
-#include "util/utils.h"
+#include "util/quantiles.h"
 #include "radon.h"
 #include "filters.h"
 #include <xtensor/xview.hpp>
@@ -152,7 +152,7 @@ std::vector<bujo::splits::RegionSplit> bujo::transform::findVSplits(const xt::xt
 	auto angles = xt::concatenate(std::make_tuple(xt::linspace(-pi_f * 0.5f, -min_angle, num_angles / 2 + 1),
 		xt::linspace(min_angle, pi_f * 0.5f, num_angles / 2 + 1)));
 
-	float diag_size = std::sqrtf(src.shape()[0] * src.shape()[0] + src.shape()[1] * src.shape()[1]);
+	float diag_size = std::sqrtf(static_cast<float>(src.shape()[0] * src.shape()[0] + src.shape()[1] * src.shape()[1]));
 	unsigned num_offsets = unsigned(std::ceilf(diag_size)*2);
 	unsigned window_size = unsigned(std::ceilf(diag_size * 0.4f));
 	 
@@ -260,8 +260,8 @@ std::vector<Word> bujo::transform::generateWords(const xt::xtensor<float, 2>& sr
 	{
 		Word wrd;
 		wrd.curve = bujo::curves::extractCurve(curve, ranges[i]);
-		wrd.neg_offset = std::get<0>(h);
-		wrd.pos_offset = std::get<1>(h);
+		wrd.neg_offset = static_cast<float>(std::get<0>(h));
+		wrd.pos_offset = static_cast<float>(std::get<1>(h));
 		res.push_back(std::move(wrd));
 	}
 	return std::move(res);
