@@ -54,8 +54,8 @@ namespace bujo
 		std::tuple<xt::xtensor<float, 1>, xt::xtensor<float, 1>> getDenseXY(const Curve& curve);
 
 		Curve generateCurve(const xt::xtensor<float, 2>& src, int i0, int j0, const CurveGenerationOptions& options);
-		Curve optimizeCurveBinarySplit(const xt::xtensor<float, 2>& src, const Curve& curve, int max_offset_y, int min_window_x, float reg_coef);
-		Curve optimizeCurve(const xt::xtensor<float, 2>& src, const Curve& curve, int max_offset_y, int min_window_x, float reg_coef);
+		Curve optimizeCurveBinarySplit(const xt::xtensor<float, 2>& src, const Curve& curve, unsigned max_offset_y, unsigned min_window_x, float reg_coef);
+		Curve optimizeCurve(const xt::xtensor<float, 2>& src, const Curve& curve, unsigned max_offset_y, unsigned min_window_x, float reg_coef);
 		//Curve optimizeCurveLocal(const xt::xtensor<float, 2>& src, const Curve& curve, int max_offset_y, float quantile, float reg_coef);
 		Curve reparamByLength(const Curve& curve, unsigned numPoints);
 		Curve reparamByX(const Curve& curve, unsigned numPoints);
