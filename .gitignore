@@ -1,0 +1,16 @@
+
+*.ipch
+*.db
+*.opendb
+*.ide-shm
+*.ide-wal
+*.exe
+*.pdb
+*.cache
+*.cache
+*.obj
+DevLabelingApp/AppTest01/obj/Debug/DesignTimeResolveAssemblyReferences.cache
+*.tlog
+*.log
+*.lib
+*.cache
