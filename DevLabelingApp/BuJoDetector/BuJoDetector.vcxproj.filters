@@ -1,0 +1,94 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="SharedLib">
+      <UniqueIdentifier>{965bc45f-d2f6-4efa-8860-c7ca02e974f6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SharedLib\Utils">
+      <UniqueIdentifier>{9f9c1823-ef79-4733-96be-c790a9f4a723}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="BuJoDetector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\sharedlib\src\curves.h">
+      <Filter>SharedLib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\sharedlib\src\detector.h">
+      <Filter>SharedLib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\sharedlib\src\extremum.h">
+      <Filter>SharedLib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\sharedlib\src\filters.h">
+      <Filter>SharedLib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\sharedlib\src\radon.h">
+      <Filter>SharedLib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\sharedlib\src\splits.h">
+      <Filter>SharedLib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\sharedlib\src\transform.h">
+      <Filter>SharedLib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\sharedlib\src\util\quantiles.h">
+      <Filter>SharedLib\Utils</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="BuJoDetector.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AssemblyInfo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\sharedlib\src\curves.cpp">
+      <Filter>SharedLib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\sharedlib\src\detector.cpp">
+      <Filter>SharedLib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\sharedlib\src\extremum.cpp">
+      <Filter>SharedLib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\sharedlib\src\filters.cpp">
+      <Filter>SharedLib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\sharedlib\src\radon.cpp">
+      <Filter>SharedLib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\sharedlib\src\splits.cpp">
+      <Filter>SharedLib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\sharedlib\src\transform.cpp">
+      <Filter>SharedLib</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="app.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="app.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
+</Project>

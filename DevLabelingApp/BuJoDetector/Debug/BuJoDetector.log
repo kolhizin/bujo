@@ -1,0 +1,413 @@
+﻿  curves.cpp
+D:\Programming\bujo_poc\sharedlib\src\curves.cpp(142): warning C4018: '>=': signed/unsigned mismatch
+D:\Programming\bujo_poc\sharedlib\src\curves.cpp(175): warning C4018: '<': signed/unsigned mismatch
+D:\Programming\bujo_poc\sharedlib\src\curves.cpp(190): warning C4018: '<': signed/unsigned mismatch
+D:\Programming\bujo_poc\sharedlib\src\curves.cpp(213): warning C4018: '<': signed/unsigned mismatch
+D:\Programming\bujo_poc\sharedlib\src\curves.cpp(269): warning C4018: '<': signed/unsigned mismatch
+D:\Programming\bujo_poc\sharedlib\src\curves.cpp(301): warning C4018: '<': signed/unsigned mismatch
+D:\Programming\bujo_poc\sharedlib\src\curves.cpp(310): warning C4018: '<': signed/unsigned mismatch
+D:\Programming\bujo_poc\sharedlib\src\curves.cpp(366): warning C4018: '<': signed/unsigned mismatch
+D:\Programming\bujo_poc\sharedlib\src\curves.cpp(384): warning C4018: '<': signed/unsigned mismatch
+D:\Programming\bujo_poc\sharedlib\src\curves.cpp(394): warning C4018: '<': signed/unsigned mismatch
+D:\Programming\bujo_poc\sharedlib\src\curves.cpp(407): warning C4018: '<': signed/unsigned mismatch
+D:\Programming\bujo_poc\sharedlib\src\curves.cpp(452): warning C4018: '<': signed/unsigned mismatch
+D:\Programming\bujo_poc\sharedlib\src\curves.cpp(460): warning C4018: '>=': signed/unsigned mismatch
+D:\Programming\bujo_poc\sharedlib\src\curves.cpp(477): warning C4018: '<': signed/unsigned mismatch
+D:\Programming\bujo_poc\sharedlib\src\curves.cpp(495): warning C4018: '<': signed/unsigned mismatch
+D:\Programming\bujo_poc\sharedlib\src\curves.cpp(508): warning C4018: '<': signed/unsigned mismatch
+D:\Programming\bujo_poc\sharedlib\src\curves.cpp(509): warning C4018: '<': signed/unsigned mismatch
+D:\Programming\bujo_poc\sharedlib\src\curves.cpp(522): warning C4018: '<': signed/unsigned mismatch
+D:\Programming\bujo_poc\sharedlib\src\curves.cpp(523): warning C4018: '<': signed/unsigned mismatch
+D:\Programming\bujo_poc\sharedlib\src\curves.cpp(573): warning C4018: '<': signed/unsigned mismatch
+D:\Programming\bujo_poc\sharedlib\src\curves.cpp(586): warning C4018: '<': signed/unsigned mismatch
+D:\Programming\bujo_poc\sharedlib\src\curves.cpp(637): warning C4018: '<': signed/unsigned mismatch
+D:\Programming\bujo_poc\sharedlib\src\curves.cpp(647): warning C4018: '<': signed/unsigned mismatch
+D:\Programming\bujo_poc\sharedlib\src\curves.cpp(663): warning C4018: '<': signed/unsigned mismatch
+D:\Programming\bujo_poc\sharedlib\src\curves.cpp(682): warning C4018: '<': signed/unsigned mismatch
+D:\Programming\bujo_poc\sharedlib\src\curves.cpp(693): warning C4018: '<': signed/unsigned mismatch
+D:\Programming\bujo_poc\sharedlib\src\curves.cpp(695): warning C4018: '<': signed/unsigned mismatch
+D:\Programming\bujo_poc\sharedlib\src\curves.cpp(713): warning C4018: '<': signed/unsigned mismatch
+D:\Programming\bujo_poc\sharedlib\src\curves.cpp(756): warning C4018: '<': signed/unsigned mismatch
+D:\Programming\bujo_poc\sharedlib\src\curves.cpp(763): warning C4018: '<': signed/unsigned mismatch
+D:\Programming\bujo_poc\sharedlib\src\curves.cpp(794): warning C4018: '<': signed/unsigned mismatch
+D:\Programming\bujo_poc\sharedlib\src\curves.cpp(824): warning C4018: '<': signed/unsigned mismatch
+D:\Programming\bujo_poc\sharedlib\src\curves.cpp(891): warning C4018: '<': signed/unsigned mismatch
+D:\Programming\bujo_poc\sharedlib\src\curves.cpp(922): warning C4018: '<': signed/unsigned mismatch
+D:\Programming\bujo_poc\sharedlib\src\curves.cpp(925): warning C4018: '<': signed/unsigned mismatch
+D:\Programming\bujo_poc\sharedlib\src\curves.cpp(954): warning C4018: '<': signed/unsigned mismatch
+D:\Programming\bujo_poc\sharedlib\src\curves.cpp(957): warning C4018: '<': signed/unsigned mismatch
+D:\Programming\bujo_poc\sharedlib\src\curves.cpp(991): warning C4018: '<': signed/unsigned mismatch
+D:\Programming\3rdParty\Include\xtensor\xassign.hpp(473): warning C4244: '=': conversion from '_Tval' to '_Ty', possible loss of data
+          with
+          [
+              _Tval=ptrdiff_t
+          ]
+          and
+          [
+              _Ty=float
+          ]
+  D:\Programming\3rdParty\Include\xtensor\xassign.hpp(464): note: while compiling class template member function 'void xt::stepper_assigner<E1,E2,xt::layout_type::row_major>::run(void)'
+          with
+          [
+              E1=xt::xtensor_container<xt::uvector<float,std::allocator<float>>,1,xt::layout_type::row_major,xt::xtensor_expression_tag>,
+              E2=xt::xtensor_container<xt::uvector<int,std::allocator<ptrdiff_t>>,1,xt::layout_type::row_major,xt::xtensor_expression_tag>
+          ]
+  D:\Programming\3rdParty\Include\xtensor\xassign.hpp(319): note: see reference to function template instantiation 'void xt::stepper_assigner<E1,E2,xt::layout_type::row_major>::run(void)' being compiled
+          with
+          [
+              E1=xt::xtensor_container<xt::uvector<float,std::allocator<float>>,1,xt::layout_type::row_major,xt::xtensor_expression_tag>,
+              E2=xt::xtensor_container<xt::uvector<int,std::allocator<ptrdiff_t>>,1,xt::layout_type::row_major,xt::xtensor_expression_tag>
+          ]
+  D:\Programming\3rdParty\Include\xtensor\xassign.hpp(318): note: see reference to class template instantiation 'xt::stepper_assigner<E1,E2,xt::layout_type::row_major>' being compiled
+          with
+          [
+              E1=xt::xtensor_container<xt::uvector<float,std::allocator<float>>,1,xt::layout_type::row_major,xt::xtensor_expression_tag>,
+              E2=xt::xtensor_container<xt::uvector<int,std::allocator<ptrdiff_t>>,1,xt::layout_type::row_major,xt::xtensor_expression_tag>
+          ]
+  D:\Programming\3rdParty\Include\xtensor\xassign.hpp(306): note: see reference to class template instantiation 'xt::xassign_traits<E1,E2>' being compiled
+          with
+          [
+              E1=xt::xtensor_container<xt::uvector<float,std::allocator<float>>,1,xt::layout_type::row_major,xt::xtensor_expression_tag>,
+              E2=xt::xtensor_container<xt::uvector<int,std::allocator<ptrdiff_t>>,1,xt::layout_type::row_major,xt::xtensor_expression_tag>
+          ]
+  D:\Programming\3rdParty\Include\xtensor\xassign.hpp(328): note: see reference to function template instantiation 'void xt::xexpression_assigner_base<xt::xtensor_expression_tag>::assign_data<D,xt::xtensor_container<xt::uvector<int,std::allocator<T>>,1,xt::layout_type::row_major,xt::xtensor_expression_tag>>(xt::xexpression<D> &,const xt::xexpression<xt::xtensor_container<xt::uvector<T,std::allocator<T>>,1,xt::layout_type::row_major,xt::xtensor_expression_tag>> &,bool)' being compiled
+          with
+          [
+              D=xt::xtensor_container<xt::uvector<float,std::allocator<float>>,1,xt::layout_type::row_major,xt::xtensor_expression_tag>,
+              T=ptrdiff_t
+          ]
+  D:\Programming\3rdParty\Include\xtensor\xassign.hpp(201): note: see reference to function template instantiation 'void xt::xexpression_assigner<tag>::assign_xexpression<xt::xexpression<D>,xt::xexpression<xt::xtensor_container<xt::uvector<int,std::allocator<T>>,1,xt::layout_type::row_major,xt::xtensor_expression_tag>>>(E1 &,const E2 &)' being compiled
+          with
+          [
+              D=xt::xtensor_container<xt::uvector<float,std::allocator<float>>,1,xt::layout_type::row_major,xt::xtensor_expression_tag>,
+              T=ptrdiff_t,
+              E1=xt::xexpression<xt::xtensor_container<xt::uvector<float,std::allocator<float>>,1,xt::layout_type::row_major,xt::xtensor_expression_tag>>,
+              E2=xt::xexpression<xt::xtensor_container<xt::uvector<int,std::allocator<ptrdiff_t>>,1,xt::layout_type::row_major,xt::xtensor_expression_tag>>
+          ]
+  D:\Programming\3rdParty\Include\xtensor\xassign.hpp(201): note: see reference to function template instantiation 'void xt::xexpression_assigner<tag>::assign_xexpression<xt::xexpression<D>,xt::xexpression<xt::xtensor_container<xt::uvector<int,std::allocator<T>>,1,xt::layout_type::row_major,xt::xtensor_expression_tag>>>(E1 &,const E2 &)' being compiled
+          with
+          [
+              D=xt::xtensor_container<xt::uvector<float,std::allocator<float>>,1,xt::layout_type::row_major,xt::xtensor_expression_tag>,
+              T=ptrdiff_t,
+              E1=xt::xexpression<xt::xtensor_container<xt::uvector<float,std::allocator<float>>,1,xt::layout_type::row_major,xt::xtensor_expression_tag>>,
+              E2=xt::xexpression<xt::xtensor_container<xt::uvector<int,std::allocator<ptrdiff_t>>,1,xt::layout_type::row_major,xt::xtensor_expression_tag>>
+          ]
+  D:\Programming\3rdParty\Include\xtl\xmeta_utils.hpp(538): note: see reference to function template instantiation 'void xt::assign_xexpression::<lambda_9f0b06d4cb0fa6a673ab72978b3612b3>::operator ()<xtl::identity>(xtl::identity) const' being compiled
+  D:\Programming\3rdParty\Include\xtl\xmeta_utils.hpp(544): note: see reference to function template instantiation 'void xtl::mpl::static_if<TF,FF>(std::false_type,const TF &,const FF &)' being compiled
+          with
+          [
+              TF=xt::assign_xexpression::<lambda_8ff49126b05f2a87359919135a262378>,
+              FF=xt::assign_xexpression::<lambda_9f0b06d4cb0fa6a673ab72978b3612b3>
+          ]
+  D:\Programming\3rdParty\Include\xtensor\xassign.hpp(202): note: see reference to function template instantiation 'void xtl::mpl::static_if<false,xt::assign_xexpression::<lambda_8ff49126b05f2a87359919135a262378>,xt::assign_xexpression::<lambda_9f0b06d4cb0fa6a673ab72978b3612b3>>(const TF &,const FF &)' being compiled
+          with
+          [
+              TF=xt::assign_xexpression::<lambda_8ff49126b05f2a87359919135a262378>,
+              FF=xt::assign_xexpression::<lambda_9f0b06d4cb0fa6a673ab72978b3612b3>
+          ]
+  D:\Programming\3rdParty\Include\xtensor\xsemantic.hpp(587): note: see reference to function template instantiation 'void xt::assign_xexpression<D,xt::xtensor_container<xt::uvector<int,std::allocator<T>>,1,xt::layout_type::row_major,xt::xtensor_expression_tag>>(xt::xexpression<D> &,const xt::xexpression<xt::xtensor_container<xt::uvector<T,std::allocator<T>>,1,xt::layout_type::row_major,xt::xtensor_expression_tag>> &)' being compiled
+          with
+          [
+              D=xt::xtensor_container<xt::uvector<float,std::allocator<float>>,1,xt::layout_type::row_major,xt::xtensor_expression_tag>,
+              T=ptrdiff_t
+          ]
+  D:\Programming\3rdParty\Include\xtensor\xsemantic.hpp(453): note: see reference to function template instantiation 'xt::xtensor_container<xt::uvector<float,std::allocator<T>>,1,xt::layout_type::row_major,xt::xtensor_expression_tag> &xt::xcontainer_semantic<xt::xtensor_container<xt::uvector<T,std::allocator<T>>,1,xt::layout_type::row_major,xt::xtensor_expression_tag>>::assign_xexpression<D>(const xt::xexpression<D> &)' being compiled
+          with
+          [
+              T=float,
+              D=xt::xtensor_container<xt::uvector<int,std::allocator<ptrdiff_t>>,1,xt::layout_type::row_major,xt::xtensor_expression_tag>
+          ]
+  D:\Programming\3rdParty\Include\xtensor\xsemantic.hpp(453): note: see reference to function template instantiation 'xt::xtensor_container<xt::uvector<float,std::allocator<T>>,1,xt::layout_type::row_major,xt::xtensor_expression_tag> &xt::xcontainer_semantic<xt::xtensor_container<xt::uvector<T,std::allocator<T>>,1,xt::layout_type::row_major,xt::xtensor_expression_tag>>::assign_xexpression<D>(const xt::xexpression<D> &)' being compiled
+          with
+          [
+              T=float,
+              D=xt::xtensor_container<xt::uvector<int,std::allocator<ptrdiff_t>>,1,xt::layout_type::row_major,xt::xtensor_expression_tag>
+          ]
+  D:\Programming\3rdParty\Include\xtensor\xtensor.hpp(408): note: see reference to function template instantiation 'xt::xtensor_container<xt::uvector<float,std::allocator<T>>,1,xt::layout_type::row_major,xt::xtensor_expression_tag> &xt::xsemantic_base<D>::assign<xt::xtensor_container<xt::uvector<int,std::allocator<int>>,1,xt::layout_type::row_major,xt::xtensor_expression_tag>>(const xt::xexpression<xt::xtensor_container<xt::uvector<int,std::allocator<int>>,1,xt::layout_type::row_major,xt::xtensor_expression_tag>> &)' being compiled
+          with
+          [
+              T=float,
+              D=xt::xtensor_container<xt::uvector<float,std::allocator<float>>,1,xt::layout_type::row_major,xt::xtensor_expression_tag>
+          ]
+  D:\Programming\3rdParty\Include\xtensor\xtensor.hpp(408): note: see reference to function template instantiation 'xt::xtensor_container<xt::uvector<float,std::allocator<T>>,1,xt::layout_type::row_major,xt::xtensor_expression_tag> &xt::xsemantic_base<D>::assign<xt::xtensor_container<xt::uvector<int,std::allocator<int>>,1,xt::layout_type::row_major,xt::xtensor_expression_tag>>(const xt::xexpression<xt::xtensor_container<xt::uvector<int,std::allocator<int>>,1,xt::layout_type::row_major,xt::xtensor_expression_tag>> &)' being compiled
+          with
+          [
+              T=float,
+              D=xt::xtensor_container<xt::uvector<float,std::allocator<float>>,1,xt::layout_type::row_major,xt::xtensor_expression_tag>
+          ]
+  D:\Programming\3rdParty\Include\xtensor\xsemantic.hpp(564): note: see reference to function template instantiation 'xt::xtensor_container<xt::uvector<float,std::allocator<T>>,1,xt::layout_type::row_major,xt::xtensor_expression_tag>::xtensor_container<D>(const xt::xexpression<D> &)' being compiled
+          with
+          [
+              T=float,
+              D=xt::xtensor_container<xt::uvector<int,std::allocator<ptrdiff_t>>,1,xt::layout_type::row_major,xt::xtensor_expression_tag>
+          ]
+  D:\Programming\3rdParty\Include\xtensor\xsemantic.hpp(564): note: see reference to function template instantiation 'xt::xtensor_container<xt::uvector<float,std::allocator<T>>,1,xt::layout_type::row_major,xt::xtensor_expression_tag>::xtensor_container<D>(const xt::xexpression<D> &)' being compiled
+          with
+          [
+              T=float,
+              D=xt::xtensor_container<xt::uvector<int,std::allocator<ptrdiff_t>>,1,xt::layout_type::row_major,xt::xtensor_expression_tag>
+          ]
+  D:\Programming\3rdParty\Include\xtensor\xsemantic.hpp(611): note: see reference to function template instantiation 'xt::xtensor_container<xt::uvector<float,std::allocator<T>>,1,xt::layout_type::row_major,xt::xtensor_expression_tag> &xt::xsemantic_base<D>::operator =<xt::xtensor_container<xt::uvector<int,std::allocator<int>>,1,xt::layout_type::row_major,xt::xtensor_expression_tag>>(const xt::xexpression<xt::xtensor_container<xt::uvector<int,std::allocator<int>>,1,xt::layout_type::row_major,xt::xtensor_expression_tag>> &)' being compiled
+          with
+          [
+              T=float,
+              D=xt::xtensor_container<xt::uvector<float,std::allocator<float>>,1,xt::layout_type::row_major,xt::xtensor_expression_tag>
+          ]
+  D:\Programming\3rdParty\Include\xtensor\xsemantic.hpp(611): note: see reference to function template instantiation 'xt::xtensor_container<xt::uvector<float,std::allocator<T>>,1,xt::layout_type::row_major,xt::xtensor_expression_tag> &xt::xsemantic_base<D>::operator =<xt::xtensor_container<xt::uvector<int,std::allocator<int>>,1,xt::layout_type::row_major,xt::xtensor_expression_tag>>(const xt::xexpression<xt::xtensor_container<xt::uvector<int,std::allocator<int>>,1,xt::layout_type::row_major,xt::xtensor_expression_tag>> &)' being compiled
+          with
+          [
+              T=float,
+              D=xt::xtensor_container<xt::uvector<float,std::allocator<float>>,1,xt::layout_type::row_major,xt::xtensor_expression_tag>
+          ]
+  D:\Programming\3rdParty\Include\xtensor\xtensor.hpp(418): note: see reference to function template instantiation 'xt::xtensor_container<xt::uvector<float,std::allocator<T>>,1,xt::layout_type::row_major,xt::xtensor_expression_tag> &xt::xcontainer_semantic<xt::xtensor_container<xt::uvector<T,std::allocator<T>>,1,xt::layout_type::row_major,xt::xtensor_expression_tag>>::operator =<D>(const xt::xexpression<D> &)' being compiled
+          with
+          [
+              T=float,
+              D=xt::xtensor_container<xt::uvector<int,std::allocator<ptrdiff_t>>,1,xt::layout_type::row_major,xt::xtensor_expression_tag>
+          ]
+  D:\Programming\3rdParty\Include\xtensor\xtensor.hpp(418): note: see reference to function template instantiation 'xt::xtensor_container<xt::uvector<float,std::allocator<T>>,1,xt::layout_type::row_major,xt::xtensor_expression_tag> &xt::xcontainer_semantic<xt::xtensor_container<xt::uvector<T,std::allocator<T>>,1,xt::layout_type::row_major,xt::xtensor_expression_tag>>::operator =<D>(const xt::xexpression<D> &)' being compiled
+          with
+          [
+              T=float,
+              D=xt::xtensor_container<xt::uvector<int,std::allocator<ptrdiff_t>>,1,xt::layout_type::row_major,xt::xtensor_expression_tag>
+          ]
+  D:\Programming\bujo_poc\sharedlib\src\curves.cpp(799): note: see reference to function template instantiation 'xt::xtensor_container<xt::uvector<float,std::allocator<T>>,1,xt::layout_type::row_major,xt::xtensor_expression_tag> &xt::xtensor_container<xt::uvector<T,std::allocator<T>>,1,xt::layout_type::row_major,xt::xtensor_expression_tag>::operator =<D>(const xt::xexpression<D> &)' being compiled
+          with
+          [
+              T=float,
+              D=xt::xtensor_container<xt::uvector<int,std::allocator<ptrdiff_t>>,1,xt::layout_type::row_major,xt::xtensor_expression_tag>
+          ]
+  D:\Programming\bujo_poc\sharedlib\src\curves.cpp(798): note: see reference to function template instantiation 'xt::xtensor_container<xt::uvector<float,std::allocator<T>>,1,xt::layout_type::row_major,xt::xtensor_expression_tag> &xt::xtensor_container<xt::uvector<T,std::allocator<T>>,1,xt::layout_type::row_major,xt::xtensor_expression_tag>::operator =<D>(const xt::xexpression<D> &)' being compiled
+          with
+          [
+              T=float,
+              D=xt::xtensor_container<xt::uvector<int,std::allocator<ptrdiff_t>>,1,xt::layout_type::row_major,xt::xtensor_expression_tag>
+          ]
+  C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.20.27508\include\tuple(551): note: see reference to class template instantiation 'std::_Tuple_val<_This>' being compiled
+          with
+          [
+              _This=xt::keep_dims_type
+          ]
+  D:\Programming\3rdParty\Include\xtensor\xreducer.hpp(46): note: see reference to class template instantiation 'std::tuple<xt::keep_dims_type>' being compiled
+  C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.20.27508\include\tuple(551): note: see reference to class template instantiation 'std::_Tuple_val<_This>' being compiled
+          with
+          [
+              _This=xt::evaluation_strategy::lazy_type
+          ]
+  D:\Programming\3rdParty\Include\xtensor\xexpression.hpp(170): note: see reference to class template instantiation 'std::tuple<xt::evaluation_strategy::lazy_type>' being compiled
+  C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.20.27508\include\tuple(551): note: see reference to class template instantiation 'std::_Tuple_val<_This>' being compiled
+          with
+          [
+              _This=xt::evaluation_strategy::immediate_type
+          ]
+  D:\Programming\3rdParty\Include\xtensor\xexpression.hpp(168): note: see reference to class template instantiation 'std::tuple<xt::evaluation_strategy::immediate_type>' being compiled
+  detector.cpp
+  extremum.cpp
+D:\Programming\bujo_poc\sharedlib\src\extremum.cpp(53): warning C4018: '<': signed/unsigned mismatch
+D:\Programming\bujo_poc\sharedlib\src\extremum.cpp(87): warning C4018: '<': signed/unsigned mismatch
+D:\Programming\bujo_poc\sharedlib\src\extremum.cpp(106): warning C4018: '<': signed/unsigned mismatch
+D:\Programming\bujo_poc\sharedlib\src\extremum.cpp(119): warning C4018: '<': signed/unsigned mismatch
+D:\Programming\bujo_poc\sharedlib\src\extremum.cpp(138): warning C4018: '<': signed/unsigned mismatch
+D:\Programming\bujo_poc\sharedlib\src\extremum.cpp(167): warning C4018: '<': signed/unsigned mismatch
+D:\Programming\bujo_poc\sharedlib\src\extremum.cpp(186): warning C4018: '<': signed/unsigned mismatch
+D:\Programming\bujo_poc\sharedlib\src\extremum.cpp(207): warning C4018: '>=': signed/unsigned mismatch
+D:\Programming\bujo_poc\sharedlib\src\extremum.cpp(245): warning C4018: '>=': signed/unsigned mismatch
+  filters.cpp
+D:\Programming\bujo_poc\sharedlib\src\filters.cpp(104): warning C4018: '<': signed/unsigned mismatch
+D:\Programming\bujo_poc\sharedlib\src\filters.cpp(105): warning C4018: '<': signed/unsigned mismatch
+D:\Programming\bujo_poc\sharedlib\src\filters.cpp(112): warning C4018: '>=': signed/unsigned mismatch
+D:\Programming\bujo_poc\sharedlib\src\filters.cpp(114): warning C4018: '>=': signed/unsigned mismatch
+D:\Programming\bujo_poc\sharedlib\src\filters.cpp(155): warning C4018: '<': signed/unsigned mismatch
+D:\Programming\bujo_poc\sharedlib\src\filters.cpp(174): warning C4018: '<': signed/unsigned mismatch
+D:\Programming\bujo_poc\sharedlib\src\filters.cpp(189): warning C4018: '<': signed/unsigned mismatch
+D:\Programming\bujo_poc\sharedlib\src\filters.cpp(204): warning C4018: '<': signed/unsigned mismatch
+D:\Programming\bujo_poc\sharedlib\src\filters.cpp(221): warning C4018: '<': signed/unsigned mismatch
+D:\Programming\3rdParty\Include\xtensor\xiterator.hpp(994): error C3821: 'xt::xiterator<xt::xstepper<xt::xview<xt::xtensor_container<xt::uvector<float,std::allocator<T>>,2,xt::layout_type::row_major,xt::xtensor_expression_tag> &,int,xt::xall<unsigned int>>>,xt::sequence_view<std::array<size_t,2>,1,2> *,xt::layout_type::row_major>::xiterator(St,const xt::sequence_view<std::array<size_t,2>,1,2> *,bool)': managed type or function cannot be used in an unmanaged function
+          with
+          [
+              T=float,
+              St=xt::xstepper<xt::xview<xt::xtensor_container<xt::uvector<float,std::allocator<float>>,2,xt::layout_type::row_major,xt::xtensor_expression_tag> &,int,xt::xall<unsigned int>>>
+          ]
+  D:\Programming\3rdParty\Include\xtensor\xiterator.hpp(994): note: Aligned data types not supported in managed code
+  D:\Programming\3rdParty\Include\xtensor\xiterator.hpp(994): note: Aligned data types not supported in managed code
+  D:\Programming\3rdParty\Include\xtensor\xiterator.hpp(994): note: Aligned data types not supported in managed code
+  D:\Programming\3rdParty\Include\xtensor\xiterator.hpp(994): note: Aligned data types not supported in managed code
+  D:\Programming\3rdParty\Include\xtensor\xiterator.hpp(994): note: Aligned data types not supported in managed code
+  D:\Programming\3rdParty\Include\xtensor\xiterator.hpp(994): note: Aligned data types not supported in managed code
+  D:\Programming\3rdParty\Include\xtensor\xiterator.hpp(994): note: Aligned data types not supported in managed code
+  D:\Programming\3rdParty\Include\xtensor\xiterator.hpp(994): note: Aligned data types not supported in managed code
+  D:\Programming\3rdParty\Include\xtensor\xiterator.hpp(977): note: while compiling class template member function 'xt::xiterator<xt::xstepper<xt::xview<xt::xtensor_container<xt::uvector<float,std::allocator<T>>,2,xt::layout_type::row_major,xt::xtensor_expression_tag> &,int,xt::xall<unsigned int>>>,xt::sequence_view<std::array<size_t,2>,1,2> *,xt::layout_type::row_major>::xiterator(St,const xt::sequence_view<std::array<size_t,2>,1,2> *,bool)'
+          with
+          [
+              T=float,
+              St=xt::xstepper<xt::xview<xt::xtensor_container<xt::uvector<float,std::allocator<float>>,2,xt::layout_type::row_major,xt::xtensor_expression_tag> &,int,xt::xall<unsigned int>>>
+          ]
+  D:\Programming\3rdParty\Include\xtensor\xiterable.hpp(823): note: see reference to function template instantiation 'xt::xiterator<xt::xstepper<xt::xview<xt::xtensor_container<xt::uvector<float,std::allocator<T>>,2,xt::layout_type::row_major,xt::xtensor_expression_tag> &,int,xt::xall<unsigned int>>>,xt::sequence_view<std::array<size_t,2>,1,2> *,xt::layout_type::row_major>::xiterator(St,const xt::sequence_view<std::array<size_t,2>,1,2> *,bool)' being compiled
+          with
+          [
+              T=float,
+              St=xt::xstepper<xt::xview<xt::xtensor_container<xt::uvector<float,std::allocator<float>>,2,xt::layout_type::row_major,xt::xtensor_expression_tag> &,int,xt::xall<unsigned int>>>
+          ]
+  D:\Programming\3rdParty\Include\xtensor\xiterable.hpp(709): note: see reference to function template instantiation 'xt::xiterator<xt::xstepper<xt::xview<xt::xtensor_container<xt::uvector<float,std::allocator<T>>,2,xt::layout_type::row_major,xt::xtensor_expression_tag> &,int,xt::xall<unsigned int>>>,xt::sequence_view<std::array<size_t,2>,1,2> *,xt::layout_type::row_major> xt::xiterable<xt::xview<xt::xtensor_container<xt::uvector<T,std::allocator<T>>,2,xt::layout_type::row_major,xt::xtensor_expression_tag> &,int,xt::xall<unsigned int>>>::get_begin<xt::layout_type::row_major>(bool) noexcept' being compiled
+          with
+          [
+              T=float
+          ]
+  D:\Programming\3rdParty\Include\xtensor\xiterable.hpp(709): note: see reference to function template instantiation 'xt::xiterator<xt::xstepper<xt::xview<xt::xtensor_container<xt::uvector<float,std::allocator<T>>,2,xt::layout_type::row_major,xt::xtensor_expression_tag> &,int,xt::xall<unsigned int>>>,xt::sequence_view<std::array<size_t,2>,1,2> *,xt::layout_type::row_major> xt::xiterable<xt::xview<xt::xtensor_container<xt::uvector<T,std::allocator<T>>,2,xt::layout_type::row_major,xt::xtensor_expression_tag> &,int,xt::xall<unsigned int>>>::get_begin<xt::layout_type::row_major>(bool) noexcept' being compiled
+          with
+          [
+              T=float
+          ]
+  D:\Programming\3rdParty\Include\xtensor\xview.hpp(1576): note: see reference to function template instantiation 'xt::xiterator<xt::xstepper<xt::xview<xt::xtensor_container<xt::uvector<float,std::allocator<T>>,2,xt::layout_type::row_major,xt::xtensor_expression_tag> &,int,xt::xall<unsigned int>>>,xt::sequence_view<std::array<size_t,2>,1,2> *,xt::layout_type::row_major> xt::xiterable<xt::xview<xt::xtensor_container<xt::uvector<T,std::allocator<T>>,2,xt::layout_type::row_major,xt::xtensor_expression_tag> &,int,xt::xall<unsigned int>>>::begin<xt::layout_type::row_major>(void) noexcept' being compiled
+          with
+          [
+              T=float
+          ]
+  D:\Programming\3rdParty\Include\xtensor\xview.hpp(1576): note: see reference to function template instantiation 'xt::xiterator<xt::xstepper<xt::xview<xt::xtensor_container<xt::uvector<float,std::allocator<T>>,2,xt::layout_type::row_major,xt::xtensor_expression_tag> &,int,xt::xall<unsigned int>>>,xt::sequence_view<std::array<size_t,2>,1,2> *,xt::layout_type::row_major> xt::xiterable<xt::xview<xt::xtensor_container<xt::uvector<T,std::allocator<T>>,2,xt::layout_type::row_major,xt::xtensor_expression_tag> &,int,xt::xall<unsigned int>>>::begin<xt::layout_type::row_major>(void) noexcept' being compiled
+          with
+          [
+              T=float
+          ]
+  D:\Programming\3rdParty\Include\xtensor\xview.hpp(1585): note: see reference to function template instantiation 'void xt::xview_detail::run_assign_temporary_impl<xt::xview<xt::xtensor_container<xt::uvector<float,std::allocator<T>>,2,xt::layout_type::row_major,xt::xtensor_expression_tag> &,int,xt::xall<unsigned int>>,xt::xtensor_container<xt::uvector<T,std::allocator<T>>,1,xt::layout_type::row_major,xt::xtensor_expression_tag>>(V &,const xt::xtensor_container<xt::uvector<T,std::allocator<T>>,1,xt::layout_type::row_major,xt::xtensor_expression_tag> &,std::false_type)' being compiled
+          with
+          [
+              T=float,
+              V=xt::xview<xt::xtensor_container<xt::uvector<float,std::allocator<float>>,2,xt::layout_type::row_major,xt::xtensor_expression_tag> &,int,xt::xall<unsigned int>>
+          ]
+  D:\Programming\3rdParty\Include\xtensor\xview.hpp(1583): note: see reference to class template instantiation 'xt::xassign_traits<xt::xview<xt::xtensor_container<xt::uvector<float,std::allocator<T>>,2,xt::layout_type::row_major,xt::xtensor_expression_tag> &,int,xt::xall<unsigned int>>,xt::xtensor_container<xt::uvector<T,std::allocator<T>>,1,xt::layout_type::row_major,xt::xtensor_expression_tag>>' being compiled
+          with
+          [
+              T=float
+          ]
+  D:\Programming\3rdParty\Include\xtensor\xview.hpp(1582): note: while compiling class template member function 'void xt::xview<xt::xtensor_container<xt::uvector<float,std::allocator<T>>,2,xt::layout_type::row_major,xt::xtensor_expression_tag> &,int,xt::xall<unsigned int>>::assign_temporary_impl(xt::xtensor_container<xt::uvector<T,std::allocator<T>>,1,xt::layout_type::row_major,xt::xtensor_expression_tag> &&)'
+          with
+          [
+              T=float
+          ]
+  D:\Programming\3rdParty\Include\xtensor\xsemantic.hpp(626): note: see reference to function template instantiation 'void xt::xview<xt::xtensor_container<xt::uvector<float,std::allocator<T>>,2,xt::layout_type::row_major,xt::xtensor_expression_tag> &,int,xt::xall<unsigned int>>::assign_temporary_impl(xt::xtensor_container<xt::uvector<T,std::allocator<T>>,1,xt::layout_type::row_major,xt::xtensor_expression_tag> &&)' being compiled
+          with
+          [
+              T=float
+          ]
+  D:\Programming\3rdParty\Include\xtensor\xsemantic.hpp(625): note: while compiling class template member function 'xt::xview<xt::xtensor_container<xt::uvector<float,std::allocator<T>>,2,xt::layout_type::row_major,xt::xtensor_expression_tag> &,int,xt::xall<unsigned int>> &xt::xview_semantic<xt::xview<xt::xtensor_container<xt::uvector<T,std::allocator<T>>,2,xt::layout_type::row_major,xt::xtensor_expression_tag> &,int,xt::xall<unsigned int>>>::assign_temporary(xt::xtensor_container<xt::uvector<T,std::allocator<T>>,1,xt::layout_type::row_major,xt::xtensor_expression_tag> &&)'
+          with
+          [
+              T=float
+          ]
+  D:\Programming\3rdParty\Include\xtensor\xsemantic.hpp(565): note: see reference to function template instantiation 'xt::xview<xt::xtensor_container<xt::uvector<float,std::allocator<T>>,2,xt::layout_type::row_major,xt::xtensor_expression_tag> &,int,xt::xall<unsigned int>> &xt::xview_semantic<xt::xview<xt::xtensor_container<xt::uvector<T,std::allocator<T>>,2,xt::layout_type::row_major,xt::xtensor_expression_tag> &,int,xt::xall<unsigned int>>>::assign_temporary(xt::xtensor_container<xt::uvector<T,std::allocator<T>>,1,xt::layout_type::row_major,xt::xtensor_expression_tag> &&)' being compiled
+          with
+          [
+              T=float
+          ]
+  D:\Programming\3rdParty\Include\xtensor\xsemantic.hpp(710): note: see reference to function template instantiation 'xt::xview<xt::xtensor_container<xt::uvector<float,std::allocator<T>>,2,xt::layout_type::row_major,xt::xtensor_expression_tag> &,int,xt::xall<unsigned int>> &xt::xsemantic_base<D>::operator =<xt::xbroadcast<const xt::xfunction<F,xt::xfunction<xt::detail::multiplies,xt::xfunction<xt::detail::greater_equal,const xt::xreducer<xt::xreducer_functors<xt::math::maximum<T>,xt::const_value<T>,REDUCE_FUNC>,xt::xview<const xt::xtensor_container<xt::uvector<T,std::allocator<T>>,2,xt::layout_type::row_major,xt::xtensor_expression_tag> &,xt::xrange<ptrdiff_t>,xt::xall<unsigned int>>,std::array<size_t,1>,xt::reducer_options<value_type,std::tuple<xt::evaluation_strategy::lazy_type>>> &,const xt::xreducer<xt::xreducer_functors<REDUCE_FUNC,xt::const_value<T>,REDUCE_FUNC>,xt::xview<const xt::xtensor_container<xt::uvector<T,std::allocator<T>>,2,xt::layout_type::row_major,xt::xtensor_expression_tag> &,xt::xrange<ptrdiff_t>,xt::xall<unsigned int>>,std::array<size_t,1>,xt::reducer_options<value_type,std::tuple<xt::evaluation_strategy::lazy_type>>> &>,xt::xfunction<xt::detail::greater_equal,const xt::xreducer<xt::xreducer_functors<REDUCE_FUNC,xt::const_value<T>,REDUCE_FUNC>,xt::xview<const xt::xtensor_container<xt::uvector<T,std::allocator<T>>,2,xt::layout_type::row_major,xt::xtensor_expression_tag> &,xt::xrange<ptrdiff_t>,xt::xall<unsigned int>>,std::array<size_t,1>,xt::reducer_options<value_type,std::tuple<xt::evaluation_strategy::lazy_type>>> &,xt::xscalar<const float &>>>> &,S>>(const xt::xexpression<xt::xbroadcast<const xt::xfunction<F,xt::xfunction<xt::detail::multiplies,xt::xfunction<xt::detail::greater_equal,const xt::xreducer<xt::xreducer_functors<REDUCE_FUNC,xt::const_value<T>,REDUCE_FUNC>,xt::xview<const xt::xtensor_container<xt::uvector<T,std::allocator<T>>,2,xt::layout_type::row_major,xt::xtensor_expression_tag> &,xt::xrange<ptrdiff_t>,xt::xall<unsigned int>>,std::array<size_t,1>,xt::reducer_options<value_type,std::tuple<xt::evaluation_strategy::lazy_type>>> &,const xt::xreducer<xt::xreducer_functors<REDUCE_FUNC,xt::const_value<T>,REDUCE_FUNC>,xt::xview<const xt::xtensor_container<xt::uvector<T,std::allocator<T>>,2,xt::layout_type::row_major,xt::xtensor_expression_tag> &,xt::xrange<ptrdiff_t>,xt::xall<unsigned int>>,std::array<size_t,1>,xt::reducer_options<value_type,std::tuple<xt::evaluation_strategy::lazy_type>>> &>,xt::xfunction<xt::detail::greater_equal,const xt::xreducer<xt::xreducer_functors<REDUCE_FUNC,xt::const_value<T>,REDUCE_FUNC>,xt::xview<const xt::xtensor_container<xt::uvector<T,std::allocator<T>>,2,xt::layout_type::row_major,xt::xtensor_expression_tag> &,xt::xrange<ptrdiff_t>,xt::xall<unsigned int>>,std::array<size_t,1>,xt::reducer_options<value_type,std::tuple<xt::evaluation_strategy::lazy_type>>> &,xt::xscalar<const float &>>>> &,S>> &)' being compiled
+          with
+          [
+              T=float,
+              D=xt::xview<xt::xtensor_container<xt::uvector<float,std::allocator<float>>,2,xt::layout_type::row_major,xt::xtensor_expression_tag> &,int,xt::xall<unsigned int>>,
+              F=xt::detail::cast<float>::functor,
+              REDUCE_FUNC=xt::math::maximum<result_type>,
+              S=xt::sequence_view<std::array<size_t,2>,1,2>
+          ]
+  D:\Programming\3rdParty\Include\xtensor\xsemantic.hpp(710): note: see reference to function template instantiation 'xt::xview<xt::xtensor_container<xt::uvector<float,std::allocator<T>>,2,xt::layout_type::row_major,xt::xtensor_expression_tag> &,int,xt::xall<unsigned int>> &xt::xsemantic_base<D>::operator =<xt::xbroadcast<const xt::xfunction<F,xt::xfunction<xt::detail::multiplies,xt::xfunction<xt::detail::greater_equal,const xt::xreducer<xt::xreducer_functors<xt::math::maximum<T>,xt::const_value<T>,REDUCE_FUNC>,xt::xview<const xt::xtensor_container<xt::uvector<T,std::allocator<T>>,2,xt::layout_type::row_major,xt::xtensor_expression_tag> &,xt::xrange<ptrdiff_t>,xt::xall<unsigned int>>,std::array<size_t,1>,xt::reducer_options<value_type,std::tuple<xt::evaluation_strategy::lazy_type>>> &,const xt::xreducer<xt::xreducer_functors<REDUCE_FUNC,xt::const_value<T>,REDUCE_FUNC>,xt::xview<const xt::xtensor_container<xt::uvector<T,std::allocator<T>>,2,xt::layout_type::row_major,xt::xtensor_expression_tag> &,xt::xrange<ptrdiff_t>,xt::xall<unsigned int>>,std::array<size_t,1>,xt::reducer_options<value_type,std::tuple<xt::evaluation_strategy::lazy_type>>> &>,xt::xfunction<xt::detail::greater_equal,const xt::xreducer<xt::xreducer_functors<REDUCE_FUNC,xt::const_value<T>,REDUCE_FUNC>,xt::xview<const xt::xtensor_container<xt::uvector<T,std::allocator<T>>,2,xt::layout_type::row_major,xt::xtensor_expression_tag> &,xt::xrange<ptrdiff_t>,xt::xall<unsigned int>>,std::array<size_t,1>,xt::reducer_options<value_type,std::tuple<xt::evaluation_strategy::lazy_type>>> &,xt::xscalar<const float &>>>> &,S>>(const xt::xexpression<xt::xbroadcast<const xt::xfunction<F,xt::xfunction<xt::detail::multiplies,xt::xfunction<xt::detail::greater_equal,const xt::xreducer<xt::xreducer_functors<REDUCE_FUNC,xt::const_value<T>,REDUCE_FUNC>,xt::xview<const xt::xtensor_container<xt::uvector<T,std::allocator<T>>,2,xt::layout_type::row_major,xt::xtensor_expression_tag> &,xt::xrange<ptrdiff_t>,xt::xall<unsigned int>>,std::array<size_t,1>,xt::reducer_options<value_type,std::tuple<xt::evaluation_strategy::lazy_type>>> &,const xt::xreducer<xt::xreducer_functors<REDUCE_FUNC,xt::const_value<T>,REDUCE_FUNC>,xt::xview<const xt::xtensor_container<xt::uvector<T,std::allocator<T>>,2,xt::layout_type::row_major,xt::xtensor_expression_tag> &,xt::xrange<ptrdiff_t>,xt::xall<unsigned int>>,std::array<size_t,1>,xt::reducer_options<value_type,std::tuple<xt::evaluation_strategy::lazy_type>>> &>,xt::xfunction<xt::detail::greater_equal,const xt::xreducer<xt::xreducer_functors<REDUCE_FUNC,xt::const_value<T>,REDUCE_FUNC>,xt::xview<const xt::xtensor_container<xt::uvector<T,std::allocator<T>>,2,xt::layout_type::row_major,xt::xtensor_expression_tag> &,xt::xrange<ptrdiff_t>,xt::xall<unsigned int>>,std::array<size_t,1>,xt::reducer_options<value_type,std::tuple<xt::evaluation_strategy::lazy_type>>> &,xt::xscalar<const float &>>>> &,S>> &)' being compiled
+          with
+          [
+              T=float,
+              D=xt::xview<xt::xtensor_container<xt::uvector<float,std::allocator<float>>,2,xt::layout_type::row_major,xt::xtensor_expression_tag> &,int,xt::xall<unsigned int>>,
+              F=xt::detail::cast<float>::functor,
+              REDUCE_FUNC=xt::math::maximum<result_type>,
+              S=xt::sequence_view<std::array<size_t,2>,1,2>
+          ]
+  D:\Programming\3rdParty\Include\xtensor\xview.hpp(863): note: see reference to function template instantiation 'xt::xview<xt::xtensor_container<xt::uvector<float,std::allocator<T>>,2,xt::layout_type::row_major,xt::xtensor_expression_tag> &,int,xt::xall<unsigned int>> &xt::xview_semantic<xt::xview<xt::xtensor_container<xt::uvector<T,std::allocator<T>>,2,xt::layout_type::row_major,xt::xtensor_expression_tag> &,int,xt::xall<unsigned int>>>::operator =<xt::xfunction<F,xt::xfunction<xt::detail::multiplies,xt::xfunction<xt::detail::greater_equal,const xt::xreducer<xt::xreducer_functors<xt::math::maximum<T>,xt::const_value<T>,REDUCE_FUNC>,xt::xview<const xt::xtensor_container<xt::uvector<T,std::allocator<T>>,2,xt::layout_type::row_major,xt::xtensor_expression_tag> &,xt::xrange<ptrdiff_t>,xt::xall<unsigned int>>,std::array<size_t,1>,xt::reducer_options<value_type,std::tuple<xt::evaluation_strategy::lazy_type>>> &,const xt::xreducer<xt::xreducer_functors<REDUCE_FUNC,xt::const_value<T>,REDUCE_FUNC>,xt::xview<const xt::xtensor_container<xt::uvector<T,std::allocator<T>>,2,xt::layout_type::row_major,xt::xtensor_expression_tag> &,xt::xrange<ptrdiff_t>,xt::xall<unsigned int>>,std::array<size_t,1>,xt::reducer_options<value_type,std::tuple<xt::evaluation_strategy::lazy_type>>> &>,xt::xfunction<xt::detail::greater_equal,const xt::xreducer<xt::xreducer_functors<REDUCE_FUNC,xt::const_value<T>,REDUCE_FUNC>,xt::xview<const xt::xtensor_container<xt::uvector<T,std::allocator<T>>,2,xt::layout_type::row_major,xt::xtensor_expression_tag> &,xt::xrange<ptrdiff_t>,xt::xall<unsigned int>>,std::array<size_t,1>,xt::reducer_options<value_type,std::tuple<xt::evaluation_strategy::lazy_type>>> &,xt::xscalar<const float &>>>>>(const xt::xexpression<xt::xfunction<F,xt::xfunction<xt::detail::multiplies,xt::xfunction<xt::detail::greater_equal,const xt::xreducer<xt::xreducer_functors<REDUCE_FUNC,xt::const_value<T>,REDUCE_FUNC>,xt::xview<const xt::xtensor_container<xt::uvector<T,std::allocator<T>>,2,xt::layout_type::row_major,xt::xtensor_expression_tag> &,xt::xrange<ptrdiff_t>,xt::xall<unsigned int>>,std::array<size_t,1>,xt::reducer_options<value_type,std::tuple<xt::evaluation_strategy::lazy_type>>> &,const xt::xreducer<xt::xreducer_functors<REDUCE_FUNC,xt::const_value<T>,REDUCE_FUNC>,xt::xview<const xt::xtensor_container<xt::uvector<T,std::allocator<T>>,2,xt::layout_type::row_major,xt::xtensor_expression_tag> &,xt::xrange<ptrdiff_t>,xt::xall<unsigned int>>,std::array<size_t,1>,xt::reducer_options<value_type,std::tuple<xt::evaluation_strategy::lazy_type>>> &>,xt::xfunction<xt::detail::greater_equal,const xt::xreducer<xt::xreducer_functors<REDUCE_FUNC,xt::const_value<T>,REDUCE_FUNC>,xt::xview<const xt::xtensor_container<xt::uvector<T,std::allocator<T>>,2,xt::layout_type::row_major,xt::xtensor_expression_tag> &,xt::xrange<ptrdiff_t>,xt::xall<unsigned int>>,std::array<size_t,1>,xt::reducer_options<value_type,std::tuple<xt::evaluation_strategy::lazy_type>>> &,xt::xscalar<const float &>>>>> &)' being compiled
+          with
+          [
+              T=float,
+              F=xt::detail::cast<float>::functor,
+              REDUCE_FUNC=xt::math::maximum<result_type>
+          ]
+  D:\Programming\3rdParty\Include\xtensor\xview.hpp(863): note: see reference to function template instantiation 'xt::xview<xt::xtensor_container<xt::uvector<float,std::allocator<T>>,2,xt::layout_type::row_major,xt::xtensor_expression_tag> &,int,xt::xall<unsigned int>> &xt::xview_semantic<xt::xview<xt::xtensor_container<xt::uvector<T,std::allocator<T>>,2,xt::layout_type::row_major,xt::xtensor_expression_tag> &,int,xt::xall<unsigned int>>>::operator =<xt::xfunction<F,xt::xfunction<xt::detail::multiplies,xt::xfunction<xt::detail::greater_equal,const xt::xreducer<xt::xreducer_functors<xt::math::maximum<T>,xt::const_value<T>,REDUCE_FUNC>,xt::xview<const xt::xtensor_container<xt::uvector<T,std::allocator<T>>,2,xt::layout_type::row_major,xt::xtensor_expression_tag> &,xt::xrange<ptrdiff_t>,xt::xall<unsigned int>>,std::array<size_t,1>,xt::reducer_options<value_type,std::tuple<xt::evaluation_strategy::lazy_type>>> &,const xt::xreducer<xt::xreducer_functors<REDUCE_FUNC,xt::const_value<T>,REDUCE_FUNC>,xt::xview<const xt::xtensor_container<xt::uvector<T,std::allocator<T>>,2,xt::layout_type::row_major,xt::xtensor_expression_tag> &,xt::xrange<ptrdiff_t>,xt::xall<unsigned int>>,std::array<size_t,1>,xt::reducer_options<value_type,std::tuple<xt::evaluation_strategy::lazy_type>>> &>,xt::xfunction<xt::detail::greater_equal,const xt::xreducer<xt::xreducer_functors<REDUCE_FUNC,xt::const_value<T>,REDUCE_FUNC>,xt::xview<const xt::xtensor_container<xt::uvector<T,std::allocator<T>>,2,xt::layout_type::row_major,xt::xtensor_expression_tag> &,xt::xrange<ptrdiff_t>,xt::xall<unsigned int>>,std::array<size_t,1>,xt::reducer_options<value_type,std::tuple<xt::evaluation_strategy::lazy_type>>> &,xt::xscalar<const float &>>>>>(const xt::xexpression<xt::xfunction<F,xt::xfunction<xt::detail::multiplies,xt::xfunction<xt::detail::greater_equal,const xt::xreducer<xt::xreducer_functors<REDUCE_FUNC,xt::const_value<T>,REDUCE_FUNC>,xt::xview<const xt::xtensor_container<xt::uvector<T,std::allocator<T>>,2,xt::layout_type::row_major,xt::xtensor_expression_tag> &,xt::xrange<ptrdiff_t>,xt::xall<unsigned int>>,std::array<size_t,1>,xt::reducer_options<value_type,std::tuple<xt::evaluation_strategy::lazy_type>>> &,const xt::xreducer<xt::xreducer_functors<REDUCE_FUNC,xt::const_value<T>,REDUCE_FUNC>,xt::xview<const xt::xtensor_container<xt::uvector<T,std::allocator<T>>,2,xt::layout_type::row_major,xt::xtensor_expression_tag> &,xt::xrange<ptrdiff_t>,xt::xall<unsigned int>>,std::array<size_t,1>,xt::reducer_options<value_type,std::tuple<xt::evaluation_strategy::lazy_type>>> &>,xt::xfunction<xt::detail::greater_equal,const xt::xreducer<xt::xreducer_functors<REDUCE_FUNC,xt::const_value<T>,REDUCE_FUNC>,xt::xview<const xt::xtensor_container<xt::uvector<T,std::allocator<T>>,2,xt::layout_type::row_major,xt::xtensor_expression_tag> &,xt::xrange<ptrdiff_t>,xt::xall<unsigned int>>,std::array<size_t,1>,xt::reducer_options<value_type,std::tuple<xt::evaluation_strategy::lazy_type>>> &,xt::xscalar<const float &>>>>> &)' being compiled
+          with
+          [
+              T=float,
+              F=xt::detail::cast<float>::functor,
+              REDUCE_FUNC=xt::math::maximum<result_type>
+          ]
+  D:\Programming\bujo_poc\sharedlib\src\filters.cpp(163): note: see reference to function template instantiation 'xt::xview<xt::xtensor_container<xt::uvector<float,std::allocator<T>>,2,xt::layout_type::row_major,xt::xtensor_expression_tag> &,int,xt::xall<unsigned int>> &xt::xview<xt::xtensor_container<xt::uvector<T,std::allocator<T>>,2,xt::layout_type::row_major,xt::xtensor_expression_tag> &,int,xt::xall<unsigned int>>::operator =<xt::xfunction<F,xt::xfunction<xt::detail::multiplies,xt::xfunction<xt::detail::greater_equal,const xt::xreducer<xt::xreducer_functors<xt::math::maximum<T>,xt::const_value<T>,REDUCE_FUNC>,xt::xview<const xt::xtensor_container<xt::uvector<T,std::allocator<T>>,2,xt::layout_type::row_major,xt::xtensor_expression_tag> &,xt::xrange<ptrdiff_t>,xt::xall<unsigned int>>,std::array<size_t,1>,xt::reducer_options<value_type,std::tuple<xt::evaluation_strategy::lazy_type>>> &,const xt::xreducer<xt::xreducer_functors<REDUCE_FUNC,xt::const_value<T>,REDUCE_FUNC>,xt::xview<const xt::xtensor_container<xt::uvector<T,std::allocator<T>>,2,xt::layout_type::row_major,xt::xtensor_expression_tag> &,xt::xrange<ptrdiff_t>,xt::xall<unsigned int>>,std::array<size_t,1>,xt::reducer_options<value_type,std::tuple<xt::evaluation_strategy::lazy_type>>> &>,xt::xfunction<xt::detail::greater_equal,const xt::xreducer<xt::xreducer_functors<REDUCE_FUNC,xt::const_value<T>,REDUCE_FUNC>,xt::xview<const xt::xtensor_container<xt::uvector<T,std::allocator<T>>,2,xt::layout_type::row_major,xt::xtensor_expression_tag> &,xt::xrange<ptrdiff_t>,xt::xall<unsigned int>>,std::array<size_t,1>,xt::reducer_options<value_type,std::tuple<xt::evaluation_strategy::lazy_type>>> &,xt::xscalar<const float &>>>>>(const xt::xexpression<xt::xfunction<F,xt::xfunction<xt::detail::multiplies,xt::xfunction<xt::detail::greater_equal,const xt::xreducer<xt::xreducer_functors<REDUCE_FUNC,xt::const_value<T>,REDUCE_FUNC>,xt::xview<const xt::xtensor_container<xt::uvector<T,std::allocator<T>>,2,xt::layout_type::row_major,xt::xtensor_expression_tag> &,xt::xrange<ptrdiff_t>,xt::xall<unsigned int>>,std::array<size_t,1>,xt::reducer_options<value_type,std::tuple<xt::evaluation_strategy::lazy_type>>> &,const xt::xreducer<xt::xreducer_functors<REDUCE_FUNC,xt::const_value<T>,REDUCE_FUNC>,xt::xview<const xt::xtensor_container<xt::uvector<T,std::allocator<T>>,2,xt::layout_type::row_major,xt::xtensor_expression_tag> &,xt::xrange<ptrdiff_t>,xt::xall<unsigned int>>,std::array<size_t,1>,xt::reducer_options<value_type,std::tuple<xt::evaluation_strategy::lazy_type>>> &>,xt::xfunction<xt::detail::greater_equal,const xt::xreducer<xt::xreducer_functors<REDUCE_FUNC,xt::const_value<T>,REDUCE_FUNC>,xt::xview<const xt::xtensor_container<xt::uvector<T,std::allocator<T>>,2,xt::layout_type::row_major,xt::xtensor_expression_tag> &,xt::xrange<ptrdiff_t>,xt::xall<unsigned int>>,std::array<size_t,1>,xt::reducer_options<value_type,std::tuple<xt::evaluation_strategy::lazy_type>>> &,xt::xscalar<const float &>>>>> &)' being compiled
+          with
+          [
+              T=float,
+              F=xt::detail::cast<float>::functor,
+              REDUCE_FUNC=xt::math::maximum<result_type>
+          ]
+  D:\Programming\bujo_poc\sharedlib\src\filters.cpp(163): note: see reference to function template instantiation 'xt::xview<xt::xtensor_container<xt::uvector<float,std::allocator<T>>,2,xt::layout_type::row_major,xt::xtensor_expression_tag> &,int,xt::xall<unsigned int>> &xt::xview<xt::xtensor_container<xt::uvector<T,std::allocator<T>>,2,xt::layout_type::row_major,xt::xtensor_expression_tag> &,int,xt::xall<unsigned int>>::operator =<xt::xfunction<F,xt::xfunction<xt::detail::multiplies,xt::xfunction<xt::detail::greater_equal,const xt::xreducer<xt::xreducer_functors<xt::math::maximum<T>,xt::const_value<T>,REDUCE_FUNC>,xt::xview<const xt::xtensor_container<xt::uvector<T,std::allocator<T>>,2,xt::layout_type::row_major,xt::xtensor_expression_tag> &,xt::xrange<ptrdiff_t>,xt::xall<unsigned int>>,std::array<size_t,1>,xt::reducer_options<value_type,std::tuple<xt::evaluation_strategy::lazy_type>>> &,const xt::xreducer<xt::xreducer_functors<REDUCE_FUNC,xt::const_value<T>,REDUCE_FUNC>,xt::xview<const xt::xtensor_container<xt::uvector<T,std::allocator<T>>,2,xt::layout_type::row_major,xt::xtensor_expression_tag> &,xt::xrange<ptrdiff_t>,xt::xall<unsigned int>>,std::array<size_t,1>,xt::reducer_options<value_type,std::tuple<xt::evaluation_strategy::lazy_type>>> &>,xt::xfunction<xt::detail::greater_equal,const xt::xreducer<xt::xreducer_functors<REDUCE_FUNC,xt::const_value<T>,REDUCE_FUNC>,xt::xview<const xt::xtensor_container<xt::uvector<T,std::allocator<T>>,2,xt::layout_type::row_major,xt::xtensor_expression_tag> &,xt::xrange<ptrdiff_t>,xt::xall<unsigned int>>,std::array<size_t,1>,xt::reducer_options<value_type,std::tuple<xt::evaluation_strategy::lazy_type>>> &,xt::xscalar<const float &>>>>>(const xt::xexpression<xt::xfunction<F,xt::xfunction<xt::detail::multiplies,xt::xfunction<xt::detail::greater_equal,const xt::xreducer<xt::xreducer_functors<REDUCE_FUNC,xt::const_value<T>,REDUCE_FUNC>,xt::xview<const xt::xtensor_container<xt::uvector<T,std::allocator<T>>,2,xt::layout_type::row_major,xt::xtensor_expression_tag> &,xt::xrange<ptrdiff_t>,xt::xall<unsigned int>>,std::array<size_t,1>,xt::reducer_options<value_type,std::tuple<xt::evaluation_strategy::lazy_type>>> &,const xt::xreducer<xt::xreducer_functors<REDUCE_FUNC,xt::const_value<T>,REDUCE_FUNC>,xt::xview<const xt::xtensor_container<xt::uvector<T,std::allocator<T>>,2,xt::layout_type::row_major,xt::xtensor_expression_tag> &,xt::xrange<ptrdiff_t>,xt::xall<unsigned int>>,std::array<size_t,1>,xt::reducer_options<value_type,std::tuple<xt::evaluation_strategy::lazy_type>>> &>,xt::xfunction<xt::detail::greater_equal,const xt::xreducer<xt::xreducer_functors<REDUCE_FUNC,xt::const_value<T>,REDUCE_FUNC>,xt::xview<const xt::xtensor_container<xt::uvector<T,std::allocator<T>>,2,xt::layout_type::row_major,xt::xtensor_expression_tag> &,xt::xrange<ptrdiff_t>,xt::xall<unsigned int>>,std::array<size_t,1>,xt::reducer_options<value_type,std::tuple<xt::evaluation_strategy::lazy_type>>> &,xt::xscalar<const float &>>>>> &)' being compiled
+          with
+          [
+              T=float,
+              F=xt::detail::cast<float>::functor,
+              REDUCE_FUNC=xt::math::maximum<result_type>
+          ]
+  C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.20.27508\include\tuple(551): note: see reference to class template instantiation 'std::_Tuple_val<_This>' being compiled
+          with
+          [
+              _This=xt::keep_dims_type
+          ]
+  D:\Programming\3rdParty\Include\xtensor\xreducer.hpp(46): note: see reference to class template instantiation 'std::tuple<xt::keep_dims_type>' being compiled
+  C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.20.27508\include\tuple(551): note: see reference to class template instantiation 'std::_Tuple_val<_This>' being compiled
+          with
+          [
+              _This=xt::evaluation_strategy::lazy_type
+          ]
+  D:\Programming\3rdParty\Include\xtensor\xexpression.hpp(170): note: see reference to class template instantiation 'std::tuple<xt::evaluation_strategy::lazy_type>' being compiled
+  C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.20.27508\include\tuple(551): note: see reference to class template instantiation 'std::_Tuple_val<_This>' being compiled
+          with
+          [
+              _This=xt::evaluation_strategy::immediate_type
+          ]
+  D:\Programming\3rdParty\Include\xtensor\xexpression.hpp(168): note: see reference to class template instantiation 'std::tuple<xt::evaluation_strategy::immediate_type>' being compiled
+  radon.cpp
+D:\Programming\bujo_poc\sharedlib\src\radon.cpp(55): warning C4018: '<': signed/unsigned mismatch
+D:\Programming\bujo_poc\sharedlib\src\radon.cpp(58): warning C4018: '>=': signed/unsigned mismatch
+D:\Programming\bujo_poc\sharedlib\src\radon.cpp(72): warning C4018: '<': signed/unsigned mismatch
+D:\Programming\bujo_poc\sharedlib\src\radon.cpp(75): warning C4018: '>=': signed/unsigned mismatch
+D:\Programming\bujo_poc\sharedlib\src\radon.cpp(101): warning C4018: '<': signed/unsigned mismatch
+D:\Programming\bujo_poc\sharedlib\src\radon.cpp(102): warning C4018: '<': signed/unsigned mismatch
+D:\Programming\bujo_poc\sharedlib\src\radon.cpp(137): warning C4018: '>=': signed/unsigned mismatch
+D:\Programming\bujo_poc\sharedlib\src\radon.cpp(155): warning C4018: '>=': signed/unsigned mismatch
+  splits.cpp
+D:\Programming\bujo_poc\sharedlib\src\splits.cpp(78): warning C4018: '<': signed/unsigned mismatch
+D:\Programming\bujo_poc\sharedlib\src\splits.cpp(152): warning C4018: '<': signed/unsigned mismatch
+D:\Programming\bujo_poc\sharedlib\src\splits.h(37): warning C4018: '<': signed/unsigned mismatch
+  D:\Programming\bujo_poc\sharedlib\src\splits.cpp(231): note: see reference to function template instantiation 'void bujo::splits::transformRegion<xt::xtensor_container<xt::uvector<float,std::allocator<T>>,2,xt::layout_type::row_major,xt::xtensor_expression_tag>,bujo::splits::setRegionValue::<lambda_b7e941d28219eb0a6c120de2b787df38>>(xt::xtensor_container<xt::uvector<T,std::allocator<T>>,2,xt::layout_type::row_major,xt::xtensor_expression_tag> &,const bujo::splits::SplitDesc &,int,Fn)' being compiled
+          with
+          [
+              T=float,
+              Fn=bujo::splits::setRegionValue::<lambda_b7e941d28219eb0a6c120de2b787df38>
+          ]
+  C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.20.27508\include\tuple(551): note: see reference to class template instantiation 'std::_Tuple_val<_This>' being compiled
+          with
+          [
+              _This=xt::keep_dims_type
+          ]
+  D:\Programming\3rdParty\Include\xtensor\xreducer.hpp(46): note: see reference to class template instantiation 'std::tuple<xt::keep_dims_type>' being compiled
+  C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.20.27508\include\tuple(551): note: see reference to class template instantiation 'std::_Tuple_val<_This>' being compiled
+          with
+          [
+              _This=xt::evaluation_strategy::lazy_type
+          ]
+  D:\Programming\3rdParty\Include\xtensor\xexpression.hpp(170): note: see reference to class template instantiation 'std::tuple<xt::evaluation_strategy::lazy_type>' being compiled
+  C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.20.27508\include\tuple(551): note: see reference to class template instantiation 'std::_Tuple_val<_This>' being compiled
+          with
+          [
+              _This=xt::evaluation_strategy::immediate_type
+          ]
+  D:\Programming\3rdParty\Include\xtensor\xexpression.hpp(168): note: see reference to class template instantiation 'std::tuple<xt::evaluation_strategy::immediate_type>' being compiled
+D:\Programming\bujo_poc\sharedlib\src\splits.h(38): warning C4018: '<': signed/unsigned mismatch
+  transform.cpp
+D:\Programming\bujo_poc\sharedlib\src\transform.cpp(56): warning C4018: '<': signed/unsigned mismatch
+D:\Programming\bujo_poc\sharedlib\src\transform.cpp(57): warning C4018: '<': signed/unsigned mismatch
+D:\Programming\bujo_poc\sharedlib\src\transform.cpp(65): warning C4018: '>=': signed/unsigned mismatch
+D:\Programming\bujo_poc\sharedlib\src\transform.cpp(110): warning C4018: '<': signed/unsigned mismatch
+D:\Programming\bujo_poc\sharedlib\src\transform.cpp(259): warning C4018: '<': signed/unsigned mismatch
+  AssemblyInfo.cpp
+D:\Programming\bujo_poc\DevLabelingApp\BuJoDetector\AssemblyInfo.cpp(1): fatal error C1083: Cannot open include file: 'pch.h': No such file or directory
+  BuJoDetector.cpp
+  Generating Code...

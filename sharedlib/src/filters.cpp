@@ -150,7 +150,7 @@ def local_maxima_v(src, d1, d2, cutoff):
 	int dwin_pos = window_size - dwin_neg;
 	int dslack_neg = slack_size / 2;
 	int dslack_pos = slack_size - dslack_neg;
-
+	
 	xt::xtensor<float, 2> res({ src.shape()[0], src.shape()[1] });
 	for (int i = 0; i < src.shape()[0]; i++)
 	{
@@ -160,7 +160,13 @@ def local_maxima_v(src, d1, d2, cutoff):
 		int slack_hi = std::min(static_cast<int>(src.shape()[0]), i + dslack_pos);
 		auto m_window = xt::amax(xt::view(src, xt::range(window_lo, window_hi), xt::all()), 0);
 		auto m_slack = xt::amax(xt::view(src, xt::range(slack_lo, slack_hi), xt::all()), 0);
+		/*
+		//had to change this line, because it does not work in CLR setting
 		xt::view(res, i, xt::all()) = xt::cast<float>((m_slack >= m_window) * (m_window >= threshold));
+		*/
+		auto res1d = xt::cast<float>((m_slack >= m_window) * (m_window >= threshold));
+		for (int j = 0; j < res.shape()[1]; j++)
+			res.at(i, j) = res1d.at(j);
 	}
 	return res;
 }
