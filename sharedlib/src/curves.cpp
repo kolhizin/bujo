@@ -30,7 +30,7 @@ std::vector<std::tuple<unsigned, unsigned>> bujo::curves::selectSupportPoints(co
 		int real_i = static_cast<int>(ispace.at(i));
 		int i_lo = std::max(0, real_i - dy);
 		int i_hi = std::min(static_cast<int>(vmean.size()), real_i + dy);
-		int iidx = xt::argmax(xt::view(vmean, xt::range(i_lo, i_hi)))[0];
+		int iidx = static_cast<int>(xt::argmax(xt::view(vmean, xt::range(i_lo, i_hi)))[0]);
 		int best_i = iidx + i_lo;
 
 		int bi_lo = std::max(0, best_i - iwidth);
@@ -168,7 +168,7 @@ std::vector<std::tuple<int, int>> makeCurve2_(const xt::xtensor<float, 2>& src, 
 {
 	auto crv_p = std::move(makeCurve1_(src, i0, j0, 1, options));
 	auto crv_n = std::move(makeCurve1_(src, i0, j0, -1, options));
-	int crv_neg_size = crv_n.size() - 1;
+	int crv_neg_size = static_cast<int>(crv_n.size()) - 1;
 	std::vector<std::tuple<int, int>> res(crv_p.size() + crv_neg_size);
 	for (int i = 0; i < crv_neg_size; i++)
 		res[i] = crv_n[crv_neg_size - i];
@@ -213,7 +213,7 @@ std::unique_ptr<RecursiveSegmentInfo> buildRecursiveOffsets_(const xt::xtensor<f
 	if (arr2d.shape()[0] < min_window)
 		return res;
 
-	size_t midpoint = arr2d.shape()[0] / 2;
+	int midpoint = static_cast<int>(arr2d.shape()[0] / 2);
 	auto arr_l = xt::view(arr2d, midpoint, xt::all()) - xt::view(arr2d, 0, xt::all());
 	auto arr_r = xt::view(arr2d, -1, xt::all()) - xt::view(arr2d, midpoint, xt::all());
 
@@ -256,7 +256,8 @@ Curve bujo::curves::optimizeCurveBinarySplit(const xt::xtensor<float, 2>& src, c
 
 	std::vector<std::tuple<float, float>> midpoints;
 	midpoints.reserve(cumulativeIntegral.shape()[0] / min_window_x);
-	auto recOffsets = buildRecursiveOffsets_(cumulativeIntegral, 0, cumulativeIntegral.shape()[0], max_offset_y, min_window_x, reg_coef);
+	auto recOffsets = buildRecursiveOffsets_(cumulativeIntegral, 0, static_cast<int>(cumulativeIntegral.shape()[0]),
+		max_offset_y, min_window_x, reg_coef);
 	dumpRecursiveOffsetsLinear_(recOffsets, midpoints);
 	recOffsets.reset();
 
@@ -300,7 +301,7 @@ Curve bujo::curves::optimizeCurve(const xt::xtensor<float, 2>& src, const Curve&
 	for (int i = 0; i < curOffsets.size(); i++)
 		curOffsets[i] = max_offset_y;
 
-	unsigned window = cumulativeIntegral.shape()[0] << 1;
+	unsigned window = static_cast<unsigned>(cumulativeIntegral.shape()[0] << 1);
 	float xmin = xt::amin(curve.x_value)[0];
 	while (window > min_window_x)
 	{
@@ -338,8 +339,8 @@ xt::xtensor<float, 2> calcDistanceFromCurve_(const xt::xtensor<float, 2>& src,
 		int y0 = yPositions[i];
 		auto v_pos = xt::view(src, xt::range(y0, y0 + static_cast<int>(max_offset_y)), x0);
 		auto v_neg = xt::view(src, xt::range(y0, y0 - static_cast<int>(max_offset_y), -1), x0);
-		int off_pos = xt::argmax(v_pos)[0];
-		int off_neg = xt::argmax(v_neg)[0];
+		int off_pos = static_cast<int>(xt::argmax(v_pos)[0]);
+		int off_neg = static_cast<int>(xt::argmax(v_neg)[0]);
 		if (src.at(y0 + off_pos, x0) < 0.5f)
 			off_pos = -1;
 		if (src.at(y0 - off_neg, x0) < 0.5f)
@@ -507,8 +508,8 @@ xt::xtensor<float, 2> calcBorderIntegrals_(const xt::xtensor<float, 2>& arr2d)
 	for(int i = 0; i < arr2d.shape()[0]; i++)
 		for (int j = 0; j < arr2d.shape()[0]; j++)
 		{
-			yV[0] = i;
-			yV[1] = j;
+			yV[0] = static_cast<float>(i);
+			yV[1] = static_cast<float>(j);
 			res.at(i, j) = calcIntegralOverLine_(arr2d, xV, yV);
 		}
 	return res;
@@ -516,7 +517,7 @@ xt::xtensor<float, 2> calcBorderIntegrals_(const xt::xtensor<float, 2>& arr2d)
 
 xt::xtensor<float, 1> findLineStart_(const xt::xtensor<float, 2>& arr2d, float reg_coef)
 {
-	int offset = arr2d.shape()[0] / 2;
+	int offset = static_cast<int>(arr2d.shape()[0] / 2);
 	xt::xtensor<float, 2> vals = calcBorderIntegrals_(arr2d);
 	for(int i = 0; i < vals.shape()[0]; i++)
 		for (int j = 0; j < vals.shape()[1]; j++)
@@ -638,7 +639,7 @@ Curve bujo::curves::clipCurve(const xt::xtensor<float, 2>& src, const Curve& cur
 		int j = static_cast<int>(denseX[i]);
 		int i0 = std::max(0, static_cast<int>(std::floorf(denseY[i])) - dneg);
 		int i1 = std::min(static_cast<int>(src.shape()[0] - 1), static_cast<int>(std::ceilf(denseY[i])) + dpos);
-		r[i] = xt::mean(xt::view(src, xt::range(i0, i1), j))[0];
+		r[i] = static_cast<float>(xt::mean(xt::view(src, xt::range(i0, i1), j))[0]);
 	}
 
 	//find left offset
@@ -650,7 +651,7 @@ Curve bujo::curves::clipCurve(const xt::xtensor<float, 2>& src, const Curve& cur
 		xMin = curve.x_value[0];
 
 	//find right offset
-	int offRight = r.size()-1;
+	int offRight = static_cast<int>(r.size()) - 1;
 	while (offRight >= 0 && r[offRight] <= 1e-3f)
 		offRight--;
 	float xMax = denseX[std::min(static_cast<int>(r.size() - 1), std::max(0, offRight + static_cast<int>(trim)))];
@@ -690,7 +691,7 @@ std::vector<CurveCombination> bujo::curves::generateCurveCombinations(const xt::
 	//0 step -- check sort order
 	std::vector<float> chkOrder(supportCurves.size());
 	for (int i = 0; i < supportCurves.size(); i++)
-		chkOrder[i] = xt::mean(supportCurves[i].y_value)[0];
+		chkOrder[i] = static_cast<float>(xt::mean(supportCurves[i].y_value)[0]);
 	for (int i = 1; i < supportCurves.size(); i++)
 		if (chkOrder[i] < chkOrder[i - 1])
 			throw std::runtime_error("generateCurveCombinations() expects support curves to be in certain order (increasing mean-y values).");
@@ -704,7 +705,7 @@ std::vector<CurveCombination> bujo::curves::generateCurveCombinations(const xt::
 		CurveCombination cmb;
 		cmb.idx1 = cmb.idx2 = 0;
 		cmb.alpha = 0.0f;
-		cmb.offset = -(off0 - i);
+		cmb.offset = static_cast<float>(-(off0 - i));
 		res.push_back(cmb);
 	}
 
@@ -734,9 +735,9 @@ std::vector<CurveCombination> bujo::curves::generateCurveCombinations(const xt::
 	for (int i = 0; i < off1; i++)
 	{
 		CurveCombination cmb;
-		cmb.idx1 = cmb.idx2 = supportCurves.size() - 1;
+		cmb.idx1 = cmb.idx2 = static_cast<int>(supportCurves.size() )- 1;
 		cmb.alpha = 0.0f;
-		cmb.offset = i;
+		cmb.offset = static_cast<float>(i);
 		res.push_back(cmb);
 	}
 
@@ -855,8 +856,8 @@ inline unsigned getClosestLocalMin1D_(const xt::xtensor<float, 1>& arr)
 	*/
 	xt::xtensor<int, 1> arrL = xt::view(arr, xt::range(1, xt::placeholders::_)) < xt::view(arr, xt::range(xt::placeholders::_, -1));
 	xt::xtensor<int, 1> arrGE = xt::view(arr, xt::range(1, xt::placeholders::_)) >= xt::view(arr, xt::range(xt::placeholders::_, -1));
-	unsigned off0 = xt::argmax(arrL)[0];
-	return off0 + xt::argmax(xt::view(arrGE, xt::range(off0, xt::placeholders::_)))[0];
+	auto off0 = xt::argmax(arrL)[0];
+	return static_cast<unsigned>(off0 + xt::argmax(xt::view(arrGE, xt::range(off0, xt::placeholders::_)))[0]);
 }
 
 std::tuple<unsigned, unsigned> bujo::curves::getCurveHeight(const xt::xtensor<float, 2>& src, const Curve& curve, unsigned max_offset, float reg_coef)
@@ -893,7 +894,7 @@ std::vector<std::tuple<float, float>> bujo::curves::locateWordsInLine(const xt::
 			continue;
 		int j0 = lms[i - 1];
 		int j1 = lms[i];
-		float val = xt::mean(xt::view(v0, xt::range(j0, j1)))[0];
+		float val = static_cast<float>(xt::mean(xt::view(v0, xt::range(j0, j1)))[0]);
 		if (val < min_value)
 			continue;
 		res.emplace_back(static_cast<float>(j0), static_cast<float>(j1));
@@ -976,7 +977,7 @@ std::tuple<xt::xtensor<float, 1>, xt::xtensor<float, 1>> bujo::curves::getDenseX
 	xt::xtensor<float, 1> resX;
 	resX.resize({ static_cast<size_t>(numPoints) });
 	for (int j = 0; j < numPoints; j++)
-		resX[j] = jMin + j;
+		resX[j] = static_cast<float>(jMin + j);
 
 	xt::xtensor<float, 1> resY = xt::interp(resX, curve.x_value, curve.y_value);
 
