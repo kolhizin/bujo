@@ -8,13 +8,24 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
+using BuJoDetector;
+
 namespace AppTest01
 {
     public partial class Form1 : Form
     {
+        BuJoDetector.ManagedDetector managedDetector = new ManagedDetector();
         public Form1()
         {
             InitializeComponent();
+        }
+
+        private void Button1_Click(object sender, EventArgs e)
+        {
+            pictureBox1.Load("D:/Data/bujo_sample/20190309_125139.jpg");
+            pictureBox1.SizeMode = PictureBoxSizeMode.StretchImage;
+            uint res = managedDetector.GetTextLineDelta();
+            MessageBox.Show("Test " + res.ToString());
         }
     }
 }

@@ -14,3 +14,8 @@ DevLabelingApp/AppTest01/obj/Debug/DesignTimeResolveAssemblyReferences.cache
 *.log
 *.lib
 *.cache
+*.dll
+*.db-shm
+*.db-wal
+*.cache
+*.cache

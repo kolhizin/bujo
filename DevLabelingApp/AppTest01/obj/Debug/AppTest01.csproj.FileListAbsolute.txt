@@ -1,9 +1,13 @@
 D:\Programming\bujo_poc\DevLabelingApp\AppTest01\bin\Debug\AppTest01.exe.config
 D:\Programming\bujo_poc\DevLabelingApp\AppTest01\bin\Debug\AppTest01.exe
 D:\Programming\bujo_poc\DevLabelingApp\AppTest01\bin\Debug\AppTest01.pdb
+D:\Programming\bujo_poc\DevLabelingApp\AppTest01\bin\Debug\BuJoDetector.dll
+D:\Programming\bujo_poc\DevLabelingApp\AppTest01\bin\Debug\BuJoDetector.pdb
 D:\Programming\bujo_poc\DevLabelingApp\AppTest01\obj\Debug\AppTest01.csprojAssemblyReference.cache
+D:\Programming\bujo_poc\DevLabelingApp\AppTest01\obj\Debug\AppTest01.Form1.resources
 D:\Programming\bujo_poc\DevLabelingApp\AppTest01\obj\Debug\AppTest01.Properties.Resources.resources
 D:\Programming\bujo_poc\DevLabelingApp\AppTest01\obj\Debug\AppTest01.csproj.GenerateResource.cache
 D:\Programming\bujo_poc\DevLabelingApp\AppTest01\obj\Debug\AppTest01.csproj.CoreCompileInputs.cache
+D:\Programming\bujo_poc\DevLabelingApp\AppTest01\obj\Debug\AppTest01.csproj.CopyComplete
 D:\Programming\bujo_poc\DevLabelingApp\AppTest01\obj\Debug\AppTest01.exe
 D:\Programming\bujo_poc\DevLabelingApp\AppTest01\obj\Debug\AppTest01.pdb

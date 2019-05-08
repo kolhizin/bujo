@@ -33,7 +33,7 @@ void BuJoDetector::ManagedDetector::LoadImage()
 
 unsigned BuJoDetector::ManagedDetector::GetTextLineDelta()
 {
-	return impl()->textDelta();
+	return 42;//impl()->textDelta();
 }
 
 void BuJoDetector::ManagedDetector::Destroy()
