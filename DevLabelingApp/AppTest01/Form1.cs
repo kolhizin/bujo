@@ -22,8 +22,9 @@ namespace AppTest01
 
         private void Button1_Click(object sender, EventArgs e)
         {
-            pictureBox1.Load("D:/Data/bujo_sample/20190309_125139.jpg");
-            pictureBox1.SizeMode = PictureBoxSizeMode.StretchImage;
+            Image img = System.Drawing.Image.FromFile("D:/Data/bujo_sample/20190309_125139.jpg");
+            Bitmap bmp = new Bitmap(img);
+            managedDetector.LoadImage(bmp);
             uint res = managedDetector.GetTextLineDelta();
             MessageBox.Show("Test " + res.ToString());
         }

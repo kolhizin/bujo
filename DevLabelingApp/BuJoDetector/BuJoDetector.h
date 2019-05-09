@@ -1,6 +1,8 @@
 #pragma once
+#using <System.Drawing.dll>
 
 using namespace System;
+using namespace System::Drawing;
 
 namespace bujo{
 	namespace detector {
@@ -19,7 +21,7 @@ namespace BuJoDetector {
 		~ManagedDetector();
 		!ManagedDetector();
 
-		void LoadImage();
+		void LoadImage(Bitmap ^bmp);
 
 		unsigned GetTextLineDelta();
 

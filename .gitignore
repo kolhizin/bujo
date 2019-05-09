@@ -19,3 +19,6 @@ DevLabelingApp/AppTest01/obj/Debug/DesignTimeResolveAssemblyReferences.cache
 *.db-wal
 *.cache
 *.cache
+*.metagen
+*.cache
+*.metagen
