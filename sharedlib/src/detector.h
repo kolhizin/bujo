@@ -47,6 +47,8 @@ namespace bujo
 			inline unsigned textDelta() const { return static_cast<unsigned>(textLineDelta_ / scale_); }
 			inline float textCutoff() const { return textCutoff_; }
 
+
+			const xt::xtensor<float, 2>& alignedOriginalImage() const { return alignedOriginalImg_; }
 			const xt::xtensor<float, 2>& mainImage() const { return usedImg_; }
 			const xt::xtensor<float, 2>& coarseImage() const { return coarseImg_; }
 			const xt::xtensor<float, 2>& textImage() const { return textImg_; }
@@ -65,6 +67,12 @@ namespace bujo
 			const bujo::curves::Curve& getSupportLine(unsigned supportLineId) const { return supportCurves_.at(supportLineId); }
 			xt::xtensor<float, 2> extractLine(unsigned lineId, unsigned neg_height, unsigned pos_height) const;
 			xt::xtensor<float, 2> extractWord(unsigned lineId, unsigned wordId, float height_scale=1.0f) const;
+
+			/*
+			x-coord is from 0 to 1, y-coord is from -1 (bottom) to 1 (top), both dimenstions may exceed limits
+			returns relative coordinates (0 to 1), where (0,0) is left upper corner
+			*/
+			xt::xtensor<float, 2> wordCoordinates(unsigned lineId, unsigned wordId, const xt::xtensor<float, 2>& localCoord) const;
 		};
 	}
 }

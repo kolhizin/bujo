@@ -76,6 +76,31 @@ xt::xtensor<float, 2> bujo::detector::Detector::extractWord(unsigned lineId, uns
 		static_cast<float>(kernel_h_), 1.0f / scale_, static_cast<float>(kernel_v_-1), 1.0f / scale_, height_scale);
 	return bujo::transform::extractWord(alignedOriginalImg_, tmp0);
 }
+xt::xtensor<float, 2> bujo::detector::Detector::wordCoordinates(unsigned lineId, unsigned wordId, const xt::xtensor<float, 2>& localCoord) const
+{
+	const auto& wrd = words_.at(lineId).at(wordId);
+	float max_len = wrd.curve.len_param[wrd.curve.len_param.size() - 1];
+	
+	xt::xtensor<float, 2> res({ localCoord.shape()[0], 2 });
+	xt::xtensor<float, 1> p_tensor;
+	p_tensor.resize({ 1 });
+	
+	for (unsigned i = 0; i < localCoord.shape()[0]; i++)
+	{
+		float arg_y = localCoord.at(i, 1);
+		p_tensor[0] = localCoord.at(i, 0) * max_len;
+		float x_value = xt::interp(p_tensor, wrd.curve.len_param, wrd.curve.x_value)[0];
+		float y_value = xt::interp(p_tensor, wrd.curve.len_param, wrd.curve.y_value)[0];
+		if (arg_y > 0.0f)
+			y_value -= wrd.neg_offset * std::fabsf(arg_y);
+		else if (arg_y < 0.0f)
+			y_value += wrd.pos_offset * std::fabsf(arg_y);
+		res.at(i, 0) = x_value / (usedImg_.shape()[1]-1);
+		res.at(i, 1) = y_value / (usedImg_.shape()[0]-1);
+	}
+	
+	return res;
+}
 xt::xtensor<float, 2> bujo::detector::Detector::extractLine(unsigned lineId, unsigned neg_height, unsigned pos_height) const
 {
 	auto tmp = bujo::curves::affineTransformCurve(allCurves_.at(lineId),
