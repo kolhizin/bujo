@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppTest01", "AppTest01\AppT
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BuJoDetector", "BuJoDetector\BuJoDetector.vcxproj", "{B8E3A0BD-CCFD-4B89-BA2C-567856A9B90A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PageLabeler", "PageLabeler\PageLabeler.csproj", "{A11865A9-7909-4C8B-9DA1-97C506ED05F8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,18 @@ Global
 		{B8E3A0BD-CCFD-4B89-BA2C-567856A9B90A}.Release|x64.Build.0 = Release|x64
 		{B8E3A0BD-CCFD-4B89-BA2C-567856A9B90A}.Release|x86.ActiveCfg = Release|Win32
 		{B8E3A0BD-CCFD-4B89-BA2C-567856A9B90A}.Release|x86.Build.0 = Release|Win32
+		{A11865A9-7909-4C8B-9DA1-97C506ED05F8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A11865A9-7909-4C8B-9DA1-97C506ED05F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A11865A9-7909-4C8B-9DA1-97C506ED05F8}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{A11865A9-7909-4C8B-9DA1-97C506ED05F8}.Debug|x64.Build.0 = Debug|Any CPU
+		{A11865A9-7909-4C8B-9DA1-97C506ED05F8}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{A11865A9-7909-4C8B-9DA1-97C506ED05F8}.Debug|x86.Build.0 = Debug|Any CPU
+		{A11865A9-7909-4C8B-9DA1-97C506ED05F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A11865A9-7909-4C8B-9DA1-97C506ED05F8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A11865A9-7909-4C8B-9DA1-97C506ED05F8}.Release|x64.ActiveCfg = Release|Any CPU
+		{A11865A9-7909-4C8B-9DA1-97C506ED05F8}.Release|x64.Build.0 = Release|Any CPU
+		{A11865A9-7909-4C8B-9DA1-97C506ED05F8}.Release|x86.ActiveCfg = Release|Any CPU
+		{A11865A9-7909-4C8B-9DA1-97C506ED05F8}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

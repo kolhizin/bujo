@@ -1,0 +1,10 @@
+D:\Programming\bujo_poc\DevLabelingApp\PageLabeler\bin\Debug\PageLabeler.exe.config
+D:\Programming\bujo_poc\DevLabelingApp\PageLabeler\bin\Debug\PageLabeler.exe
+D:\Programming\bujo_poc\DevLabelingApp\PageLabeler\bin\Debug\PageLabeler.pdb
+D:\Programming\bujo_poc\DevLabelingApp\PageLabeler\obj\Debug\PageLabeler.PageLabeler.resources
+D:\Programming\bujo_poc\DevLabelingApp\PageLabeler\obj\Debug\PageLabeler.Properties.Resources.resources
+D:\Programming\bujo_poc\DevLabelingApp\PageLabeler\obj\Debug\PageLabeler.csproj.GenerateResource.cache
+D:\Programming\bujo_poc\DevLabelingApp\PageLabeler\obj\Debug\PageLabeler.csproj.CoreCompileInputs.cache
+D:\Programming\bujo_poc\DevLabelingApp\PageLabeler\obj\Debug\PageLabeler.exe
+D:\Programming\bujo_poc\DevLabelingApp\PageLabeler\obj\Debug\PageLabeler.pdb
+D:\Programming\bujo_poc\DevLabelingApp\PageLabeler\obj\Debug\PageLabeler.csprojAssemblyReference.cache
