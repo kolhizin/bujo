@@ -61,7 +61,9 @@ namespace PageLabeler
             res.Image = LoadThumb(fname);
             res.Click += (object sender, EventArgs e) =>
             {
-                onClick_(idx, fname);
+                MouseEventArgs me = (MouseEventArgs)e;
+                if(me.Button == MouseButtons.Left)
+                    onClick_(idx, fname);
             };
 
             thumbs_[idx] = new Tuple<string, PictureBox>(fname, res);

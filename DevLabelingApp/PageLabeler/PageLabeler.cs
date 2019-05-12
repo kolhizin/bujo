@@ -18,6 +18,10 @@ namespace PageLabeler
             InitializeComponent();
 
             tdsThumbs_ = new TrainSetThumbs(new Size(100,100));
+            tdsThumbs_.AddCallback((string s, TrainSetThumbs.EventType e) =>
+            {
+                MessageBox.Show(s + " -> " + e.ToString());
+            });
         }
 
         private void SetInputFiles(string [] files)
