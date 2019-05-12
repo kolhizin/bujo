@@ -12,22 +12,20 @@ namespace PageLabeler
 {
     public partial class PageLabeler : Form
     {
-        private ThumbPics thumbs_;
+        private TrainSetThumbs tdsThumbs_;
         public PageLabeler()
         {
             InitializeComponent();
 
-            thumbs_ = new ThumbPics();
-            thumbs_.SetOnClick((uint id, string f) => { MessageBox.Show(f + "; id=" + id.ToString()); });
-            thumbs_.SetSize(new Size(100, 100));
+            tdsThumbs_ = new TrainSetThumbs(new Size(100,100));
         }
 
         private void SetInputFiles(string [] files)
         {
             for(int i = 0; i < files.Length; i++)
             {
-                uint id = thumbs_.AddThumb(files[i]);
-                thumbFlowPanel.Controls.Add(thumbs_.GetPictureBox(id));
+                tdsThumbs_.AddObservation(files[i]);
+                thumbFlowPanel.Controls.Add(tdsThumbs_.GetPictureBox(files[i]));
             }
         }
 
@@ -53,5 +51,6 @@ namespace PageLabeler
                 }
             }
         }
+
     }
 }

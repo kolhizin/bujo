@@ -10,33 +10,27 @@ namespace PageLabeler
 {
     class ThumbPics
     {
-        private List<PictureBox> thumbs_;
-        private Dictionary<uint, PictureBox> idThumb_;
+        private Dictionary<uint, Tuple<string, PictureBox>> thumbs_;
         private Size size_;
         private Action<uint, string> onClick_;
         uint idCounter_;
-        ContextMenu cm;
 
-        public ThumbPics()
+        public ThumbPics(Size size, Action<uint, string> onClick)
         {
-            cm = new ContextMenu();
-            cm.MenuItems.Add("Test");
-            thumbs_ = new List<PictureBox>();
-            idThumb_ = new Dictionary<uint, PictureBox>();
+            onClick_ = onClick;
+            size_ = size;
+            thumbs_ = new Dictionary<uint, Tuple<string, PictureBox>>();
             idCounter_ = 0;
         }
-        public void SetSize(Size size)
+        public void UpdateSize(Size size)
         {
             size_ = size;
-        }
-        public void SetOnClick(Action<uint, string> f)
-        {
-            onClick_ = f;
+            foreach (var item in thumbs_)
+                item.Value.Item2.Size = size;
         }
         public void Clear()
         {
             thumbs_.Clear();
-            idThumb_.Clear();
             idCounter_ = 0;
         }
         private Image LoadThumb(string fname)
@@ -51,7 +45,11 @@ namespace PageLabeler
         }
         public PictureBox GetPictureBox(uint id)
         {
-            return idThumb_[id];
+            return thumbs_[id].Item2;
+        }
+        public void ReloadThumb(uint id)
+        {
+            thumbs_[id].Item2.Image = LoadThumb(thumbs_[id].Item1);
         }
         public uint AddThumb(string fname)
         {
@@ -61,16 +59,13 @@ namespace PageLabeler
             uint idx = idCounter_;
 
             res.Image = LoadThumb(fname);
-            res.ContextMenu = cm;
-
             res.Click += (object sender, EventArgs e) =>
             {
                 onClick_(idx, fname);
             };
 
+            thumbs_[idx] = new Tuple<string, PictureBox>(fname, res);
             idCounter_++;
-            thumbs_.Add(res);
-            idThumb_.Add(idx, res);
             return idx;
         }
         

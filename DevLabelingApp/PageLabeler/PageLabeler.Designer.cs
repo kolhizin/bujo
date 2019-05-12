@@ -29,10 +29,10 @@
         private void InitializeComponent()
         {
             this.splitThumb = new System.Windows.Forms.SplitContainer();
-            this.splitView = new System.Windows.Forms.SplitContainer();
-            this.thumbFlowPanel = new System.Windows.Forms.FlowLayoutPanel();
-            this.btnOuput = new System.Windows.Forms.Button();
             this.btnInput = new System.Windows.Forms.Button();
+            this.btnOuput = new System.Windows.Forms.Button();
+            this.thumbFlowPanel = new System.Windows.Forms.FlowLayoutPanel();
+            this.splitView = new System.Windows.Forms.SplitContainer();
             ((System.ComponentModel.ISupportInitialize)(this.splitThumb)).BeginInit();
             this.splitThumb.Panel1.SuspendLayout();
             this.splitThumb.Panel2.SuspendLayout();
@@ -61,24 +61,15 @@
             this.splitThumb.SplitterDistance = 407;
             this.splitThumb.TabIndex = 0;
             // 
-            // splitView
+            // btnInput
             // 
-            this.splitView.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.splitView.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.splitView.Location = new System.Drawing.Point(0, 0);
-            this.splitView.Name = "splitView";
-            this.splitView.Size = new System.Drawing.Size(810, 566);
-            this.splitView.SplitterDistance = 438;
-            this.splitView.TabIndex = 0;
-            // 
-            // thumbFlowPanel
-            // 
-            this.thumbFlowPanel.AutoScroll = true;
-            this.thumbFlowPanel.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.thumbFlowPanel.Location = new System.Drawing.Point(0, 171);
-            this.thumbFlowPanel.Name = "thumbFlowPanel";
-            this.thumbFlowPanel.Size = new System.Drawing.Size(405, 393);
-            this.thumbFlowPanel.TabIndex = 0;
+            this.btnInput.Location = new System.Drawing.Point(12, 12);
+            this.btnInput.Name = "btnInput";
+            this.btnInput.Size = new System.Drawing.Size(125, 38);
+            this.btnInput.TabIndex = 5;
+            this.btnInput.Text = "Set input";
+            this.btnInput.UseVisualStyleBackColor = true;
+            this.btnInput.Click += new System.EventHandler(this.BtnInput_Click);
             // 
             // btnOuput
             // 
@@ -90,15 +81,24 @@
             this.btnOuput.Text = "Set output";
             this.btnOuput.UseVisualStyleBackColor = true;
             // 
-            // btnInput
+            // thumbFlowPanel
             // 
-            this.btnInput.Location = new System.Drawing.Point(12, 12);
-            this.btnInput.Name = "btnInput";
-            this.btnInput.Size = new System.Drawing.Size(125, 38);
-            this.btnInput.TabIndex = 5;
-            this.btnInput.Text = "Set input";
-            this.btnInput.UseVisualStyleBackColor = true;
-            this.btnInput.Click += new System.EventHandler(this.BtnInput_Click);
+            this.thumbFlowPanel.AutoScroll = true;
+            this.thumbFlowPanel.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.thumbFlowPanel.Location = new System.Drawing.Point(0, 68);
+            this.thumbFlowPanel.Name = "thumbFlowPanel";
+            this.thumbFlowPanel.Size = new System.Drawing.Size(405, 496);
+            this.thumbFlowPanel.TabIndex = 0;
+            // 
+            // splitView
+            // 
+            this.splitView.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.splitView.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitView.Location = new System.Drawing.Point(0, 0);
+            this.splitView.Name = "splitView";
+            this.splitView.Size = new System.Drawing.Size(810, 566);
+            this.splitView.SplitterDistance = 438;
+            this.splitView.TabIndex = 0;
             // 
             // PageLabeler
             // 

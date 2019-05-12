@@ -54,7 +54,8 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ThumbPics.cs" />
+    <Compile Include="Thumbnails\ThumbPics.cs" />
+    <Compile Include="Thumbnails\TrainSetThumbs.cs" />
     <EmbeddedResource Include="PageLabeler.resx">
       <DependentUpon>PageLabeler.cs</DependentUpon>
     </EmbeddedResource>
