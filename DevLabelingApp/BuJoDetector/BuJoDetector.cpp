@@ -1,6 +1,8 @@
 #include <src/detector.h>
 #include "BuJoDetector.h"
 #include <xtensor/xview.hpp>
+#using <System.Windows.Forms.Dll>
+using namespace System::Windows::Forms;
 
 bujo::detector::Detector* BuJoDetector::ManagedDetector::impl()
 {
@@ -23,7 +25,7 @@ BuJoDetector::ManagedDetector::!ManagedDetector()
 	Destroy();
 }
 
-void BuJoDetector::ManagedDetector::LoadImage(Bitmap^ bmp)
+void BuJoDetector::ManagedDetector::LoadImage(Bitmap^ bmp, float sizeFactor)
 {
 
 	auto sw = System::Diagnostics::Stopwatch::StartNew();
@@ -56,7 +58,7 @@ void BuJoDetector::ManagedDetector::LoadImage(Bitmap^ bmp)
 	bmp->UnlockBits(bmpData);
 	timeLoad_ = sw->ElapsedMilliseconds;
 
-	impl()->loadImage(tmp, 0.5f);
+	impl()->loadImage(tmp, sizeFactor);
 	impl()->updateRegionAuto(1.2f, 100, 10.0f, 0.0f, 0.05f);
 	impl()->selectSupportCurvesAuto(6, 25);
 	impl()->detectWords(25, 5);

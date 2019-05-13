@@ -33,12 +33,17 @@
             this.btnOuput = new System.Windows.Forms.Button();
             this.thumbFlowPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.splitView = new System.Windows.Forms.SplitContainer();
+            this.pbMain = new System.Windows.Forms.PictureBox();
+            this.btnDetectorSettings = new System.Windows.Forms.Button();
+            this.btnDetect = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.splitThumb)).BeginInit();
             this.splitThumb.Panel1.SuspendLayout();
             this.splitThumb.Panel2.SuspendLayout();
             this.splitThumb.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitView)).BeginInit();
+            this.splitView.Panel1.SuspendLayout();
             this.splitView.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pbMain)).BeginInit();
             this.SuspendLayout();
             // 
             // splitThumb
@@ -96,9 +101,44 @@
             this.splitView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.splitView.Location = new System.Drawing.Point(0, 0);
             this.splitView.Name = "splitView";
+            // 
+            // splitView.Panel1
+            // 
+            this.splitView.Panel1.Controls.Add(this.pbMain);
+            this.splitView.Panel1.Controls.Add(this.btnDetectorSettings);
+            this.splitView.Panel1.Controls.Add(this.btnDetect);
             this.splitView.Size = new System.Drawing.Size(810, 566);
             this.splitView.SplitterDistance = 438;
             this.splitView.TabIndex = 0;
+            // 
+            // pbMain
+            // 
+            this.pbMain.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.pbMain.Location = new System.Drawing.Point(0, 68);
+            this.pbMain.Name = "pbMain";
+            this.pbMain.Size = new System.Drawing.Size(436, 496);
+            this.pbMain.TabIndex = 8;
+            this.pbMain.TabStop = false;
+            // 
+            // btnDetectorSettings
+            // 
+            this.btnDetectorSettings.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnDetectorSettings.Location = new System.Drawing.Point(282, 12);
+            this.btnDetectorSettings.Name = "btnDetectorSettings";
+            this.btnDetectorSettings.Size = new System.Drawing.Size(151, 38);
+            this.btnDetectorSettings.TabIndex = 7;
+            this.btnDetectorSettings.Text = "Detector settings";
+            this.btnDetectorSettings.UseVisualStyleBackColor = true;
+            // 
+            // btnDetect
+            // 
+            this.btnDetect.Location = new System.Drawing.Point(3, 11);
+            this.btnDetect.Name = "btnDetect";
+            this.btnDetect.Size = new System.Drawing.Size(125, 38);
+            this.btnDetect.TabIndex = 6;
+            this.btnDetect.Text = "Detect words";
+            this.btnDetect.UseVisualStyleBackColor = true;
+            this.btnDetect.Click += new System.EventHandler(this.BtnDetect_Click);
             // 
             // PageLabeler
             // 
@@ -113,8 +153,10 @@
             this.splitThumb.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitThumb)).EndInit();
             this.splitThumb.ResumeLayout(false);
+            this.splitView.Panel1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitView)).EndInit();
             this.splitView.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.pbMain)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -126,6 +168,9 @@
         private System.Windows.Forms.SplitContainer splitView;
         private System.Windows.Forms.Button btnInput;
         private System.Windows.Forms.Button btnOuput;
+        private System.Windows.Forms.PictureBox pbMain;
+        private System.Windows.Forms.Button btnDetectorSettings;
+        private System.Windows.Forms.Button btnDetect;
     }
 }
 

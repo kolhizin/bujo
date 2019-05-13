@@ -22,7 +22,7 @@ namespace BuJoDetector {
 		~ManagedDetector();
 		!ManagedDetector();
 
-		void LoadImage(Bitmap ^bmp);
+		void LoadImage(Bitmap ^bmp, float sizeFactor);
 
 		unsigned GetTimeLoad() { return timeLoad_; }
 		unsigned GetTimeCompute() { return timeCompute_; }

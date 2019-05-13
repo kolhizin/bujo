@@ -45,7 +45,7 @@ namespace AppTest01
             Image img = System.Drawing.Image.FromFile("D:/Data/bujo_sample/20190309_125158.jpg");
 
             Bitmap bmp = new Bitmap(img, new Size(img.Width/5, img.Height/5));
-            managedDetector.LoadImage(bmp);
+            managedDetector.LoadImage(bmp, 0.5f);
 
             pictureBox1.Image = RotateImage(bmp, -managedDetector.GetAngle() * 180.0f / (float)Math.PI);
             pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;

@@ -11,12 +11,14 @@ Assembly System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c5619
 	hash=None, flags=None
 Assembly System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a: 
 	hash=None, flags=None
+Assembly System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089: 
+	hash=None, flags=None
 Class BuJoDetector.ManagedDetector: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
     Void .ctor(): PrivateScope, Public, HideBySig, SpecialName, RTSpecialName
   Interfaces:
     System.IDisposable
   Methods:
-    LoadImage(Bitmap): PrivateScope, Public, HideBySig
+    LoadImage(Bitmap, Single): PrivateScope, Public, HideBySig
     GetTimeLoad(): PrivateScope, Public, HideBySig
     GetTimeCompute(): PrivateScope, Public, HideBySig
     GetNumLines(): PrivateScope, Public, HideBySig

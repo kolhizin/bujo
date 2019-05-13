@@ -46,6 +46,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MainView.cs" />
     <Compile Include="PageLabeler.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -80,6 +81,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\BuJoDetector\BuJoDetector.vcxproj">
+      <Project>{b8e3a0bd-ccfd-4b89-ba2c-567856a9b90a}</Project>
+      <Name>BuJoDetector</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
