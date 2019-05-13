@@ -26,6 +26,9 @@ Class BuJoDetector.ManagedDetector: AutoLayout, AnsiClass, Class, Public, Before
     GetNumWords(): PrivateScope, Public, HideBySig
     GetAngle(): PrivateScope, Public, HideBySig
     GetAlignedImage(): PrivateScope, Public, HideBySig
+    GetMainImage(): PrivateScope, Public, HideBySig
+    GetTextImage(): PrivateScope, Public, HideBySig
+    GetFilteredImage(): PrivateScope, Public, HideBySig
     GetWordImage(UInt32, UInt32, Single): PrivateScope, Public, HideBySig
     GetWordBBox(UInt32, UInt32, Size, Single): PrivateScope, Public, HideBySig
     Destroy(): PrivateScope, Public, HideBySig

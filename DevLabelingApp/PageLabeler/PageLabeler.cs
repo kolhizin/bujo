@@ -73,7 +73,9 @@ namespace PageLabeler
                 return;
             }
             Image img = mainView_.GetOriginalImage();
-            detector_.LoadImage(new Bitmap(img, img.Width/5, img.Height/5), 0.5f);
+            Bitmap bmp = new Bitmap(img, img.Width / 5, img.Height / 5);
+            detector_.LoadImage(bmp, 0.5f);
+            bmp.Dispose();
             MessageBox.Show("Detected in " + (detector_.GetTimeCompute()/1000.0f).ToString() + "s.", "Task complete");
         }
     }

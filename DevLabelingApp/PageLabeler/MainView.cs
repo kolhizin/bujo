@@ -28,10 +28,10 @@ namespace PageLabeler
             Bitmap rotatedImage = new Bitmap((int)newW, (int)newH);
             using (Graphics g = Graphics.FromImage(rotatedImage))
             {
-                g.TranslateTransform(newW / 2, newH / 2);
+                g.TranslateTransform(newW/2, newH/2);
                 g.RotateTransform(degrees);
-                g.TranslateTransform(-bmp.Width / 2, -bmp.Height / 2);
-                g.DrawImage(bmp, new Point(0, 0));
+                g.TranslateTransform(-newW/2, -newH/2);
+                g.DrawImage(bmp, (int)(newW - bmp.Width)/2, (int)(newH - bmp.Height)/2, bmp.Width, bmp.Height);
             }
 
             return rotatedImage;
@@ -49,9 +49,15 @@ namespace PageLabeler
             cm_.MenuItems.Add("Show aligned image", (object obj, EventArgs args) =>{
                 ShowAligned();
             });
-            cm_.MenuItems.Add("Show detector image");
-            cm_.MenuItems.Add("Show filtered image");
-            cm_.MenuItems.Add("Show text image");
+            cm_.MenuItems.Add("Show filtered image", (object obj, EventArgs args) => {
+                ShowFiltered();
+            });
+            cm_.MenuItems.Add("Show detector image", (object obj, EventArgs args) => {
+                ShowMain();
+            });
+            cm_.MenuItems.Add("Show text image", (object obj, EventArgs args) => {
+                ShowText();
+            });
             cm_.MenuItems.Add("-");
             cm_.MenuItems.Add("Show support lines").Checked = false;
             cm_.MenuItems.Add("Show all lines").Checked = false;
@@ -67,6 +73,20 @@ namespace PageLabeler
             if (File.Exists(fname_))
             {
                 srcImage_ = Image.FromFile(fname_);
+                foreach (var prop in srcImage_.PropertyItems)
+                {
+                    if (prop.Id == 0x112)
+                    {
+                        if (prop.Value[0] == 0x08)
+                            srcImage_.RotateFlip(RotateFlipType.Rotate270FlipNone);
+                        else if (prop.Value[0] == 0x03)
+                            srcImage_.RotateFlip(RotateFlipType.Rotate180FlipNone);
+                        else if (prop.Value[0] == 0x06)
+                            srcImage_.RotateFlip(RotateFlipType.Rotate90FlipNone);
+                        else if (prop.Value[0] != 0x01)
+                            MessageBox.Show("Unkonwn image orientation!", "Warning!");
+                    }
+                }
                 pbox_.Image = srcImage_;
             }
         }
@@ -84,6 +104,24 @@ namespace PageLabeler
             if (!File.Exists(fname_))
                 return;
             pbox_.Image = rotateImage_((Bitmap)srcImage_, -detector_.GetAngle() * 180.0f / (float)Math.PI);
+        }
+        public void ShowMain()
+        {
+            if (!File.Exists(fname_))
+                return;
+            pbox_.Image = detector_.GetMainImage();
+        }
+        public void ShowFiltered()
+        {
+            if (!File.Exists(fname_))
+                return;
+            pbox_.Image = detector_.GetFilteredImage();
+        }
+        public void ShowText()
+        {
+            if (!File.Exists(fname_))
+                return;
+            pbox_.Image = detector_.GetTextImage();
         }
     }
 }

@@ -10,8 +10,8 @@
 void dev14()
 {
 	cv::Mat cv0, cv1;
-	cv0 = cv::imread("D:\\Data\\bujo_sample\\20190309_125151.jpg", cv::IMREAD_COLOR);
-	//cv0 = cv::imread("D:\\Data\\bujo_sample\\20190309_125139.jpg", cv::IMREAD_COLOR);
+	//cv0 = cv::imread("D:\\Data\\bujo_sample\\20190309_125151.jpg", cv::IMREAD_COLOR);
+	cv0 = cv::imread("D:\\Data\\bujo_sample\\20190309_125043.jpg", cv::IMREAD_COLOR);
 	//cv0 = cv::imread("D:\\Data\\bujo_sample\\test_rot30.jpg", cv::IMREAD_COLOR);
 	cv::cvtColor(cv0, cv0, cv::COLOR_RGB2GRAY);
 	cv::resize(cv0, cv0, cv::Size(), 0.5, 0.5);

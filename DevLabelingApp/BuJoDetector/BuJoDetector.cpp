@@ -57,11 +57,11 @@ void BuJoDetector::ManagedDetector::LoadImage(Bitmap^ bmp, float sizeFactor)
 		}
 	bmp->UnlockBits(bmpData);
 	timeLoad_ = sw->ElapsedMilliseconds;
-
+	
 	impl()->loadImage(tmp, sizeFactor);
 	impl()->updateRegionAuto(1.2f, 100, 10.0f, 0.0f, 0.05f);
-	impl()->selectSupportCurvesAuto(6, 25);
-	impl()->detectWords(25, 5);
+	//impl()->selectSupportCurvesAuto(6, 25);
+	//impl()->detectWords(25, 5);
 
 	timeCompute_ = sw->ElapsedMilliseconds - timeLoad_;
 }
@@ -93,6 +93,23 @@ Bitmap ^xt2bitmap(const xt::xtensor<float, 2>& src)
 Bitmap ^BuJoDetector::ManagedDetector::GetAlignedImage()
 {
 	return xt2bitmap(impl()->alignedOriginalImage());
+}
+
+Bitmap^ BuJoDetector::ManagedDetector::GetMainImage()
+{
+	auto tmp = impl()->mainImage();
+	return xt2bitmap(tmp / xt::amax(tmp)[0]);
+}
+
+Bitmap^ BuJoDetector::ManagedDetector::GetTextImage()
+{
+	return xt2bitmap(impl()->textImage());
+}
+
+Bitmap^ BuJoDetector::ManagedDetector::GetFilteredImage()
+{
+	auto tmp = impl()->filteredImage();
+	return xt2bitmap(tmp / xt::amax(tmp)[0]);
 }
 
 Bitmap ^BuJoDetector::ManagedDetector::GetWordImage(unsigned lineId, unsigned wordId, float yScale)

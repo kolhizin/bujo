@@ -36,6 +36,22 @@ namespace PageLabeler
         private Image LoadThumb(string fname)
         {
             Image img = Image.FromFile(fname);
+
+            foreach (var prop in img.PropertyItems)
+            {
+                if (prop.Id == 0x112)
+                {
+                    if (prop.Value[0] == 0x08)
+                        img.RotateFlip(RotateFlipType.Rotate270FlipNone);
+                    else if (prop.Value[0] == 0x03)
+                        img.RotateFlip(RotateFlipType.Rotate180FlipNone);
+                    else if (prop.Value[0] == 0x06)
+                        img.RotateFlip(RotateFlipType.Rotate90FlipNone);
+                    else if (prop.Value[0] != 0x01)
+                        MessageBox.Show("Unkonwn image orientation!", "Warning!");
+                }
+            }
+
             float maxSize = Math.Max(size_.Width, size_.Height);
             float maxSizeF = Math.Max(img.Width, img.Height);
             float dSize = Math.Max(1.0f, maxSizeF / maxSize);

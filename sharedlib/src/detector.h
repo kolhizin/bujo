@@ -50,6 +50,7 @@ namespace bujo
 
 			const xt::xtensor<float, 2>& alignedOriginalImage() const { return alignedOriginalImg_; }
 			const xt::xtensor<float, 2>& mainImage() const { return usedImg_; }
+			const xt::xtensor<float, 2>& filteredImage() const { return filteredImg_; }
 			const xt::xtensor<float, 2>& coarseImage() const { return coarseImg_; }
 			const xt::xtensor<float, 2>& textImage() const { return textImg_; }
 

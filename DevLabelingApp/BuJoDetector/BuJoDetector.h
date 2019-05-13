@@ -32,6 +32,9 @@ namespace BuJoDetector {
 		float GetAngle() { return impl()->textAngle(); }
 
 		Bitmap ^GetAlignedImage();
+		Bitmap^ GetMainImage();
+		Bitmap^ GetTextImage();
+		Bitmap^ GetFilteredImage();
 		Bitmap ^GetWordImage(unsigned lineId, unsigned wordId, float yScale);
 		Rectangle GetWordBBox(unsigned lineId, unsigned wordId, Size size, float yScale);
 
