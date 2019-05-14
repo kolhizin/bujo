@@ -19,7 +19,7 @@ namespace PageLabeler
         public PageLabeler()
         {
             InitializeComponent();
-
+            
             detector_ = new ManagedDetector();
 
             tdsThumbs_ = new TrainSetThumbs(new Size(100,100));
