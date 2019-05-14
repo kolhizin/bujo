@@ -56,6 +56,7 @@ namespace bujo
 
 
 			inline unsigned numLines() const { return static_cast<unsigned>(words_.size()); }
+			inline unsigned numSupportLines() const { return static_cast<unsigned>(supportCurves_.size()); }
 			inline unsigned numWords(unsigned line) const { return static_cast<unsigned>(words_.at(line).size()); }
 			inline unsigned numWords() const
 			{
@@ -64,8 +65,11 @@ namespace bujo
 					res += static_cast<unsigned>(words_[i].size());
 				return res;
 			}
-			const bujo::curves::Curve& getLine(unsigned lineId) const { return allCurves_.at(lineId); }
-			const bujo::curves::Curve& getSupportLine(unsigned supportLineId) const { return supportCurves_.at(supportLineId); }
+			const bujo::curves::Curve& getLineCurve(unsigned lineId) const { return allCurves_.at(lineId); }
+			const bujo::curves::Curve& getSupportLineCurve(unsigned supportLineId) const { return supportCurves_.at(supportLineId); }
+
+			xt::xtensor<float, 2> getLine(unsigned lineId, const xt::xtensor<float, 1> &locs) const;
+			xt::xtensor<float, 2> getSupportLine(unsigned lineId, const xt::xtensor<float, 1>& locs) const;
 			xt::xtensor<float, 2> extractLine(unsigned lineId, unsigned neg_height, unsigned pos_height) const;
 			xt::xtensor<float, 2> extractWord(unsigned lineId, unsigned wordId, float height_scale=1.0f) const;
 

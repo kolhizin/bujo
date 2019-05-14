@@ -27,10 +27,14 @@ namespace BuJoDetector {
 
 		unsigned GetTimeLoad() { return timeLoad_; }
 		unsigned GetTimeCompute() { return timeCompute_; }
+		unsigned GetNumSupportLines() { return impl()->numSupportLines(); }
 		unsigned GetNumLines() { return impl()->numLines(); }
 		unsigned GetNumWords() { return impl()->numWords(); }
 		unsigned GetNumWords(unsigned lineId) { return impl()->numWords(lineId); }
 		float GetAngle() { return impl()->textAngle(); }
+
+		array<PointF^>^ GetSupportLine(unsigned idx, unsigned numPoints);
+		array<PointF^>^ GetLine(unsigned idx, unsigned numPoints);
 
 		Bitmap ^GetAlignedImage();
 		Bitmap^ GetMainImage();
