@@ -205,8 +205,8 @@ RegionSplit bujo::splits::findBestVSplit(const xt::xtensor<float, 2>& src, const
 			res.desc.angle = angles[std::get<0>(mins[i])];
 			auto idx = std::get<1>(mins[i]);
 			res.desc.offset = std::get<1>(rtr).at(idx);
-			res.desc.direction = (res.stats.volume_before < res.stats.volume_after ? -1 : 1);
 			res.stats = tmp.stats;
+			res.desc.direction = (res.stats.volume_before < res.stats.volume_after ? -1 : 1);
 			
 			float offset_margin = 0.0f;
 			int num_offset_margin = 0;

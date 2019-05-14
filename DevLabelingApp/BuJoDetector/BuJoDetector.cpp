@@ -56,14 +56,21 @@ void BuJoDetector::ManagedDetector::LoadImage(Bitmap^ bmp, float sizeFactor)
 			tmp.at(i, j) = r / 255.0f;
 		}
 	bmp->UnlockBits(bmpData);
-	timeLoad_ = sw->ElapsedMilliseconds;
 	
 	impl()->loadImage(tmp, sizeFactor);
-	impl()->updateRegionAuto(1.2f, 100, 10.0f, 0.0f, 0.05f);
-	//impl()->selectSupportCurvesAuto(6, 25);
-	//impl()->detectWords(25, 5);
 
-	timeCompute_ = sw->ElapsedMilliseconds - timeLoad_;
+	timeLoad_ = sw->ElapsedMilliseconds;
+}
+
+void BuJoDetector::ManagedDetector::RunDetection()
+{
+	auto sw = System::Diagnostics::Stopwatch::StartNew();
+
+	impl()->updateRegionAuto(1.2f, 100, 10.0f, 0.0f, 0.05f);
+	impl()->selectSupportCurvesAuto(6, 25);
+	impl()->detectWords(25, 5);
+
+	timeCompute_ = sw->ElapsedMilliseconds;
 }
 
 Bitmap ^xt2bitmap(const xt::xtensor<float, 2>& src)

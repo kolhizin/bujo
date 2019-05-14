@@ -36,10 +36,12 @@
             this.pbMain = new System.Windows.Forms.PictureBox();
             this.btnDetectorSettings = new System.Windows.Forms.Button();
             this.btnDetect = new System.Windows.Forms.Button();
+            this.mainStatus = new System.Windows.Forms.StatusStrip();
             ((System.ComponentModel.ISupportInitialize)(this.splitThumb)).BeginInit();
             this.splitThumb.Panel1.SuspendLayout();
             this.splitThumb.Panel2.SuspendLayout();
             this.splitThumb.SuspendLayout();
+            this.thumbFlowPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitView)).BeginInit();
             this.splitView.Panel1.SuspendLayout();
             this.splitView.SuspendLayout();
@@ -89,6 +91,7 @@
             // thumbFlowPanel
             // 
             this.thumbFlowPanel.AutoScroll = true;
+            this.thumbFlowPanel.Controls.Add(this.mainStatus);
             this.thumbFlowPanel.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.thumbFlowPanel.Location = new System.Drawing.Point(0, 68);
             this.thumbFlowPanel.Name = "thumbFlowPanel";
@@ -140,6 +143,15 @@
             this.btnDetect.UseVisualStyleBackColor = true;
             this.btnDetect.Click += new System.EventHandler(this.BtnDetect_Click);
             // 
+            // mainStatus
+            // 
+            this.mainStatus.ImageScalingSize = new System.Drawing.Size(24, 24);
+            this.mainStatus.Location = new System.Drawing.Point(0, 0);
+            this.mainStatus.Name = "mainStatus";
+            this.mainStatus.Size = new System.Drawing.Size(202, 22);
+            this.mainStatus.TabIndex = 0;
+            this.mainStatus.Text = "Started";
+            // 
             // PageLabeler
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
@@ -153,6 +165,8 @@
             this.splitThumb.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitThumb)).EndInit();
             this.splitThumb.ResumeLayout(false);
+            this.thumbFlowPanel.ResumeLayout(false);
+            this.thumbFlowPanel.PerformLayout();
             this.splitView.Panel1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitView)).EndInit();
             this.splitView.ResumeLayout(false);
@@ -171,6 +185,7 @@
         private System.Windows.Forms.PictureBox pbMain;
         private System.Windows.Forms.Button btnDetectorSettings;
         private System.Windows.Forms.Button btnDetect;
+        private System.Windows.Forms.StatusStrip mainStatus;
     }
 }
 

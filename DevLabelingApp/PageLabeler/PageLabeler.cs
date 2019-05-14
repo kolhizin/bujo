@@ -74,9 +74,22 @@ namespace PageLabeler
             }
             Image img = mainView_.GetOriginalImage();
             Bitmap bmp = new Bitmap(img, img.Width / 5, img.Height / 5);
+            mainStatus.Text = "Loading in detector...";
             detector_.LoadImage(bmp, 0.5f);
+            mainStatus.Text = "Loaded in detector. Running detection...";
             bmp.Dispose();
-            MessageBox.Show("Detected in " + (detector_.GetTimeCompute()/1000.0f).ToString() + "s.", "Task complete");
+            bool fSuccess = true;
+            try
+            {
+                detector_.RunDetection();
+            }catch
+            {
+                fSuccess = false;
+            }
+            if (fSuccess)
+                mainStatus.Text = "Successfull detection in " + (detector_.GetTimeCompute() / 1000.0f).ToString() + "s.";
+            else
+                mainStatus.Text = "Detection failed."; 
         }
     }
 }

@@ -177,7 +177,6 @@ std::vector<bujo::splits::RegionSplit> bujo::transform::findVSplits(const xt::xt
 		//std::cout << splt.desc.direction << ": " << splt.stats.volume_before << " " << splt.stats.volume_inside << " " << splt.stats.volume_after << "\n";
 		//std::cout << splt.desc.angle << " " << splt.desc.offset << " " << splt.desc.offset_margin << "\n";
 
-
 		/*
 		float a_x = std::sinf(splt.desc.angle), a_y = -std::cosf(splt.desc.angle);
 		float r_offset = -0.5f * tmp.shape()[1] * a_x - 0.5f * tmp.shape()[0] * a_y;
@@ -194,13 +193,13 @@ std::vector<bujo::splits::RegionSplit> bujo::transform::findVSplits(const xt::xt
 			break;
 		res.push_back(splt);
 		bujo::splits::setRegionValue(tmp, splt.desc, 1, 0.0f);
+		/*
+		cv::Mat cv1 = bujo::util::xt2cv(tmp, CV_8U);
+		cv::line(cv1, cv::Point(j0, i0), cv::Point(j1, i1), cv::Scalar(255));
+		cv::namedWindow("Tmp", cv::WINDOW_AUTOSIZE);
+		cv::imshow("Tmp", cv1);
 
-		//cv::Mat cv1 = bujo::util::xt2cv(tmp, CV_8U);
-		//cv::line(cv1, cv::Point(j0, i0), cv::Point(j1, i1), cv::Scalar(255));
-		//cv::namedWindow("Tmp", cv::WINDOW_AUTOSIZE);
-		//cv::imshow("Tmp", cv1);
-
-		//break;
+		break;*/
 	}
 
 	return res;
