@@ -9,5 +9,10 @@ namespace PageLabeler.PageInfo
     class PageInfo
     {
         public LinkedList<LineInfo> lines;
+
+        public PageInfo()
+        {
+            lines = new LinkedList<LineInfo>();
+        }
     }
 }

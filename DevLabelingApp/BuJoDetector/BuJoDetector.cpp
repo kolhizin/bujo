@@ -115,6 +115,15 @@ array<PointF^>^ BuJoDetector::ManagedDetector::GetLine(unsigned idx, unsigned nu
 	return res;
 }
 
+array<PointF^>^ BuJoDetector::ManagedDetector::GetWord(unsigned lineId, unsigned wordId, unsigned numPoints)
+{
+	auto tmp = impl()->getWord(lineId, wordId, xt::linspace(0.0f, 1.0f, numPoints));
+	array<PointF^>^ res = gcnew array<PointF^>(numPoints);
+	for (unsigned i = 0; i < numPoints; i++)
+		res->SetValue((System::Object^)(gcnew PointF(tmp.at(i, 0), tmp.at(i, 1))), (int)i);
+	return res;
+}
+
 Bitmap ^BuJoDetector::ManagedDetector::GetAlignedImage()
 {
 	return xt2bitmap(impl()->alignedOriginalImage());

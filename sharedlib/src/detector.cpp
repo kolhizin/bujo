@@ -101,6 +101,20 @@ xt::xtensor<float, 2> bujo::detector::Detector::wordCoordinates(unsigned lineId,
 	
 	return res;
 }
+xt::xtensor<float, 2> bujo::detector::Detector::getWord(unsigned lineId, unsigned wordId, const xt::xtensor<float, 1>& locs) const
+{
+	const curves::Curve& crv = words_.at(lineId).at(wordId).curve;
+	auto l_param = locs * crv.len_param.at(crv.len_param.size() - 1);
+	auto x_value = xt::interp(l_param, crv.len_param, crv.x_value) / (usedImg_.shape()[1] - 1);
+	auto y_value = xt::interp(l_param, crv.len_param, crv.y_value) / (usedImg_.shape()[0] - 1);
+	xt::xtensor<float, 2> res({ x_value.size(), 2 });
+	for (unsigned i = 0; i < x_value.size(); i++)
+	{
+		res.at(i, 0) = x_value[i];
+		res.at(i, 1) = y_value[i];
+	}
+	return res;
+}
 xt::xtensor<float, 2> bujo::detector::Detector::getLine(unsigned lineId, const xt::xtensor<float, 1>& locs) const
 {
 	const curves::Curve& crv = allCurves_.at(lineId);

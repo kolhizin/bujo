@@ -68,7 +68,8 @@ namespace bujo
 			const bujo::curves::Curve& getLineCurve(unsigned lineId) const { return allCurves_.at(lineId); }
 			const bujo::curves::Curve& getSupportLineCurve(unsigned supportLineId) const { return supportCurves_.at(supportLineId); }
 
-			xt::xtensor<float, 2> getLine(unsigned lineId, const xt::xtensor<float, 1> &locs) const;
+			xt::xtensor<float, 2> getWord(unsigned lineId, unsigned wordId, const xt::xtensor<float, 1> &locs) const;
+			xt::xtensor<float, 2> getLine(unsigned lineId, const xt::xtensor<float, 1>& locs) const;
 			xt::xtensor<float, 2> getSupportLine(unsigned lineId, const xt::xtensor<float, 1>& locs) const;
 			xt::xtensor<float, 2> extractLine(unsigned lineId, unsigned neg_height, unsigned pos_height) const;
 			xt::xtensor<float, 2> extractWord(unsigned lineId, unsigned wordId, float height_scale=1.0f) const;

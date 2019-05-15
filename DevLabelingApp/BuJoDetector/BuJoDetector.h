@@ -35,6 +35,7 @@ namespace BuJoDetector {
 
 		array<PointF^>^ GetSupportLine(unsigned idx, unsigned numPoints);
 		array<PointF^>^ GetLine(unsigned idx, unsigned numPoints);
+		array<PointF^>^ GetWord(unsigned lineId, unsigned wordId, unsigned numPoints);
 
 		Bitmap ^GetAlignedImage();
 		Bitmap^ GetMainImage();
