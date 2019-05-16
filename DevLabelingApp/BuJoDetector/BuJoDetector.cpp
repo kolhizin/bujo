@@ -124,6 +124,16 @@ array<PointF^>^ BuJoDetector::ManagedDetector::GetWord(unsigned lineId, unsigned
 	return res;
 }
 
+float BuJoDetector::ManagedDetector::GetWordNegOffset(unsigned lineId, unsigned wordId)
+{
+	return std::get<0>(impl()->getWordHeight(lineId, wordId));
+}
+
+float BuJoDetector::ManagedDetector::GetWordPosOffset(unsigned lineId, unsigned wordId)
+{
+	return std::get<1>(impl()->getWordHeight(lineId, wordId));
+}
+
 Bitmap ^BuJoDetector::ManagedDetector::GetAlignedImage()
 {
 	return xt2bitmap(impl()->alignedOriginalImage());

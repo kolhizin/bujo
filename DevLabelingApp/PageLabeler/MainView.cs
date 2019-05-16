@@ -16,7 +16,7 @@ namespace PageLabeler
         private ManagedDetector detector_;
         private MenuItem flgShowSupportLines_, flgShowAllLines_, flgShowWords_;
         private ContextMenu cm_;
-        private Image srcImage_;
+        private Image srcImage_, rotImage_;
         private string fname_;
         public delegate void ShowDelegate();
         public ShowDelegate Show;
@@ -141,7 +141,7 @@ namespace PageLabeler
             }
         }
 
-        public void SelectObservation(string imgFileName)
+        public void SelectObservation(string imgFileName, float angle)
         {
             fname_ = imgFileName;
             srcImage_ = null;
@@ -162,12 +162,19 @@ namespace PageLabeler
                             MessageBox.Show("Unkonwn image orientation!", "Warning!");
                     }
                 }
+                rotImage_ = rotateImage_((Bitmap)srcImage_, -angle * 180.0f / (float)Math.PI);
                 pbox_.Image = srcImage_;
             }
+            
+        }
+        public void UpdateAngle()
+        {
+            rotImage_ = rotateImage_((Bitmap)srcImage_, -detector_.GetAngle() * 180.0f / (float)Math.PI);
         }
         public string GetSelected() { return fname_; }
         public bool ObservationExists() { return File.Exists(fname_); }
         public Image GetOriginalImage() { return srcImage_; }
+        public Image GetAlignedImage() { return rotImage_; }
         public void ShowOriginal()
         {
             if (!File.Exists(fname_))
@@ -183,7 +190,7 @@ namespace PageLabeler
                 return;
             if (pbox_.Image != srcImage_)
                 pbox_.Image.Dispose();
-            pbox_.Image = rotateImage_((Bitmap)srcImage_, -detector_.GetAngle() * 180.0f / (float)Math.PI);
+            pbox_.Image = (Image)rotImage_.Clone();
             drawOverlay_();
             Show = new ShowDelegate(ShowAligned);
         }
@@ -218,5 +225,6 @@ namespace PageLabeler
             Show = ShowText;
             Show = new ShowDelegate(ShowText);
         }
+
     }
 }

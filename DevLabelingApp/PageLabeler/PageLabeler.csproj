@@ -32,7 +32,13 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>0</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <NoWin32Manifest>true</NoWin32Manifest>
+  </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -47,6 +53,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MainView.cs" />
+    <Compile Include="PageInfo\DatasetInfo.cs" />
+    <Compile Include="PageInfo\LineInfo.cs" />
+    <Compile Include="PageInfo\PageInfo.cs" />
+    <Compile Include="PageInfo\PageNavigator.cs" />
     <Compile Include="PageLabeler.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -57,6 +67,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Thumbnails\ThumbPics.cs" />
     <Compile Include="Thumbnails\TrainSetThumbs.cs" />
+    <Compile Include="PageInfo\WordInfo.cs" />
     <EmbeddedResource Include="PageLabeler.resx">
       <DependentUpon>PageLabeler.cs</DependentUpon>
     </EmbeddedResource>
@@ -69,6 +80,7 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

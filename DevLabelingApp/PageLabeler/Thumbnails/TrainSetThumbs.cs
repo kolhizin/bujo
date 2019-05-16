@@ -10,8 +10,8 @@ namespace PageLabeler
 {
     class TrainSetThumbs
     {
-        public enum ObsState { ToDo, Done, Exclude };
-        public enum EventType { SetDone, SetToDo, SetExclude, Select };
+        public enum ObsState { ToDo, Success, Fail, Exclude };
+        public enum EventType { SetSuccess, SetFail, SetToDo, SetExclude, Select };
         private class ObsInfo
         {
             public uint idx;
@@ -33,9 +33,13 @@ namespace PageLabeler
                 {
                     this.UpdateState(fname, ObsState.Exclude);
                 }));
-                res.MenuItems.Add("Done", new EventHandler((object obj, EventArgs arg) =>
+                res.MenuItems.Add("Success", new EventHandler((object obj, EventArgs arg) =>
                 {
-                    this.UpdateState(fname, ObsState.Done);
+                    this.UpdateState(fname, ObsState.Success);
+                }));
+                res.MenuItems.Add("Fail", new EventHandler((object obj, EventArgs arg) =>
+                {
+                    this.UpdateState(fname, ObsState.Fail);
                 }));
             }
             else if (state == ObsState.Exclude)
@@ -45,7 +49,7 @@ namespace PageLabeler
                     this.UpdateState(fname, ObsState.ToDo);
                 }));
             }
-            else if (state == ObsState.Done)
+            else if (state == ObsState.Success || state == ObsState.Fail)
             {
                 res.MenuItems.Add("Back in to-do", new EventHandler((object obj, EventArgs arg) =>
                 {
@@ -103,18 +107,29 @@ namespace PageLabeler
                     g.DrawString("EXCLUDED", new Font(FontFamily.GenericMonospace, 12.0f, FontStyle.Bold),
                         new SolidBrush(Color.PaleVioletRed), 0.0f, 0.0f);
                 }
-            }else if(observations_[fname].state == ObsState.Done)
+            }else if(observations_[fname].state == ObsState.Success)
             {
                 Image img = thumbs_.GetPictureBox(idx).Image;
                 using (Graphics g = Graphics.FromImage(img))
                 {
                     SolidBrush shadowBrush = new SolidBrush(Color.FromArgb(128, Color.Green));
                     g.FillRectangle(shadowBrush, 0, 0, img.Width, img.Height);
-                    g.DrawString("DONE", new Font(FontFamily.GenericMonospace, 12.0f, FontStyle.Bold),
+                    g.DrawString("SUCCESS", new Font(FontFamily.GenericMonospace, 12.0f, FontStyle.Bold),
                         new SolidBrush(Color.White), 0.0f, 0.0f);
                 }
             }
-            if(selectedObservation_ == fname)
+            else if (observations_[fname].state == ObsState.Fail)
+            {
+                Image img = thumbs_.GetPictureBox(idx).Image;
+                using (Graphics g = Graphics.FromImage(img))
+                {
+                    SolidBrush shadowBrush = new SolidBrush(Color.FromArgb(128, Color.DarkRed));
+                    g.FillRectangle(shadowBrush, 0, 0, img.Width, img.Height);
+                    g.DrawString("FAIL", new Font(FontFamily.GenericMonospace, 12.0f, FontStyle.Bold),
+                        new SolidBrush(Color.White), 0.0f, 0.0f);
+                }
+            }
+            if (selectedObservation_ == fname)
             {
                 Image img = thumbs_.GetPictureBox(idx).Image;
                 using (Graphics g = Graphics.FromImage(img))
@@ -137,22 +152,33 @@ namespace PageLabeler
             notifyCallbacks(fname, EventType.SetExclude);
         }
 
-        private void setStateDone(string fname)
+        private void setStateSuccess(string fname)
         {
-            observations_[fname].state = ObsState.Done;
+            observations_[fname].state = ObsState.Success;
             updateThumb(fname);
-            notifyCallbacks(fname, EventType.SetDone);
+            notifyCallbacks(fname, EventType.SetSuccess);
+        }
+        private void setStateFail(string fname)
+        {
+            observations_[fname].state = ObsState.Fail;
+            updateThumb(fname);
+            notifyCallbacks(fname, EventType.SetFail);
         }
 
         public void UpdateState(string fname, ObsState state)
         {
             if (state == ObsState.ToDo)
                 setStateToDo(fname);
-            else if (state == ObsState.Done)
-                setStateDone(fname);
+            else if (state == ObsState.Success)
+                setStateSuccess(fname);
+            else if (state == ObsState.Fail)
+                setStateFail(fname);
             else setStateExclude(fname);
         }
-
+        public void Clear()
+        {
+            observations_.Clear();
+        }
         public void AddObservation(string fname, ObsState state = ObsState.ToDo)
         {
             if (observations_.ContainsKey(fname))

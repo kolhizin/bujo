@@ -11,3 +11,5 @@ D:\Programming\bujo_poc\DevLabelingApp\PageLabeler\obj\Release\PageLabeler.pdb
 D:\Programming\bujo_poc\DevLabelingApp\PageLabeler\bin\Release\BuJoDetector.dll
 D:\Programming\bujo_poc\DevLabelingApp\PageLabeler\bin\Release\BuJoDetector.pdb
 D:\Programming\bujo_poc\DevLabelingApp\PageLabeler\obj\Release\PageLabeler.csproj.CopyComplete
+D:\Programming\bujo_poc\DevLabelingApp\PageLabeler\bin\Release\Newtonsoft.Json.dll
+D:\Programming\bujo_poc\DevLabelingApp\PageLabeler\bin\Release\Newtonsoft.Json.xml

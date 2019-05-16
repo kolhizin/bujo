@@ -31,9 +31,9 @@ namespace PageLabeler
             this.wordId = wordId;
             System.ValueType[] fpts = detector.GetWord(lineId, wordId, 2);
             x0 = ((PointF)fpts[0]).X;
-            y0 = ((PointF)fpts[0]).Y;
+            y0 = ((PointF)fpts[0]).Y + detector.GetWordNegOffset(lineId, wordId);
             x1 = ((PointF)fpts[1]).X;
-            y1 = ((PointF)fpts[1]).Y;
+            y1 = ((PointF)fpts[1]).Y + detector.GetWordPosOffset(lineId, wordId);
 
             text = "";
             comment = "";

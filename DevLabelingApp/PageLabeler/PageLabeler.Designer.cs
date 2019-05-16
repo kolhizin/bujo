@@ -39,12 +39,16 @@
             this.btnOuput = new System.Windows.Forms.Button();
             this.btnInput = new System.Windows.Forms.Button();
             this.thumbFlowPanel = new System.Windows.Forms.FlowLayoutPanel();
+            this.btnLoadDataset = new System.Windows.Forms.Button();
+            this.btnSave = new System.Windows.Forms.Button();
+            this.pbWord = new System.Windows.Forms.PictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.splitThumb)).BeginInit();
             this.splitThumb.Panel1.SuspendLayout();
             this.splitThumb.Panel2.SuspendLayout();
             this.splitThumb.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitView)).BeginInit();
             this.splitView.Panel1.SuspendLayout();
+            this.splitView.Panel2.SuspendLayout();
             this.splitView.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitMainView)).BeginInit();
             this.splitMainView.Panel1.SuspendLayout();
@@ -55,6 +59,7 @@
             this.splitThumbView.Panel1.SuspendLayout();
             this.splitThumbView.Panel2.SuspendLayout();
             this.splitThumbView.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pbWord)).BeginInit();
             this.SuspendLayout();
             // 
             // splitThumb
@@ -85,6 +90,10 @@
             // splitView.Panel1
             // 
             this.splitView.Panel1.Controls.Add(this.splitMainView);
+            // 
+            // splitView.Panel2
+            // 
+            this.splitView.Panel2.Controls.Add(this.pbWord);
             this.splitView.Size = new System.Drawing.Size(810, 566);
             this.splitView.SplitterDistance = 438;
             this.splitView.TabIndex = 0;
@@ -156,6 +165,8 @@
             // 
             // splitThumbView.Panel1
             // 
+            this.splitThumbView.Panel1.Controls.Add(this.btnSave);
+            this.splitThumbView.Panel1.Controls.Add(this.btnLoadDataset);
             this.splitThumbView.Panel1.Controls.Add(this.btnInput);
             this.splitThumbView.Panel1.Controls.Add(this.btnOuput);
             // 
@@ -163,7 +174,7 @@
             // 
             this.splitThumbView.Panel2.Controls.Add(this.thumbFlowPanel);
             this.splitThumbView.Size = new System.Drawing.Size(405, 564);
-            this.splitThumbView.SplitterDistance = 70;
+            this.splitThumbView.SplitterDistance = 150;
             this.splitThumbView.TabIndex = 0;
             // 
             // btnOuput
@@ -175,6 +186,7 @@
             this.btnOuput.TabIndex = 8;
             this.btnOuput.Text = "Set output";
             this.btnOuput.UseVisualStyleBackColor = true;
+            this.btnOuput.Click += new System.EventHandler(this.BtnOuput_Click);
             // 
             // btnInput
             // 
@@ -182,7 +194,7 @@
             this.btnInput.Name = "btnInput";
             this.btnInput.Size = new System.Drawing.Size(125, 38);
             this.btnInput.TabIndex = 9;
-            this.btnInput.Text = "Set input";
+            this.btnInput.Text = "Add input";
             this.btnInput.UseVisualStyleBackColor = true;
             this.btnInput.Click += new System.EventHandler(this.BtnInput_Click);
             // 
@@ -192,8 +204,39 @@
             this.thumbFlowPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.thumbFlowPanel.Location = new System.Drawing.Point(0, 0);
             this.thumbFlowPanel.Name = "thumbFlowPanel";
-            this.thumbFlowPanel.Size = new System.Drawing.Size(405, 490);
+            this.thumbFlowPanel.Size = new System.Drawing.Size(405, 410);
             this.thumbFlowPanel.TabIndex = 2;
+            // 
+            // btnLoadDataset
+            // 
+            this.btnLoadDataset.Location = new System.Drawing.Point(11, 56);
+            this.btnLoadDataset.Name = "btnLoadDataset";
+            this.btnLoadDataset.Size = new System.Drawing.Size(125, 38);
+            this.btnLoadDataset.TabIndex = 10;
+            this.btnLoadDataset.Text = "Load dataset";
+            this.btnLoadDataset.UseVisualStyleBackColor = true;
+            this.btnLoadDataset.Click += new System.EventHandler(this.BtnLoadDataset_Click);
+            // 
+            // btnSave
+            // 
+            this.btnSave.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnSave.Location = new System.Drawing.Point(142, 56);
+            this.btnSave.Name = "btnSave";
+            this.btnSave.Size = new System.Drawing.Size(125, 38);
+            this.btnSave.TabIndex = 11;
+            this.btnSave.Text = "Save";
+            this.btnSave.UseVisualStyleBackColor = true;
+            this.btnSave.Click += new System.EventHandler(this.BtnSave_Click);
+            // 
+            // pbWord
+            // 
+            this.pbWord.Dock = System.Windows.Forms.DockStyle.Top;
+            this.pbWord.Location = new System.Drawing.Point(0, 0);
+            this.pbWord.Name = "pbWord";
+            this.pbWord.Size = new System.Drawing.Size(366, 141);
+            this.pbWord.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.pbWord.TabIndex = 0;
+            this.pbWord.TabStop = false;
             // 
             // PageLabeler
             // 
@@ -201,14 +244,17 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1221, 566);
             this.Controls.Add(this.splitThumb);
+            this.KeyPreview = true;
             this.Name = "PageLabeler";
             this.Text = "Page labeler";
             this.Load += new System.EventHandler(this.PageLabeler_Load);
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.PageLabeler_KeyDown);
             this.splitThumb.Panel1.ResumeLayout(false);
             this.splitThumb.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitThumb)).EndInit();
             this.splitThumb.ResumeLayout(false);
             this.splitView.Panel1.ResumeLayout(false);
+            this.splitView.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitView)).EndInit();
             this.splitView.ResumeLayout(false);
             this.splitMainView.Panel1.ResumeLayout(false);
@@ -221,6 +267,7 @@
             this.splitThumbView.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitThumbView)).EndInit();
             this.splitThumbView.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.pbWord)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -238,6 +285,9 @@
         private System.Windows.Forms.Button btnInput;
         private System.Windows.Forms.Button btnOuput;
         private System.Windows.Forms.FlowLayoutPanel thumbFlowPanel;
+        private System.Windows.Forms.Button btnLoadDataset;
+        private System.Windows.Forms.Button btnSave;
+        private System.Windows.Forms.PictureBox pbWord;
     }
 }
 

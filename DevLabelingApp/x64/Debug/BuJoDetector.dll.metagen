@@ -22,10 +22,14 @@ Class BuJoDetector.ManagedDetector: AutoLayout, AnsiClass, Class, Public, Before
     RunDetection(): PrivateScope, Public, HideBySig
     GetTimeLoad(): PrivateScope, Public, HideBySig
     GetTimeCompute(): PrivateScope, Public, HideBySig
+    GetNumSupportLines(): PrivateScope, Public, HideBySig
     GetNumLines(): PrivateScope, Public, HideBySig
     GetNumWords(UInt32): PrivateScope, Public, HideBySig
     GetNumWords(): PrivateScope, Public, HideBySig
     GetAngle(): PrivateScope, Public, HideBySig
+    GetSupportLine(UInt32, UInt32): PrivateScope, Public, HideBySig
+    GetLine(UInt32, UInt32): PrivateScope, Public, HideBySig
+    GetWord(UInt32, UInt32, UInt32): PrivateScope, Public, HideBySig
     GetAlignedImage(): PrivateScope, Public, HideBySig
     GetMainImage(): PrivateScope, Public, HideBySig
     GetTextImage(): PrivateScope, Public, HideBySig
