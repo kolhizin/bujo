@@ -103,18 +103,48 @@ namespace PageLabeler.PageInfo
             lineIter_ = line;
             return true;
         }
-        public Image GetWordImage()
+        public Image GetWordImage(string path)
         {
             if (wordIter_ == null)
                 return null;
-            float x = Math.Min(wordIter_.Value.x0, wordIter_.Value.x1);
-            float y = Math.Min(wordIter_.Value.y0, wordIter_.Value.y1);
-            float w = Math.Abs(wordIter_.Value.x1 - wordIter_.Value.x0);
-            float h = Math.Abs(wordIter_.Value.y1 - wordIter_.Value.y0);
-            var rect = new RectangleF(x * (refImage_.Width - 1), y * (refImage_.Height - 1),
-                Math.Max(1, w * refImage_.Width), Math.Max(1, h * refImage_.Height));
-            return refImage_.Clone(rect, refImage_.PixelFormat);
-            // refImage_.Clone(rect, refImage_.PixelFormat);
+            string fname = System.IO.Path.Combine(path, curPage_.name, wordIter_.Value.filename);
+            return Image.FromFile(fname);
+        }
+        public WordInfo.WordStatus GetWordStatus()
+        {
+            if (wordIter_ == null)
+                return WordInfo.WordStatus.UNKNOWN;
+            return wordIter_.Value.status;
+        }
+        public void SetWordStatus(WordInfo.WordStatus status)
+        {
+            if (wordIter_ == null)
+                return;
+            wordIter_.Value.status = status;
+        }
+        public string GetWordText()
+        {
+            if (wordIter_ == null)
+                return "";
+            return wordIter_.Value.text;
+        }
+        public void SetWordText(string str)
+        {
+            if (wordIter_ == null)
+                return;
+            wordIter_.Value.text = str;
+        }
+        public string GetWordComment()
+        {
+            if (wordIter_ == null)
+                return "";
+            return wordIter_.Value.comment;
+        }
+        public void SetWordComment(string str)
+        {
+            if (wordIter_ == null)
+                return;
+            wordIter_.Value.comment = str;
         }
     }
 }

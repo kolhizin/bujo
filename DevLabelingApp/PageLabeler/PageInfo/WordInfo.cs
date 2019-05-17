@@ -13,34 +13,59 @@ namespace PageLabeler
         public enum WordStatus { UNKNOWN, CORRECT, INCORRECT };
         public string text; //transcription of image
         public string comment; //any kind of comment
-        public uint wordId; //id of word
-        public float x0, y0, x1, y1; //relative coordinated
+        public string filename;
+        public uint wordId, lineId; //id of word
+        public float neg_offset, pos_offset; //relative coordinated
+        public float [] xcoords;
+        public float [] ycoords;
         public WordStatus status;
 
         public WordInfo()
         {
             text = "";
             comment = "";
+            filename = "";
             wordId = 0;
-            x0 = y0 = x1 = y1 = 0.0f;
+            lineId = 0;
             status = WordStatus.UNKNOWN;
         }
 
-        public WordInfo(BuJoDetector.ManagedDetector detector, uint lineId, uint wordId)
+        public WordInfo(BuJoDetector.ManagedDetector detector, uint lineId, uint wordId, string path)
         {
             this.wordId = wordId;
-            System.ValueType[] fpts = detector.GetWord(lineId, wordId, 2);
-            x0 = ((PointF)fpts[0]).X;
-            y0 = ((PointF)fpts[0]).Y + detector.GetWordNegOffset(lineId, wordId);
-            x1 = ((PointF)fpts[1]).X;
-            y1 = ((PointF)fpts[1]).Y + detector.GetWordPosOffset(lineId, wordId);
+            this.lineId = lineId;
+            filename = "line" + lineId.ToString("D2") + "_word" + wordId.ToString("D2") + ".jpg";
+            string fname = System.IO.Path.Combine(path, filename);
 
+            Image tmpImg = detector.GetWordImage(lineId, wordId, 1.3f);
+            tmpImg.Save(fname);
+
+            System.ValueType []tmpXY = detector.GetWord(lineId, wordId, 10);
+            xcoords = new float[tmpXY.Length];
+            ycoords = new float[tmpXY.Length];
+            for(int i = 0; i < tmpXY.Length; i++)
+            {
+                xcoords[i] = ((PointF)tmpXY[i]).X;
+                ycoords[i] = ((PointF)tmpXY[i]).Y;
+            }
+            pos_offset = detector.GetWordPosOffset(lineId, wordId);
+            neg_offset = detector.GetWordPosOffset(lineId, wordId);
             text = "";
             comment = "";
 
             status = WordStatus.UNKNOWN;
         }
-
+        public void ResetPath(string oldpath, string newpath, bool deleteOld = false)
+        {
+            string oldname = System.IO.Path.Combine(oldpath, filename);
+            string newname = System.IO.Path.Combine(newpath, filename);
+            if (System.IO.File.Exists(oldname))
+            {
+                System.IO.File.Copy(oldname, newname);
+                if (deleteOld)
+                    System.IO.File.Delete(oldname);
+            }
+        }
         public void SetCorrect(string text)
         {
             this.text = text;

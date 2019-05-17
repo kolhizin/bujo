@@ -67,6 +67,7 @@ namespace PageLabeler
                 {
                     mainView_.SelectObservation(s, dataset_.GetPage(s).angle);
                     navigator_.SetPage(dataset_.GetPage(s), mainView_.GetAlignedImage());
+                    UpdateWordView();
                 }
                 if (e == TrainSetThumbs.EventType.SetFail)
                     dataset_.GetPage(s).status = PageInfo.PageInfo.PageStatus.FAIL;
@@ -79,7 +80,7 @@ namespace PageLabeler
             });
 
             mainView_ = new MainView(pbMain, detector_);
-            dataset_ = new PageInfo.DatasetInfo("D:/Data/bujo_sample/dataset.json");
+            dataset_ = new PageInfo.DatasetInfo();// new PageInfo.DatasetInfo("D:/Data/bujo_sample/dataset.json");
             foreach (var v in dataset_.pages)
             {
                 tdsThumbs_.AddObservation(v.Key, convert_page2thumb(v.Value.status));
@@ -145,20 +146,21 @@ namespace PageLabeler
             try
             {
                 detector_.RunDetection();
-                dataset_.ResetPage(mainView_.GetSelected(), detector_);
             }catch
             {
                 fSuccess = false;
             }
-            mainView_.UpdateAngle();
-            navigator_.SetPage(dataset_.GetPage(mainView_.GetSelected()), mainView_.GetAlignedImage());
+
             if (!fSuccess)
             {
                 detectorStatus.Text = "Detection failed.";
                 return;
             }
             detectorStatus.Text = "Successfull detection in " + (detector_.GetTimeCompute() / 1000.0f).ToString() + "s.";
-            
+            dataset_.ResetPage(mainView_.GetSelected(), detector_);
+            mainView_.UpdateAngle();
+            navigator_.SetPage(dataset_.GetPage(mainView_.GetSelected()), mainView_.GetAlignedImage());
+
         }
 
         private void BtnOuput_Click(object sender, EventArgs e)
@@ -202,10 +204,75 @@ namespace PageLabeler
         {
             if (e.KeyCode == Keys.Right)
             {
-                navigator_.NextWord();
-                pbWord.Image = navigator_.GetWordImage();
+                if (!navigator_.NextWord())
+                    MessageBox.Show("Reached end!", "Notification");
+                UpdateWordView();
                 e.Handled = true;
             }
+            if (e.KeyCode == Keys.Left)
+            {
+                if (!navigator_.PrevWord())
+                    MessageBox.Show("Reached start!", "Notification");
+                UpdateWordView();
+                e.Handled = true;
+            }
+            if (e.KeyCode == Keys.Down)
+            {
+                if (!navigator_.NextLine())
+                    MessageBox.Show("Reached end!", "Notification");
+                UpdateWordView();
+                e.Handled = true;
+            }
+            if (e.KeyCode == Keys.Up)
+            {
+                if (!navigator_.PrevLine())
+                    MessageBox.Show("Reached start!", "Notification");
+                UpdateWordView();
+                e.Handled = true;
+            }
+        }
+
+        private void UpdateWordView()
+        {
+            pbWord.Image = navigator_.GetWordImage(dataset_.GetPath());
+            txtWord.Text = navigator_.GetWordText();
+            var status = navigator_.GetWordStatus();
+            rbWordCorrect.Checked = (status == WordInfo.WordStatus.CORRECT);
+            rbWordIncorrect.Checked = (status == WordInfo.WordStatus.INCORRECT);
+        }
+
+        private void TxtWord_TextChanged(object sender, EventArgs e)
+        {
+            if (txtWord.Text != "")
+            {
+                navigator_.SetWordText(txtWord.Text);
+                navigator_.SetWordStatus(WordInfo.WordStatus.CORRECT);
+                rbWordIncorrect.Checked = false;
+                rbWordCorrect.Checked = true;
+            }
+        }
+
+        private void TxtWordComment_TextChanged(object sender, EventArgs e)
+        {
+            navigator_.SetWordComment(txtWordComment.Text);
+        }
+
+        private void RbWordCorrect_CheckedChanged(object sender, EventArgs e)
+        {
+            rbWordIncorrect.Checked = !rbWordCorrect.Checked;
+            if (rbWordCorrect.Checked)
+                navigator_.SetWordStatus(WordInfo.WordStatus.CORRECT);
+            else
+                navigator_.SetWordStatus(WordInfo.WordStatus.INCORRECT);
+        }
+
+        private void RbWordIncorrect_CheckedChanged(object sender, EventArgs e)
+        {
+            rbWordCorrect.Checked = !rbWordIncorrect.Checked;
+            if (rbWordCorrect.Checked)
+                navigator_.SetWordStatus(WordInfo.WordStatus.CORRECT);
+            else
+                navigator_.SetWordStatus(WordInfo.WordStatus.INCORRECT);
         }
     }
 }

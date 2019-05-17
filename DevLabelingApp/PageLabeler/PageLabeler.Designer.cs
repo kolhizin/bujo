@@ -42,6 +42,12 @@
             this.btnLoadDataset = new System.Windows.Forms.Button();
             this.btnSave = new System.Windows.Forms.Button();
             this.pbWord = new System.Windows.Forms.PictureBox();
+            this.txtWord = new System.Windows.Forms.TextBox();
+            this.rbWordCorrect = new System.Windows.Forms.RadioButton();
+            this.rbWordIncorrect = new System.Windows.Forms.RadioButton();
+            this.txtWordComment = new System.Windows.Forms.TextBox();
+            this.label1 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.splitThumb)).BeginInit();
             this.splitThumb.Panel1.SuspendLayout();
             this.splitThumb.Panel2.SuspendLayout();
@@ -93,9 +99,15 @@
             // 
             // splitView.Panel2
             // 
+            this.splitView.Panel2.Controls.Add(this.label2);
+            this.splitView.Panel2.Controls.Add(this.label1);
+            this.splitView.Panel2.Controls.Add(this.txtWordComment);
+            this.splitView.Panel2.Controls.Add(this.rbWordIncorrect);
+            this.splitView.Panel2.Controls.Add(this.rbWordCorrect);
+            this.splitView.Panel2.Controls.Add(this.txtWord);
             this.splitView.Panel2.Controls.Add(this.pbWord);
             this.splitView.Size = new System.Drawing.Size(810, 566);
-            this.splitView.SplitterDistance = 438;
+            this.splitView.SplitterDistance = 350;
             this.splitView.TabIndex = 0;
             // 
             // splitMainView
@@ -114,7 +126,7 @@
             // splitMainView.Panel2
             // 
             this.splitMainView.Panel2.Controls.Add(this.pbMain);
-            this.splitMainView.Size = new System.Drawing.Size(436, 564);
+            this.splitMainView.Size = new System.Drawing.Size(348, 564);
             this.splitMainView.SplitterDistance = 80;
             this.splitMainView.TabIndex = 0;
             // 
@@ -123,7 +135,7 @@
             this.pbMain.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pbMain.Location = new System.Drawing.Point(0, 0);
             this.pbMain.Name = "pbMain";
-            this.pbMain.Size = new System.Drawing.Size(436, 480);
+            this.pbMain.Size = new System.Drawing.Size(348, 480);
             this.pbMain.TabIndex = 10;
             this.pbMain.TabStop = false;
             // 
@@ -149,7 +161,7 @@
             // btnDetectorSettings
             // 
             this.btnDetectorSettings.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnDetectorSettings.Location = new System.Drawing.Point(134, 11);
+            this.btnDetectorSettings.Location = new System.Drawing.Point(134, 12);
             this.btnDetectorSettings.Name = "btnDetectorSettings";
             this.btnDetectorSettings.Size = new System.Drawing.Size(151, 38);
             this.btnDetectorSettings.TabIndex = 16;
@@ -233,10 +245,75 @@
             this.pbWord.Dock = System.Windows.Forms.DockStyle.Top;
             this.pbWord.Location = new System.Drawing.Point(0, 0);
             this.pbWord.Name = "pbWord";
-            this.pbWord.Size = new System.Drawing.Size(366, 141);
+            this.pbWord.Size = new System.Drawing.Size(454, 141);
             this.pbWord.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pbWord.TabIndex = 0;
             this.pbWord.TabStop = false;
+            // 
+            // txtWord
+            // 
+            this.txtWord.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.txtWord.Location = new System.Drawing.Point(3, 179);
+            this.txtWord.Name = "txtWord";
+            this.txtWord.Size = new System.Drawing.Size(444, 35);
+            this.txtWord.TabIndex = 17;
+            this.txtWord.TextChanged += new System.EventHandler(this.TxtWord_TextChanged);
+            // 
+            // rbWordCorrect
+            // 
+            this.rbWordCorrect.AutoSize = true;
+            this.rbWordCorrect.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.rbWordCorrect.Location = new System.Drawing.Point(132, 142);
+            this.rbWordCorrect.Name = "rbWordCorrect";
+            this.rbWordCorrect.Size = new System.Drawing.Size(101, 29);
+            this.rbWordCorrect.TabIndex = 18;
+            this.rbWordCorrect.TabStop = true;
+            this.rbWordCorrect.Text = "Correct";
+            this.rbWordCorrect.UseVisualStyleBackColor = true;
+            this.rbWordCorrect.CheckedChanged += new System.EventHandler(this.RbWordCorrect_CheckedChanged);
+            // 
+            // rbWordIncorrect
+            // 
+            this.rbWordIncorrect.AutoSize = true;
+            this.rbWordIncorrect.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.rbWordIncorrect.Location = new System.Drawing.Point(239, 142);
+            this.rbWordIncorrect.Name = "rbWordIncorrect";
+            this.rbWordIncorrect.Size = new System.Drawing.Size(112, 29);
+            this.rbWordIncorrect.TabIndex = 19;
+            this.rbWordIncorrect.TabStop = true;
+            this.rbWordIncorrect.Text = "Incorrect";
+            this.rbWordIncorrect.UseVisualStyleBackColor = true;
+            this.rbWordIncorrect.CheckedChanged += new System.EventHandler(this.RbWordIncorrect_CheckedChanged);
+            // 
+            // txtWordComment
+            // 
+            this.txtWordComment.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.txtWordComment.Location = new System.Drawing.Point(3, 263);
+            this.txtWordComment.Multiline = true;
+            this.txtWordComment.Name = "txtWordComment";
+            this.txtWordComment.Size = new System.Drawing.Size(446, 64);
+            this.txtWordComment.TabIndex = 20;
+            this.txtWordComment.TextChanged += new System.EventHandler(this.TxtWordComment_TextChanged);
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.label1.Location = new System.Drawing.Point(3, 144);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(123, 25);
+            this.label1.TabIndex = 17;
+            this.label1.Text = "Word status:";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.label2.Location = new System.Drawing.Point(3, 235);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(151, 25);
+            this.label2.TabIndex = 21;
+            this.label2.Text = "Word comment:";
             // 
             // PageLabeler
             // 
@@ -255,6 +332,7 @@
             this.splitThumb.ResumeLayout(false);
             this.splitView.Panel1.ResumeLayout(false);
             this.splitView.Panel2.ResumeLayout(false);
+            this.splitView.Panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitView)).EndInit();
             this.splitView.ResumeLayout(false);
             this.splitMainView.Panel1.ResumeLayout(false);
@@ -288,6 +366,12 @@
         private System.Windows.Forms.Button btnLoadDataset;
         private System.Windows.Forms.Button btnSave;
         private System.Windows.Forms.PictureBox pbWord;
+        private System.Windows.Forms.TextBox txtWord;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.TextBox txtWordComment;
+        private System.Windows.Forms.RadioButton rbWordIncorrect;
+        private System.Windows.Forms.RadioButton rbWordCorrect;
     }
 }
 

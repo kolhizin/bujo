@@ -21,12 +21,18 @@ namespace PageLabeler.PageInfo
             words = new LinkedList<WordInfo>();
         }
 
-        public LineInfo(BuJoDetector.ManagedDetector detector, uint lineId)
+        public LineInfo(BuJoDetector.ManagedDetector detector, uint lineId, string path)
         {
             this.lineId = lineId;
             words = new LinkedList<WordInfo>();
             for (uint i = 0; i < detector.GetNumWords(lineId); i++)
-                words.AddLast(new WordInfo(detector, lineId, i));
+                words.AddLast(new WordInfo(detector, lineId, i, path));
+        }
+
+        public void ResetPath(string oldpath, string newpath, bool deleteOld = false)
+        {
+            foreach(var w in words)
+                w.ResetPath(oldpath, newpath, deleteOld);
         }
     }
 }

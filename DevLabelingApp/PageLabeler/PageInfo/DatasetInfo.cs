@@ -41,8 +41,16 @@ namespace PageLabeler.PageInfo
 
         public void UpdateOutput(string filename)
         {
+            string oldpath = "";
+            if(fname != "")
+                oldpath = System.IO.Path.GetDirectoryName(fname);
             fname = filename;
+            string newpath = System.IO.Path.GetDirectoryName(fname);
             Save();
+            foreach(var v in pages)
+            {
+                v.Value.ResetPath(oldpath, newpath);
+            }
         }
 
         public void AddPage(string filename)
@@ -56,7 +64,9 @@ namespace PageLabeler.PageInfo
         {
             if (!pages.ContainsKey(filename))
                 throw new Exception("Observation with this filename is not in data-set!");
-            pages[filename] = new PageInfo(detector);
+            string path = System.IO.Path.GetDirectoryName(filename);
+            string name = System.IO.Path.GetFileNameWithoutExtension(filename);
+            pages[filename] = new PageInfo(detector, path, name);
         }
 
         public PageInfo GetPage(string filename)
@@ -65,5 +75,7 @@ namespace PageLabeler.PageInfo
                 throw new Exception("Observation with this filename is not in data-set!");
             return pages[filename];
         }
+
+        public string GetPath() { return System.IO.Path.GetDirectoryName(fname); }
     }
 }
