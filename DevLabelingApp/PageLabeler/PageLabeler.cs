@@ -18,6 +18,7 @@ namespace PageLabeler
         private MainView mainView_;
         private PageInfo.DatasetInfo dataset_;
         private PageInfo.PageNavigator navigator_;
+        private HashSet<WordInfo.WordStatus> skipSet_;
 
         private bool checkDataset_()
         {
@@ -56,6 +57,7 @@ namespace PageLabeler
             InitializeComponent();
             
             detector_ = new ManagedDetector();
+            skipSet_ = new HashSet<WordInfo.WordStatus>();
             navigator_ = new PageInfo.PageNavigator();
 
             tdsThumbs_ = new TrainSetThumbs(new Size(100,100));
@@ -79,15 +81,8 @@ namespace PageLabeler
                     dataset_.GetPage(s).status = PageInfo.PageInfo.PageStatus.UNKNOWN;
             });
 
-            mainView_ = new MainView(pbMain, detector_);
-            dataset_ = new PageInfo.DatasetInfo();// new PageInfo.DatasetInfo("D:/Data/bujo_sample/dataset.json");
-            foreach (var v in dataset_.pages)
-            {
-                tdsThumbs_.AddObservation(v.Key, convert_page2thumb(v.Value.status));
-                thumbFlowPanel.Controls.Add(tdsThumbs_.GetPictureBox(v.Key));
-                mainView_.SelectObservation("", 0.0f);
-            }
-            //AddInputFiles(System.IO.Directory.GetFiles("D:/Data/bujo_sample/", "*.jpg"));
+            mainView_ = new MainView(pbMain, detector_, navigator_);
+            dataset_ = new PageInfo.DatasetInfo();
         }
 
         private void AddInputFiles(string [] files)
@@ -200,79 +195,115 @@ namespace PageLabeler
             dataset_.Save();
         }
 
+
         private void PageLabeler_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Right)
+            if(e.Modifiers == Keys.Control)
             {
-                if (!navigator_.NextWord())
-                    MessageBox.Show("Reached end!", "Notification");
-                UpdateWordView();
-                e.Handled = true;
-            }
-            if (e.KeyCode == Keys.Left)
-            {
-                if (!navigator_.PrevWord())
-                    MessageBox.Show("Reached start!", "Notification");
-                UpdateWordView();
-                e.Handled = true;
-            }
-            if (e.KeyCode == Keys.Down)
-            {
-                if (!navigator_.NextLine())
-                    MessageBox.Show("Reached end!", "Notification");
-                UpdateWordView();
-                e.Handled = true;
-            }
-            if (e.KeyCode == Keys.Up)
-            {
-                if (!navigator_.PrevLine())
-                    MessageBox.Show("Reached start!", "Notification");
-                UpdateWordView();
-                e.Handled = true;
+                if(e.KeyCode == Keys.Right || e.KeyCode == Keys.Left
+                    || e.KeyCode == Keys.Up || e.KeyCode == Keys.Down)
+                {
+                    if (e.KeyCode == Keys.Right)
+                       if (!navigator_.NextWord(skipSet_))
+                            MessageBox.Show("Reached end!", "Notification");
+                    if (e.KeyCode == Keys.Left)
+                        if (!navigator_.PrevWord(skipSet_))
+                            MessageBox.Show("Reached start!", "Notification");
+                    if (e.KeyCode == Keys.Down)
+                        if (!navigator_.NextLine(skipSet_))
+                            MessageBox.Show("Reached end!", "Notification");
+                    if (e.KeyCode == Keys.Up)
+                        if (!navigator_.PrevLine(skipSet_))
+                            MessageBox.Show("Reached start!", "Notification");
+
+                    UpdateWordView();
+                    e.Handled = true;
+                }
+                if (e.KeyCode == Keys.I && (e.Modifiers == Keys.Control))
+                {
+                    var status = navigator_.GetWordStatus();
+                    if (status == WordInfo.WordStatus.INCORRECT)
+                        navigator_.SetWordStatus(WordInfo.WordStatus.CORRECT);
+                    else
+                        navigator_.SetWordStatus(WordInfo.WordStatus.INCORRECT);
+                    cbWordStatus.Text = navigator_.GetWordStatus().ToString();
+                }
+                if (e.KeyCode == Keys.S && (e.Modifiers == Keys.Control))
+                {
+                    BtnSave_Click(sender, e);
+                }
             }
         }
 
         private void UpdateWordView()
         {
             pbWord.Image = navigator_.GetWordImage(dataset_.GetPath());
+            
+            cbWordStatus.Text = navigator_.GetWordStatus().ToString();
+            txtWordComment.Text = navigator_.GetWordComment();
+            cbLineStatus.Text = navigator_.GetLineStatus().ToString();
+            txtLineComment.Text = navigator_.GetLineComment();
+
             txtWord.Text = navigator_.GetWordText();
-            var status = navigator_.GetWordStatus();
-            rbWordCorrect.Checked = (status == WordInfo.WordStatus.CORRECT);
-            rbWordIncorrect.Checked = (status == WordInfo.WordStatus.INCORRECT);
+
+            mainView_.UpdateOverlay();
         }
 
-        private void TxtWord_TextChanged(object sender, EventArgs e)
-        {
-            if (txtWord.Text != "")
-            {
-                navigator_.SetWordText(txtWord.Text);
-                navigator_.SetWordStatus(WordInfo.WordStatus.CORRECT);
-                rbWordIncorrect.Checked = false;
-                rbWordCorrect.Checked = true;
-            }
-        }
 
         private void TxtWordComment_TextChanged(object sender, EventArgs e)
         {
             navigator_.SetWordComment(txtWordComment.Text);
         }
 
-        private void RbWordCorrect_CheckedChanged(object sender, EventArgs e)
+        private void CbWordStatus_SelectedIndexChanged(object sender, EventArgs e)
         {
-            rbWordIncorrect.Checked = !rbWordCorrect.Checked;
-            if (rbWordCorrect.Checked)
+            if(cbWordStatus.Text == "CORRECT")
                 navigator_.SetWordStatus(WordInfo.WordStatus.CORRECT);
-            else
+            if (cbWordStatus.Text == "INCORRECT")
                 navigator_.SetWordStatus(WordInfo.WordStatus.INCORRECT);
+            if (cbWordStatus.Text == "UNKNOWN")
+                navigator_.SetWordStatus(WordInfo.WordStatus.UNKNOWN);
         }
 
-        private void RbWordIncorrect_CheckedChanged(object sender, EventArgs e)
+        private void TxtWord_TextChanged(object sender, EventArgs e)
         {
-            rbWordCorrect.Checked = !rbWordIncorrect.Checked;
-            if (rbWordCorrect.Checked)
+            navigator_.SetWordText(txtWord.Text);
+            if(txtWord.Text != "")
+            {
                 navigator_.SetWordStatus(WordInfo.WordStatus.CORRECT);
+                cbWordStatus.Text = navigator_.GetWordStatus().ToString();
+            }
+        }
+
+        private void CbLineStatus_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (cbLineStatus.Text.ToUpper() == "CORRECT")
+                navigator_.SetLineStatus(PageInfo.LineInfo.LineStatus.CORRECT);
+            if (cbLineStatus.Text.ToUpper() == "INCORRECT")
+                navigator_.SetLineStatus(PageInfo.LineInfo.LineStatus.INCORRECT);
+            if (cbLineStatus.Text.ToUpper() == "UNKNOWN")
+                navigator_.SetLineStatus(PageInfo.LineInfo.LineStatus.UNKNOWN);
+        }
+
+        private void TxtLineComment_TextChanged(object sender, EventArgs e)
+        {
+            navigator_.SetLineComment(txtLineComment.Text);
+        }
+
+        private void CbSkipCorrect_CheckedChanged(object sender, EventArgs e)
+        {
+            if (cbSkipCorrect.Checked)
+                skipSet_.Add(WordInfo.WordStatus.CORRECT);
             else
-                navigator_.SetWordStatus(WordInfo.WordStatus.INCORRECT);
+                skipSet_.Remove(WordInfo.WordStatus.CORRECT);
+        }
+
+        private void CbSkipIncorrect_CheckedChanged(object sender, EventArgs e)
+        {
+            if (cbSkipIncorrect.Checked)
+                skipSet_.Add(WordInfo.WordStatus.INCORRECT);
+            else
+                skipSet_.Remove(WordInfo.WordStatus.INCORRECT);
         }
     }
 }

@@ -29,14 +29,14 @@ namespace PageLabeler.PageInfo
                 wordIter_ = lineIter_.Value.words.First;
         }
 
-        public bool NextWord()
+        public bool NextWord(HashSet<WordInfo.WordStatus> skip)
         {
             if (wordIter_ == null || lineIter_ == null)
                 return false;
 
             var word = wordIter_.Next;
             var line = lineIter_;
-            while(word == null)
+            while(word == null || skip.Contains(word.Value.status))
             {
                 line = line.Next;
                 if (line == null)
@@ -47,14 +47,14 @@ namespace PageLabeler.PageInfo
             lineIter_ = line;
             return true;
         }
-        public bool PrevWord()
+        public bool PrevWord(HashSet<WordInfo.WordStatus> skip)
         {
             if (wordIter_ == null || lineIter_ == null)
                 return false;
 
             var word = wordIter_.Previous;
             var line = lineIter_;
-            while (word == null)
+            while (word == null || skip.Contains(word.Value.status))
             {
                 line = line.Previous;
                 if (line == null)
@@ -65,7 +65,7 @@ namespace PageLabeler.PageInfo
             lineIter_ = line;
             return true;
         }
-        public bool NextLine()
+        public bool NextLine(HashSet<WordInfo.WordStatus> skip)
         {
             if (wordIter_ == null || lineIter_ == null)
                 return false;
@@ -73,7 +73,7 @@ namespace PageLabeler.PageInfo
             var line = lineIter_.Next;
             var word = line.Value.words.First;
             
-            while (word == null)
+            while (word == null || skip.Contains(word.Value.status))
             {
                 line = line.Next;
                 if (line == null)
@@ -84,7 +84,7 @@ namespace PageLabeler.PageInfo
             lineIter_ = line;
             return true;
         }
-        public bool PrevLine()
+        public bool PrevLine(HashSet<WordInfo.WordStatus> skip)
         {
             if (wordIter_ == null || lineIter_ == null)
                 return false;
@@ -92,7 +92,7 @@ namespace PageLabeler.PageInfo
             var line = lineIter_.Previous;
             var word = line.Value.words.Last;
 
-            while (word == null)
+            while (word == null || skip.Contains(word.Value.status))
             {
                 line = line.Next;
                 if (line == null)
@@ -145,6 +145,70 @@ namespace PageLabeler.PageInfo
             if (wordIter_ == null)
                 return;
             wordIter_.Value.comment = str;
+        }
+        public void SetLineStatus(LineInfo.LineStatus status)
+        {
+            if (lineIter_ == null)
+                return;
+            lineIter_.Value.status = status;
+            var wi = lineIter_.Value.words.First;
+            while(wi != null)
+            {
+                if (status == LineInfo.LineStatus.INCORRECT)
+                    wi.Value.status = WordInfo.WordStatus.INCORRECT;
+                if (status == LineInfo.LineStatus.UNKNOWN)
+                    wi.Value.status = WordInfo.WordStatus.UNKNOWN;
+                wi = wi.Next;
+            }
+        }
+        public LineInfo.LineStatus GetLineStatus()
+        {
+            if (lineIter_ == null)
+                return LineInfo.LineStatus.UNKNOWN;
+            return lineIter_.Value.status;
+        }
+
+        public void SetLineComment(string str)
+        {
+            if (lineIter_ == null)
+                return;
+            lineIter_.Value.comment = str;
+        }
+
+        public string GetLineComment()
+        {
+            if (lineIter_ == null)
+                return "";
+            return lineIter_.Value.comment;
+        }
+
+        public WordInfo.WordStatus GetWordStatus(int lineId, int wordId)
+        {
+            if (curPage_ == null)
+                return WordInfo.WordStatus.UNKNOWN;
+            return curPage_.lines.ElementAt(lineId).words.ElementAt(wordId).status;
+        }
+        public RectangleF GetWordBBox(int lineId, int wordId, float yScale)
+        {
+            return curPage_.lines.ElementAt(lineId).words.ElementAt(wordId).GetBBox(yScale);
+        }
+        public bool IsSelected(int lineId, int wordId)
+        {
+            if (wordIter_ == null)
+                return false;
+            return (wordIter_.Value.lineId == lineId && wordIter_.Value.wordId == wordId);
+        }
+        public int NumLines()
+        {
+            if (curPage_ == null)
+                return 0;
+            return curPage_.lines.Count;
+        }
+        public int NumWords(int lineId)
+        {
+            if (curPage_ == null)
+                return 0;
+            return curPage_.lines.ElementAt(lineId).words.Count;
         }
     }
 }

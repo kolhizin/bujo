@@ -77,5 +77,14 @@ namespace PageLabeler
             this.text = "";
             this.status = WordStatus.INCORRECT;
         }
+        public RectangleF GetBBox(float yScale)
+        {
+            float ymin = Math.Min(ycoords[0], ycoords[ycoords.Length - 1]);
+            float ymax = Math.Max(ycoords[0], ycoords[ycoords.Length - 1]);
+            float xmin = Math.Min(xcoords[0], xcoords[xcoords.Length - 1]);
+            float xmax = Math.Max(xcoords[0], xcoords[xcoords.Length - 1]);
+            return new RectangleF(xmin, ymin - neg_offset * yScale,
+                xmax - xmin, ymax - ymin + (pos_offset + neg_offset) * yScale);
+        }
     }
 }

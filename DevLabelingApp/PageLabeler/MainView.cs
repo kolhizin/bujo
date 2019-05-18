@@ -14,9 +14,11 @@ namespace PageLabeler
     {
         private PictureBox pbox_;
         private ManagedDetector detector_;
-        private MenuItem flgShowSupportLines_, flgShowAllLines_, flgShowWords_;
+        private PageInfo.PageNavigator navigator_;
+        private MenuItem flgShowSupportLines_, flgShowAllLines_, flgShowWords_, flgShowStatus_;
         private ContextMenu cm_;
         private Image srcImage_, rotImage_;
+        private Image rawImage_;
         private string fname_;
         public delegate void ShowDelegate();
         public ShowDelegate Show;
@@ -40,11 +42,12 @@ namespace PageLabeler
             return rotatedImage;
         }
 
-        public MainView(PictureBox pbox, ManagedDetector detector)
+        public MainView(PictureBox pbox, ManagedDetector detector, PageInfo.PageNavigator navigator)
         {
             fname_ = "";
             pbox_ = pbox;
             detector_ = detector;
+            navigator_ = navigator;
 
             flgShowSupportLines_ = new MenuItem("Show support lines", (object obj, EventArgs args) => {
                 flgShowSupportLines_.Checked = !flgShowSupportLines_.Checked;
@@ -63,6 +66,11 @@ namespace PageLabeler
                 Show();
             });
             flgShowWords_.Checked = false;
+
+            flgShowStatus_ = new MenuItem("Show status", (object obj, EventArgs args) => {
+                flgShowStatus_.Checked = !flgShowStatus_.Checked;
+                Show();
+            });
 
             cm_ = new ContextMenu();
             cm_.MenuItems.Add("Show original image", (object obj, EventArgs args)=>{
@@ -84,6 +92,8 @@ namespace PageLabeler
             cm_.MenuItems.Add(flgShowSupportLines_);
             cm_.MenuItems.Add(flgShowAllLines_);
             cm_.MenuItems.Add(flgShowWords_);
+            cm_.MenuItems.Add("-");
+            cm_.MenuItems.Add(flgShowStatus_);
             pbox_.ContextMenu = cm_;
             pbox_.SizeMode = PictureBoxSizeMode.Zoom;
             Show = new ShowDelegate(ShowOriginal);
@@ -91,6 +101,9 @@ namespace PageLabeler
 
         private void drawOverlay_()
         {
+            if(pbox_.Image != rawImage_)
+                pbox_.Image.Dispose();
+            pbox_.Image = (Image)rawImage_.Clone();
             float factor =  pbox_.Image.Width / srcImage_.Width;
             using (Graphics g = Graphics.FromImage(pbox_.Image))
             {
@@ -137,7 +150,31 @@ namespace PageLabeler
                             g.FillRectangle(brushes[i % 2],
                                 detector_.GetWordBBox((uint)i, (uint)j, pbox_.Image.Size, 1.3f));
                 }
-
+                if(flgShowStatus_.Checked)
+                {
+                    SolidBrush bUnk = new SolidBrush(Color.FromArgb(100, Color.Gray));
+                    SolidBrush bCor = new SolidBrush(Color.FromArgb(100, Color.Green));
+                    SolidBrush bIncor = new SolidBrush(Color.FromArgb(100, Color.Red));
+                    SolidBrush bSel = new SolidBrush(Color.FromArgb(100, Color.Blue));
+                    for(int i = 0; i < navigator_.NumLines(); i++)
+                        for(int j = 0; j < navigator_.NumWords(i); j++)
+                        {
+                            SolidBrush used = bUnk;
+                            var status = navigator_.GetWordStatus(i, j);
+                            var relrect = navigator_.GetWordBBox(i, j, 1.3f);
+                            if (navigator_.IsSelected(i, j))
+                                used = bSel;
+                            else
+                            {
+                                if (status == WordInfo.WordStatus.CORRECT)
+                                    used = bCor;
+                                else if (status == WordInfo.WordStatus.INCORRECT)
+                                    used = bIncor;
+                            }
+                            g.FillRectangle(used, new RectangleF(relrect.X*rawImage_.Width, relrect.Y *rawImage_.Height,
+                                relrect.Width * rawImage_.Width, relrect.Height * rawImage_.Height));
+                        }
+                }
             }
         }
 
@@ -163,6 +200,7 @@ namespace PageLabeler
                     }
                 }
                 rotImage_ = rotateImage_((Bitmap)srcImage_, -angle * 180.0f / (float)Math.PI);
+                rawImage_ = srcImage_;
                 pbox_.Image = srcImage_;
             }
             
@@ -181,7 +219,7 @@ namespace PageLabeler
                 return;
             if (pbox_.Image != srcImage_)
                 pbox_.Image.Dispose();
-            pbox_.Image = srcImage_;
+            rawImage_ = srcImage_;
             Show = new ShowDelegate(ShowOriginal);
         }
         public void ShowAligned()
@@ -190,7 +228,7 @@ namespace PageLabeler
                 return;
             if (pbox_.Image != srcImage_)
                 pbox_.Image.Dispose();
-            pbox_.Image = (Image)rotImage_.Clone();
+            rawImage_ = rotImage_;
             drawOverlay_();
             Show = new ShowDelegate(ShowAligned);
         }
@@ -200,7 +238,7 @@ namespace PageLabeler
                 return;
             if (pbox_.Image != srcImage_)
                 pbox_.Image.Dispose();
-            pbox_.Image = detector_.GetMainImage();
+            rawImage_ = detector_.GetMainImage();
             drawOverlay_();
             Show = new ShowDelegate(ShowMain);
         }
@@ -210,7 +248,7 @@ namespace PageLabeler
                 return;
             if (pbox_.Image != srcImage_)
                 pbox_.Image.Dispose();
-            pbox_.Image = detector_.GetFilteredImage();
+            rawImage_ = detector_.GetFilteredImage();
             drawOverlay_();
             Show = new ShowDelegate(ShowFiltered);
         }
@@ -220,10 +258,15 @@ namespace PageLabeler
                 return;
             if (pbox_.Image != srcImage_)
                 pbox_.Image.Dispose();
-            pbox_.Image = detector_.GetTextImage();
+            rawImage_ = detector_.GetTextImage();
             drawOverlay_();
             Show = ShowText;
             Show = new ShowDelegate(ShowText);
+        }
+
+        public void UpdateOverlay()
+        {
+            drawOverlay_();
         }
 
     }
