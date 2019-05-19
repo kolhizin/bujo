@@ -200,7 +200,21 @@ namespace PageLabeler
         {
             if(e.Modifiers == Keys.Control)
             {
-                if(e.KeyCode == Keys.Right || e.KeyCode == Keys.Left
+                if(e.KeyCode == Keys.OemOpenBrackets)
+                {
+                    if (!navigator_.PrevError())
+                        MessageBox.Show("Reached errors end!", "Notification");
+                    UpdateErrorView();
+                    e.Handled = true;
+                }
+                if (e.KeyCode == Keys.OemCloseBrackets)
+                {
+                    if (!navigator_.NextError())
+                        MessageBox.Show("Reached errors end!", "Notification");
+                    UpdateErrorView();
+                    e.Handled = true;
+                }
+                if (e.KeyCode == Keys.Right || e.KeyCode == Keys.Left
                     || e.KeyCode == Keys.Up || e.KeyCode == Keys.Down)
                 {
                     if (e.KeyCode == Keys.Right)
@@ -227,10 +241,19 @@ namespace PageLabeler
                     else
                         navigator_.SetWordStatus(WordInfo.WordStatus.INCORRECT);
                     cbWordStatus.Text = navigator_.GetWordStatus().ToString();
+                    e.Handled = true;
+                }
+                if (e.KeyCode == Keys.O && (e.Modifiers == Keys.Control))
+                {
+                    var status = PageInfo.PageError.CycleError(navigator_.GetError().type);
+                    navigator_.GetError().type = status;
+                    cbErrorType.Text = status.ToString();
+                    e.Handled = true;
                 }
                 if (e.KeyCode == Keys.S && (e.Modifiers == Keys.Control))
                 {
                     BtnSave_Click(sender, e);
+                    e.Handled = true;
                 }
             }
         }
@@ -246,6 +269,21 @@ namespace PageLabeler
 
             txtWord.Text = navigator_.GetWordText();
 
+            mainView_.UpdateOverlay();
+        }
+        private void UpdateErrorView()
+        {
+            var err = navigator_.GetError();
+            if(err == null)
+            {
+                cbErrorType.Text = "";
+                txtErrorDescription.Text = "";
+            }
+            else
+            {
+                cbErrorType.Text = err.type.ToString();
+                txtErrorDescription.Text = err.description;
+            }
             mainView_.UpdateOverlay();
         }
 
@@ -304,6 +342,57 @@ namespace PageLabeler
                 skipSet_.Add(WordInfo.WordStatus.INCORRECT);
             else
                 skipSet_.Remove(WordInfo.WordStatus.INCORRECT);
+        }
+
+        private void PbMain_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            float x = 0.0f, y = 0.0f;
+            if((float)pbMain.Width / (float)pbMain.Height < (float)pbMain.Image.Width / (float)pbMain.Image.Height)
+            {
+                float w = pbMain.Width;
+                float h = pbMain.Width * pbMain.Image.Height / pbMain.Image.Width;
+                x = (e.Location.X - (pbMain.Width - w) / 2) / w;
+                y = (e.Location.Y - (pbMain.Height - h) / 2) / h;
+            }else
+            {
+                float w = pbMain.Height * pbMain.Image.Width / pbMain.Image.Height;
+                float h = pbMain.Height;
+                x = (e.Location.X - (pbMain.Width - w) / 2) / w;
+                y = (e.Location.Y - (pbMain.Height - h) / 2) / h;
+            }
+            if ((x < 0.0f) || (y < 0.0f) || (x > 1.0f) || (y > 1.0f))
+            {
+                MessageBox.Show("Location (" + x.ToString() + ", " + y.ToString() + ") is out of image!", "Error!");
+                return;
+            }
+            navigator_.AddError(x, y, PageInfo.PageError.ErrorType.OTHER);
+            navigator_.SelectLastError();
+            UpdateErrorView();
+        }
+
+        private void CbErrorType_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            var err = navigator_.GetError();
+            if (cbErrorType.Text.ToUpper() == "MISSING_WORD")
+                err.type = PageInfo.PageError.ErrorType.MISSING_WORD;
+            if (cbErrorType.Text.ToUpper() == "MISSING_LINE")
+                err.type = PageInfo.PageError.ErrorType.MISSING_LINE;
+            if (cbErrorType.Text.ToUpper() == "MISSING_REGION")
+                err.type = PageInfo.PageError.ErrorType.MISSING_REGION;
+            if (cbErrorType.Text.ToUpper() == "OTHER")
+                err.type = PageInfo.PageError.ErrorType.OTHER;
+        }
+
+        private void TxtErrorDescription_TextChanged(object sender, EventArgs e)
+        {
+            var err = navigator_.GetError();
+            err.description = txtErrorDescription.Text;
+        }
+
+        private void BtnRemoveError_Click(object sender, EventArgs e)
+        {
+            navigator_.RemoveError();
+            UpdateErrorView();
         }
     }
 }

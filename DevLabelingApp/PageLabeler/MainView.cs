@@ -156,7 +156,8 @@ namespace PageLabeler
                     SolidBrush bCor = new SolidBrush(Color.FromArgb(100, Color.Green));
                     SolidBrush bIncor = new SolidBrush(Color.FromArgb(100, Color.Red));
                     SolidBrush bSel = new SolidBrush(Color.FromArgb(100, Color.Blue));
-                    for(int i = 0; i < navigator_.NumLines(); i++)
+                    SolidBrush bErr = new SolidBrush(Color.FromArgb(200, Color.Yellow));
+                    for (int i = 0; i < navigator_.NumLines(); i++)
                         for(int j = 0; j < navigator_.NumWords(i); j++)
                         {
                             SolidBrush used = bUnk;
@@ -174,6 +175,19 @@ namespace PageLabeler
                             g.FillRectangle(used, new RectangleF(relrect.X*rawImage_.Width, relrect.Y *rawImage_.Height,
                                 relrect.Width * rawImage_.Width, relrect.Height * rawImage_.Height));
                         }
+                    for(int i=0; i < navigator_.NumErrors(); i++)
+                    {
+                        Brush b = bErr;
+                        var err = navigator_.GetError(i);
+                        if (err == navigator_.GetError())
+                            b = bSel;
+                        float size = 0.02f * Math.Max(rawImage_.Width, rawImage_.Height);
+
+                        g.FillEllipse(b,
+                            err.x * rawImage_.Width - size * 0.5f,
+                            err.y * rawImage_.Height - size * 0.5f,
+                            size, size);
+                    }
                 }
             }
         }

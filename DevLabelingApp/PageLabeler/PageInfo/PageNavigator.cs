@@ -12,6 +12,7 @@ namespace PageLabeler.PageInfo
         private PageInfo curPage_;
         private LinkedListNode<LineInfo> lineIter_;
         private LinkedListNode<WordInfo> wordIter_;
+        private LinkedListNode<PageError> errorIter_;
         private Bitmap refImage_;
 
         public PageNavigator()
@@ -25,8 +26,26 @@ namespace PageLabeler.PageInfo
             refImage_ = (Bitmap)refImage;
             lineIter_ = curPage_.lines.First;
             wordIter_ = null;
+            errorIter_ = curPage_.errors.First;
             if(lineIter_ != null)
                 wordIter_ = lineIter_.Value.words.First;
+        }
+
+        public bool NextError()
+        {
+            var err = errorIter_.Next;
+            if (err == null)
+                return false;
+            errorIter_ = err;
+            return true;
+        }
+        public bool PrevError()
+        {
+            var err = errorIter_.Previous;
+            if (err == null)
+                return false;
+            errorIter_ = err;
+            return true;
         }
 
         public bool NextWord(HashSet<WordInfo.WordStatus> skip)
@@ -209,6 +228,55 @@ namespace PageLabeler.PageInfo
             if (curPage_ == null)
                 return 0;
             return curPage_.lines.ElementAt(lineId).words.Count;
+        }
+        public int NumErrors()
+        {
+            if (curPage_ == null)
+                return 0;
+            return curPage_.errors.Count;
+        }
+        public void SelectLastError()
+        {
+            if (curPage_ == null)
+                return;
+            errorIter_ = curPage_.errors.Last;
+        }
+
+        public void AddError(float x, float y, PageError.ErrorType errorType)
+        {
+            if (curPage_ == null)
+                return;
+            PageError pe = new PageError();
+            pe.x = x;
+            pe.y = y;
+            pe.type = errorType;
+            curPage_.errors.AddLast(pe);
+        }
+        public void RemoveError()
+        {
+            if (curPage_ == null)
+                return;
+            var node = errorIter_.Next;
+            if (node == null)
+                node = errorIter_.Previous;
+            curPage_.errors.Remove(errorIter_);
+            errorIter_ = node;
+            if (errorIter_ == null)
+                errorIter_ = curPage_.errors.Last;
+        }
+        
+        public PageError GetError()
+        {
+            if (curPage_ == null)
+                return null;
+            return errorIter_.Value;
+        }
+
+        public PageError GetError(int id)
+        {
+            if (curPage_ == null)
+                return null;
+            return curPage_.errors.ElementAt(id);
         }
     }
 }

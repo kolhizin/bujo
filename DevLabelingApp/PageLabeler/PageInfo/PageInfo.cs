@@ -9,10 +9,22 @@ namespace PageLabeler.PageInfo
 {
     public class PageError
     {
-        public enum ErrorType { MISSING_WORD, MISSING_LINE, OTHER };
+        public enum ErrorType { MISSING_WORD, MISSING_LINE, MISSING_REGION, OTHER };
         public ErrorType type;
         public string description;
         public float x, y;
+
+        public static ErrorType CycleError(ErrorType err)
+        {
+            switch(err)
+            {
+                case ErrorType.OTHER: return ErrorType.MISSING_WORD;
+                case ErrorType.MISSING_WORD: return ErrorType.MISSING_LINE;
+                case ErrorType.MISSING_LINE: return ErrorType.MISSING_REGION;
+                case ErrorType.MISSING_REGION: return ErrorType.OTHER;
+            }
+            return ErrorType.OTHER;
+        }
     }
     class PageInfo
     {
@@ -21,17 +33,17 @@ namespace PageLabeler.PageInfo
         public float angle;
         public string name;
         public LinkedList<LineInfo> lines;
-        public List<PageError> errors;
+        public LinkedList<PageError> errors;
 
         public PageInfo()
         {
             lines = new LinkedList<LineInfo>();
-            errors = new List<PageError>();
+            errors = new LinkedList<PageError>();
             status = PageStatus.UNKNOWN;
         }
         public PageInfo(BuJoDetector.ManagedDetector detector, string path, string page_name)
         {
-            errors = new List<PageError>();
+            errors = new LinkedList<PageError>();
             lines = new LinkedList<LineInfo>();
             name = page_name;
 

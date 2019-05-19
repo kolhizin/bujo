@@ -53,6 +53,10 @@
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.cbSkipCorrect = new System.Windows.Forms.CheckBox();
             this.cbSkipIncorrect = new System.Windows.Forms.CheckBox();
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.cbErrorType = new System.Windows.Forms.ComboBox();
+            this.btnRemoveError = new System.Windows.Forms.Button();
+            this.txtErrorDescription = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.splitThumb)).BeginInit();
             this.splitThumb.Panel1.SuspendLayout();
             this.splitThumb.Panel2.SuspendLayout();
@@ -74,6 +78,7 @@
             this.gbWord.SuspendLayout();
             this.gbLine.SuspendLayout();
             this.groupBox1.SuspendLayout();
+            this.groupBox2.SuspendLayout();
             this.SuspendLayout();
             // 
             // splitThumb
@@ -90,7 +95,7 @@
             // splitThumb.Panel2
             // 
             this.splitThumb.Panel2.Controls.Add(this.splitView);
-            this.splitThumb.Size = new System.Drawing.Size(1221, 566);
+            this.splitThumb.Size = new System.Drawing.Size(1221, 874);
             this.splitThumb.SplitterDistance = 407;
             this.splitThumb.TabIndex = 0;
             // 
@@ -107,11 +112,12 @@
             // 
             // splitView.Panel2
             // 
+            this.splitView.Panel2.Controls.Add(this.groupBox2);
             this.splitView.Panel2.Controls.Add(this.groupBox1);
             this.splitView.Panel2.Controls.Add(this.gbLine);
             this.splitView.Panel2.Controls.Add(this.gbWord);
             this.splitView.Panel2.Controls.Add(this.pbWord);
-            this.splitView.Size = new System.Drawing.Size(810, 566);
+            this.splitView.Size = new System.Drawing.Size(810, 874);
             this.splitView.SplitterDistance = 280;
             this.splitView.TabIndex = 0;
             // 
@@ -131,8 +137,8 @@
             // splitMainView.Panel2
             // 
             this.splitMainView.Panel2.Controls.Add(this.pbMain);
-            this.splitMainView.Size = new System.Drawing.Size(278, 564);
-            this.splitMainView.SplitterDistance = 80;
+            this.splitMainView.Size = new System.Drawing.Size(278, 872);
+            this.splitMainView.SplitterDistance = 149;
             this.splitMainView.TabIndex = 0;
             // 
             // pbMain
@@ -140,9 +146,10 @@
             this.pbMain.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pbMain.Location = new System.Drawing.Point(0, 0);
             this.pbMain.Name = "pbMain";
-            this.pbMain.Size = new System.Drawing.Size(278, 480);
+            this.pbMain.Size = new System.Drawing.Size(278, 719);
             this.pbMain.TabIndex = 10;
             this.pbMain.TabStop = false;
+            this.pbMain.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.PbMain_MouseDoubleClick);
             // 
             // btnDetect
             // 
@@ -189,8 +196,8 @@
             // splitThumbView.Panel2
             // 
             this.splitThumbView.Panel2.Controls.Add(this.thumbFlowPanel);
-            this.splitThumbView.Size = new System.Drawing.Size(405, 564);
-            this.splitThumbView.SplitterDistance = 150;
+            this.splitThumbView.Size = new System.Drawing.Size(405, 872);
+            this.splitThumbView.SplitterDistance = 281;
             this.splitThumbView.TabIndex = 0;
             // 
             // btnOuput
@@ -220,7 +227,7 @@
             this.thumbFlowPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.thumbFlowPanel.Location = new System.Drawing.Point(0, 0);
             this.thumbFlowPanel.Name = "thumbFlowPanel";
-            this.thumbFlowPanel.Size = new System.Drawing.Size(405, 410);
+            this.thumbFlowPanel.Size = new System.Drawing.Size(405, 587);
             this.thumbFlowPanel.TabIndex = 2;
             // 
             // btnLoadDataset
@@ -380,11 +387,59 @@
             this.cbSkipIncorrect.UseVisualStyleBackColor = true;
             this.cbSkipIncorrect.CheckedChanged += new System.EventHandler(this.CbSkipIncorrect_CheckedChanged);
             // 
+            // groupBox2
+            // 
+            this.groupBox2.Controls.Add(this.txtErrorDescription);
+            this.groupBox2.Controls.Add(this.btnRemoveError);
+            this.groupBox2.Controls.Add(this.cbErrorType);
+            this.groupBox2.Dock = System.Windows.Forms.DockStyle.Top;
+            this.groupBox2.Location = new System.Drawing.Point(0, 553);
+            this.groupBox2.Name = "groupBox2";
+            this.groupBox2.Size = new System.Drawing.Size(524, 122);
+            this.groupBox2.TabIndex = 25;
+            this.groupBox2.TabStop = false;
+            this.groupBox2.Text = "Errors";
+            // 
+            // cbErrorType
+            // 
+            this.cbErrorType.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.cbErrorType.FormattingEnabled = true;
+            this.cbErrorType.Items.AddRange(new object[] {
+            "MISSING_WORD",
+            "MISSING_LINE",
+            "MISSING_REGION",
+            "OTHER"});
+            this.cbErrorType.Location = new System.Drawing.Point(11, 25);
+            this.cbErrorType.Name = "cbErrorType";
+            this.cbErrorType.Size = new System.Drawing.Size(185, 33);
+            this.cbErrorType.TabIndex = 25;
+            this.cbErrorType.SelectedIndexChanged += new System.EventHandler(this.CbErrorType_SelectedIndexChanged);
+            // 
+            // btnRemoveError
+            // 
+            this.btnRemoveError.Location = new System.Drawing.Point(11, 64);
+            this.btnRemoveError.Name = "btnRemoveError";
+            this.btnRemoveError.Size = new System.Drawing.Size(185, 43);
+            this.btnRemoveError.TabIndex = 26;
+            this.btnRemoveError.Text = "Remove";
+            this.btnRemoveError.UseVisualStyleBackColor = true;
+            this.btnRemoveError.Click += new System.EventHandler(this.BtnRemoveError_Click);
+            // 
+            // txtErrorDescription
+            // 
+            this.txtErrorDescription.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.txtErrorDescription.Location = new System.Drawing.Point(202, 25);
+            this.txtErrorDescription.Multiline = true;
+            this.txtErrorDescription.Name = "txtErrorDescription";
+            this.txtErrorDescription.Size = new System.Drawing.Size(164, 82);
+            this.txtErrorDescription.TabIndex = 27;
+            this.txtErrorDescription.TextChanged += new System.EventHandler(this.TxtErrorDescription_TextChanged);
+            // 
             // PageLabeler
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1221, 566);
+            this.ClientSize = new System.Drawing.Size(1221, 874);
             this.Controls.Add(this.splitThumb);
             this.KeyPreview = true;
             this.Name = "PageLabeler";
@@ -416,6 +471,8 @@
             this.gbLine.PerformLayout();
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
+            this.groupBox2.ResumeLayout(false);
+            this.groupBox2.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -447,6 +504,10 @@
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.CheckBox cbSkipIncorrect;
         private System.Windows.Forms.CheckBox cbSkipCorrect;
+        private System.Windows.Forms.GroupBox groupBox2;
+        private System.Windows.Forms.ComboBox cbErrorType;
+        private System.Windows.Forms.TextBox txtErrorDescription;
+        private System.Windows.Forms.Button btnRemoveError;
     }
 }
 
