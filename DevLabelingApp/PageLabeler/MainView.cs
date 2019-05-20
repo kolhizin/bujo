@@ -77,15 +77,19 @@ namespace PageLabeler
                 ShowOriginal();
             });
             cm_.MenuItems.Add("Show aligned image", (object obj, EventArgs args) =>{
+                ShowOriginalAligned();
+            });
+            cm_.MenuItems.Add("-");
+            cm_.MenuItems.Add("Show aligned detector image", (object obj, EventArgs args) => {
                 ShowAligned();
             });
-            cm_.MenuItems.Add("Show filtered image", (object obj, EventArgs args) => {
+            cm_.MenuItems.Add("Show filtered detector image", (object obj, EventArgs args) => {
                 ShowFiltered();
             });
-            cm_.MenuItems.Add("Show detector image", (object obj, EventArgs args) => {
+            cm_.MenuItems.Add("Show main detector image", (object obj, EventArgs args) => {
                 ShowMain();
             });
-            cm_.MenuItems.Add("Show text image", (object obj, EventArgs args) => {
+            cm_.MenuItems.Add("Show text detector image", (object obj, EventArgs args) => {
                 ShowText();
             });
             cm_.MenuItems.Add("-");
@@ -236,7 +240,7 @@ namespace PageLabeler
             rawImage_ = srcImage_;
             Show = new ShowDelegate(ShowOriginal);
         }
-        public void ShowAligned()
+        public void ShowOriginalAligned()
         {
             if (!File.Exists(fname_))
                 return;
@@ -244,7 +248,17 @@ namespace PageLabeler
                 pbox_.Image.Dispose();
             rawImage_ = rotImage_;
             drawOverlay_();
-            Show = new ShowDelegate(ShowAligned);
+            Show = new ShowDelegate(ShowOriginalAligned);
+        }
+        public void ShowAligned()
+        {
+            if (!File.Exists(fname_))
+                return;
+            if (pbox_.Image != srcImage_)
+                pbox_.Image.Dispose();
+            rawImage_ = navigator_.GetDetectorAlignedImage();
+            drawOverlay_();
+            Show = new ShowDelegate(ShowMain);
         }
         public void ShowMain()
         {
@@ -252,7 +266,7 @@ namespace PageLabeler
                 return;
             if (pbox_.Image != srcImage_)
                 pbox_.Image.Dispose();
-            rawImage_ = detector_.GetMainImage();
+            rawImage_ = navigator_.GetDetectorMainImage();
             drawOverlay_();
             Show = new ShowDelegate(ShowMain);
         }
@@ -262,7 +276,7 @@ namespace PageLabeler
                 return;
             if (pbox_.Image != srcImage_)
                 pbox_.Image.Dispose();
-            rawImage_ = detector_.GetFilteredImage();
+            rawImage_ = navigator_.GetDetectorFilteredImage();
             drawOverlay_();
             Show = new ShowDelegate(ShowFiltered);
         }
@@ -272,7 +286,7 @@ namespace PageLabeler
                 return;
             if (pbox_.Image != srcImage_)
                 pbox_.Image.Dispose();
-            rawImage_ = detector_.GetTextImage();
+            rawImage_ = navigator_.GetDetectorTextImage();
             drawOverlay_();
             Show = ShowText;
             Show = new ShowDelegate(ShowText);

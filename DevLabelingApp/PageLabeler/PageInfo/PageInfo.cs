@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Drawing;
 using BuJoDetector;
 
 namespace PageLabeler.PageInfo
@@ -56,6 +57,34 @@ namespace PageLabeler.PageInfo
 
             status = PageStatus.UNKNOWN;
             angle = detector.GetAngle();
+
+            detector.GetAlignedImage().Save(System.IO.Path.Combine(fpath, "det_aligned.png"));
+            detector.GetFilteredImage().Save(System.IO.Path.Combine(fpath, "det_filtered.png"));
+            detector.GetMainImage().Save(System.IO.Path.Combine(fpath, "det_main.png"));
+            detector.GetTextImage().Save(System.IO.Path.Combine(fpath, "det_text.png"));
+        }
+        private Image GetDetectorImage_(string path, string fname)
+        {
+            if (name == "")
+                return null;
+            return Image.FromFile(System.IO.Path.Combine(path, name, fname));
+        }
+
+        public Image GetDetectorAlignedImage(string path)
+        {
+            return GetDetectorImage_(path, "det_aligned.png");
+        }
+        public Image GetDetectorFilteredImage(string path)
+        {
+            return GetDetectorImage_(path, "det_filtered.png");
+        }
+        public Image GetDetectorMainImage(string path)
+        {
+            return GetDetectorImage_(path, "det_main.png");
+        }
+        public Image GetDetectorTextImage(string path)
+        {
+            return GetDetectorImage_(path, "det_text.png");
         }
 
         public void ResetPath(string oldpath, string newpath, bool deleteOld = false)
@@ -73,6 +102,15 @@ namespace PageLabeler.PageInfo
 
             foreach (var line in lines)
                 line.ResetPath(oldpath_full, newpath_full, deleteOld);
+
+            System.IO.File.Move(System.IO.Path.Combine(oldpath_full, "det_aligned.png"),
+                System.IO.Path.Combine(newpath_full, "det_aligned.png"));
+            System.IO.File.Move(System.IO.Path.Combine(oldpath_full, "det_filtered.png"),
+                System.IO.Path.Combine(newpath_full, "det_filtered.png"));
+            System.IO.File.Move(System.IO.Path.Combine(oldpath_full, "det_main.png"),
+                System.IO.Path.Combine(newpath_full, "det_main.png"));
+            System.IO.File.Move(System.IO.Path.Combine(oldpath_full, "det_text.png"),
+                System.IO.Path.Combine(newpath_full, "det_text.png"));
 
             if (deleteOld)
                 System.IO.Directory.Delete(oldpath_full, true);

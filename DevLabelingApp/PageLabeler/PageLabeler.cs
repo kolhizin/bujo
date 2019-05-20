@@ -167,6 +167,7 @@ namespace PageLabeler
             if (sfd.ShowDialog() == DialogResult.OK)
             {
                 dataset_.UpdateOutput(sfd.FileName);
+                navigator_.SetPath(dataset_.GetPath());
             }
         }
 
@@ -177,6 +178,7 @@ namespace PageLabeler
             if (sfd.ShowDialog() == DialogResult.OK)
             {
                 dataset_ = new PageInfo.DatasetInfo(sfd.FileName);
+                navigator_.SetPath(dataset_.GetPath());
                 thumbFlowPanel.Controls.Clear();
                 tdsThumbs_.Clear();
                 foreach(var v in dataset_.pages)

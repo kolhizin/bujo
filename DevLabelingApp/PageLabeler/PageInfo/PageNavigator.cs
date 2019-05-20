@@ -9,6 +9,7 @@ namespace PageLabeler.PageInfo
 {
     class PageNavigator
     {
+        private string path_;
         private PageInfo curPage_;
         private LinkedListNode<LineInfo> lineIter_;
         private LinkedListNode<WordInfo> wordIter_;
@@ -18,6 +19,10 @@ namespace PageLabeler.PageInfo
         public PageNavigator()
         {
             curPage_ = null;
+        }
+        public void SetPath(string path)
+        {
+            path_ = path;
         }
 
         public void SetPage(PageInfo page, Image refImage)
@@ -29,6 +34,31 @@ namespace PageLabeler.PageInfo
             errorIter_ = curPage_.errors.First;
             if(lineIter_ != null)
                 wordIter_ = lineIter_.Value.words.First;
+        }
+
+        public Image GetDetectorAlignedImage()
+        {
+            if(curPage_ == null || path_ == "")
+                return null;
+            return curPage_.GetDetectorAlignedImage(path_);
+        }
+        public Image GetDetectorFilteredImage()
+        {
+            if (curPage_ == null || path_ == "")
+                return null;
+            return curPage_.GetDetectorFilteredImage(path_);
+        }
+        public Image GetDetectorMainImage()
+        {
+            if (curPage_ == null || path_ == "")
+                return null;
+            return curPage_.GetDetectorMainImage(path_);
+        }
+        public Image GetDetectorTextImage()
+        {
+            if (curPage_ == null || path_ == "")
+                return null;
+            return curPage_.GetDetectorTextImage(path_);
         }
 
         public bool NextError()
