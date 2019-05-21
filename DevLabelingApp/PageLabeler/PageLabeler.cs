@@ -69,6 +69,7 @@ namespace PageLabeler
                 {
                     mainView_.SelectObservation(s, dataset_.GetPage(s).angle);
                     navigator_.SetPage(dataset_.GetPage(s), mainView_.GetAlignedImage());
+
                     UpdateWordView();
                 }
                 if (e == TrainSetThumbs.EventType.SetFail)
@@ -152,10 +153,9 @@ namespace PageLabeler
                 return;
             }
             detectorStatus.Text = "Successfull detection in " + (detector_.GetTimeCompute() / 1000.0f).ToString() + "s.";
-            dataset_.ResetPage(mainView_.GetSelected(), detector_);
             mainView_.UpdateAngle();
+            dataset_.ResetPage(mainView_.GetSelected(), detector_, mainView_.GetAlignedImage());
             navigator_.SetPage(dataset_.GetPage(mainView_.GetSelected()), mainView_.GetAlignedImage());
-
         }
 
         private void BtnOuput_Click(object sender, EventArgs e)
@@ -188,6 +188,8 @@ namespace PageLabeler
                     mainView_.SelectObservation("", 0.0f);
                 }
             }
+
+        
         }
 
         private void BtnSave_Click(object sender, EventArgs e)
@@ -211,6 +213,7 @@ namespace PageLabeler
                 }
                 if (e.KeyCode == Keys.OemCloseBrackets)
                 {
+                    
                     if (!navigator_.NextError())
                         MessageBox.Show("Reached errors end!", "Notification");
                     UpdateErrorView();
@@ -263,9 +266,10 @@ namespace PageLabeler
         private void UpdateWordView()
         {
             pbWord.Image = navigator_.GetWordImage(dataset_.GetPath());
-            
+
             cbWordStatus.Text = navigator_.GetWordStatus().ToString();
             txtWordComment.Text = navigator_.GetWordComment();
+
             cbLineStatus.Text = navigator_.GetLineStatus().ToString();
             txtLineComment.Text = navigator_.GetLineComment();
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace PageLabeler.PageInfo
 {
@@ -28,6 +29,7 @@ namespace PageLabeler.PageInfo
             {
                 string res = System.IO.File.ReadAllText(fname);
                 pages = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, PageInfo>>(res);
+                
             }else
             {
                 pages = new Dictionary<string, PageInfo>();
@@ -60,12 +62,12 @@ namespace PageLabeler.PageInfo
             pages[filename] = new PageInfo();
         }
 
-        public void ResetPage(string filename, BuJoDetector.ManagedDetector detector)
+        public void ResetPage(string filename, BuJoDetector.ManagedDetector detector, System.Drawing.Image alignedImage)
         {
             if (!pages.ContainsKey(filename))
                 throw new Exception("Observation with this filename is not in data-set!");
             string name = System.IO.Path.GetFileNameWithoutExtension(filename);
-            pages[filename] = new PageInfo(detector, GetPath(), name);
+            pages[filename] = new PageInfo(detector, GetPath(), name, alignedImage);
         }
 
         public PageInfo GetPage(string filename)

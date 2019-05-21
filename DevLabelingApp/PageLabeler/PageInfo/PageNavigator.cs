@@ -210,14 +210,14 @@ namespace PageLabeler.PageInfo
             if (lineIter_ == null)
                 return;
             lineIter_.Value.status = status;
-            var wi = lineIter_.Value.words.First;
-            while(wi != null)
+            if(status == LineInfo.LineStatus.INCORRECT)
             {
-                if (status == LineInfo.LineStatus.INCORRECT)
+                var wi = lineIter_.Value.words.First;
+                while (wi != null)
+                {
                     wi.Value.status = WordInfo.WordStatus.INCORRECT;
-                if (status == LineInfo.LineStatus.UNKNOWN)
-                    wi.Value.status = WordInfo.WordStatus.UNKNOWN;
-                wi = wi.Next;
+                    wi = wi.Next;
+                }
             }
         }
         public LineInfo.LineStatus GetLineStatus()

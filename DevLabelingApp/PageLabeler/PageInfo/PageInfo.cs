@@ -42,7 +42,8 @@ namespace PageLabeler.PageInfo
             errors = new LinkedList<PageError>();
             status = PageStatus.UNKNOWN;
         }
-        public PageInfo(BuJoDetector.ManagedDetector detector, string path, string page_name)
+        public PageInfo(BuJoDetector.ManagedDetector detector, string path, string page_name,
+            Image alignedImage)
         {
             errors = new LinkedList<PageError>();
             lines = new LinkedList<LineInfo>();
@@ -52,8 +53,17 @@ namespace PageLabeler.PageInfo
             if (System.IO.Directory.Exists(fpath))
                 System.IO.Directory.Delete(fpath, true);
             System.IO.Directory.CreateDirectory(fpath);
+
+            var bmp = new Bitmap(alignedImage);
+            var bmpData = bmp.LockBits(new Rectangle(0, 0, alignedImage.Width, alignedImage.Height),
+                System.Drawing.Imaging.ImageLockMode.ReadOnly, bmp.PixelFormat);
+
             for (uint i = 0; i < detector.GetNumLines(); i++)
-                lines.AddLast(new LineInfo(detector, i, fpath));
+                lines.AddLast(new LineInfo(detector, i, fpath, bmpData,
+                    alignedImage.Width, alignedImage.Height));
+
+            bmp.UnlockBits(bmpData);
+            bmp.Dispose();
 
             status = PageStatus.UNKNOWN;
             angle = detector.GetAngle();
