@@ -87,10 +87,15 @@ namespace PageLabeler.PageInfo
             var line = lineIter_;
             while(word == null || skip.Contains(word.Value.status))
             {
-                line = line.Next;
-                if (line == null)
-                    return false;
-                word = line.Value.words.First;
+                if (word == null)
+                {
+                    line = line.Next;
+                    if (line == null)
+                        return false;
+                    word = line.Value.words.First;
+                }
+                else
+                    word = word.Next;
             }
             wordIter_ = word;
             lineIter_ = line;
@@ -105,10 +110,15 @@ namespace PageLabeler.PageInfo
             var line = lineIter_;
             while (word == null || skip.Contains(word.Value.status))
             {
-                line = line.Previous;
-                if (line == null)
-                    return false;
-                word = line.Value.words.Last;
+                if (word == null)
+                {
+                    line = line.Previous;
+                    if (line == null)
+                        return false;
+                    word = line.Value.words.Last;
+                }
+                else
+                    word = word.Previous;
             }
             wordIter_ = word;
             lineIter_ = line;
