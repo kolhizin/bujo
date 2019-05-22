@@ -68,6 +68,8 @@ namespace PageLabeler.PageInfo
 
         public bool NextError()
         {
+            if (errorIter_ == null)
+                return false;
             var err = errorIter_.Next;
             if (err == null)
                 return false;
@@ -76,6 +78,8 @@ namespace PageLabeler.PageInfo
         }
         public bool PrevError()
         {
+            if (errorIter_ == null)
+                return false;
             var err = errorIter_.Previous;
             if (err == null)
                 return false;
@@ -312,7 +316,7 @@ namespace PageLabeler.PageInfo
         
         public PageError GetError()
         {
-            if (curPage_ == null)
+            if (curPage_ == null|| errorIter_ == null)
                 return null;
             return errorIter_.Value;
         }

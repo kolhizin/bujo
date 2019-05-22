@@ -15,7 +15,7 @@ namespace PageLabeler
         private PictureBox pbox_;
         private ManagedDetector detector_;
         private PageInfo.PageNavigator navigator_;
-        private MenuItem flgShowSupportLines_, flgShowAllLines_, flgShowWords_, flgShowStatus_, flgUseDetector_;
+        private MenuItem flgShowSupportLines_, flgShowAllLines_, flgShowWords_, flgShowStatus_, flgShowErrors_, flgUseDetector_;
         private ContextMenu cm_;
         private Image srcImage_, rotImage_;
         private Image rawImage_;
@@ -72,6 +72,11 @@ namespace PageLabeler
                 Show();
             });
 
+            flgShowErrors_ = new MenuItem("Show errors", (object obj, EventArgs args) => {
+                flgShowErrors_.Checked = !flgShowErrors_.Checked;
+                Show();
+            });
+
             flgUseDetector_ = new MenuItem("Use detector as source", (object obj, EventArgs args) => {
                 flgUseDetector_.Checked = !flgUseDetector_.Checked;
             });
@@ -103,6 +108,7 @@ namespace PageLabeler
             cm_.MenuItems.Add(flgShowWords_);
             cm_.MenuItems.Add("-");
             cm_.MenuItems.Add(flgShowStatus_);
+            cm_.MenuItems.Add(flgShowErrors_);
             pbox_.ContextMenu = cm_;
             pbox_.SizeMode = PictureBoxSizeMode.Zoom;
             Show = new ShowDelegate(ShowOriginal);
@@ -184,7 +190,13 @@ namespace PageLabeler
                             g.FillRectangle(used, new RectangleF(relrect.X*rawImage_.Width, relrect.Y *rawImage_.Height,
                                 relrect.Width * rawImage_.Width, relrect.Height * rawImage_.Height));
                         }
-                    for(int i=0; i < navigator_.NumErrors(); i++)
+                    
+                }
+                if (flgShowErrors_.Checked)
+                {
+                    SolidBrush bSel = new SolidBrush(Color.FromArgb(100, Color.Blue));
+                    SolidBrush bErr = new SolidBrush(Color.FromArgb(200, Color.Yellow));
+                    for (int i = 0; i < navigator_.NumErrors(); i++)
                     {
                         Brush b = bErr;
                         var err = navigator_.GetError(i);

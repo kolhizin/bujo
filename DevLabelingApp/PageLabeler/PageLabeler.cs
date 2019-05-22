@@ -76,6 +76,7 @@ namespace PageLabeler
                     navigator_.SetPage(dataset_.GetPage(s), mainView_.GetAlignedImage());
 
                     UpdateWordView();
+                    UpdateErrorView();
                 }
                 if (e == TrainSetThumbs.EventType.SetFail)
                     dataset_.GetPage(s).status = PageInfo.PageInfo.PageStatus.FAIL;
@@ -397,6 +398,8 @@ namespace PageLabeler
         private void TxtErrorDescription_TextChanged(object sender, EventArgs e)
         {
             var err = navigator_.GetError();
+            if (err == null)
+                return;
             err.description = txtErrorDescription.Text;
         }
 
