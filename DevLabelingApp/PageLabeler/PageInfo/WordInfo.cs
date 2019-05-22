@@ -103,7 +103,6 @@ namespace PageLabeler
             this.lineId = lineId;
             filename = "line" + lineId.ToString("D2") + "_word" + wordId.ToString("D2") + ".jpg";
             string fname = System.IO.Path.Combine(path, filename);
-            string fname2 = System.IO.Path.Combine(path, "src_" + filename);
 
             System.ValueType []tmpXY = detector.GetWord(lineId, wordId, 10);
             xcoords = new float[tmpXY.Length];
@@ -114,7 +113,7 @@ namespace PageLabeler
                 ycoords[i] = ((PointF)tmpXY[i]).Y;
             }
             pos_offset = detector.GetWordPosOffset(lineId, wordId);
-            neg_offset = detector.GetWordPosOffset(lineId, wordId);
+            neg_offset = -detector.GetWordNegOffset(lineId, wordId);
             text = "";
             comment = "";
 
@@ -122,7 +121,6 @@ namespace PageLabeler
 
             var tmp = ExtractWord(alignedImageBMPData, alignedImageWidth, alignedImageHeight, 1.3f);
             tmp.Save(fname);
-            ((Image)detector.GetWordImage(lineId, wordId, 1.3f)).Save(fname2);
             tmp.Dispose();
         }
         public void ResetPath(string oldpath, string newpath, bool deleteOld = false)
