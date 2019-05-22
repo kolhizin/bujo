@@ -77,6 +77,11 @@ namespace PageLabeler.PageInfo
             return pages[filename];
         }
 
+        public bool HasOutput()
+        {
+            return fname != "";
+        }
+
         public string GetPath() {
             return System.IO.Path.Combine(System.IO.Path.GetDirectoryName(fname),
                 System.IO.Path.GetFileNameWithoutExtension(fname)); }

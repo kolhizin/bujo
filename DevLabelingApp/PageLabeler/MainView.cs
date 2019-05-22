@@ -15,7 +15,7 @@ namespace PageLabeler
         private PictureBox pbox_;
         private ManagedDetector detector_;
         private PageInfo.PageNavigator navigator_;
-        private MenuItem flgShowSupportLines_, flgShowAllLines_, flgShowWords_, flgShowStatus_;
+        private MenuItem flgShowSupportLines_, flgShowAllLines_, flgShowWords_, flgShowStatus_, flgUseDetector_;
         private ContextMenu cm_;
         private Image srcImage_, rotImage_;
         private Image rawImage_;
@@ -72,6 +72,10 @@ namespace PageLabeler
                 Show();
             });
 
+            flgUseDetector_ = new MenuItem("Use detector as source", (object obj, EventArgs args) => {
+                flgUseDetector_.Checked = !flgUseDetector_.Checked;
+            });
+
             cm_ = new ContextMenu();
             cm_.MenuItems.Add("Show original image", (object obj, EventArgs args)=>{
                 ShowOriginal();
@@ -92,6 +96,7 @@ namespace PageLabeler
             cm_.MenuItems.Add("Show text detector image", (object obj, EventArgs args) => {
                 ShowText();
             });
+            cm_.MenuItems.Add(flgUseDetector_);
             cm_.MenuItems.Add("-");
             cm_.MenuItems.Add(flgShowSupportLines_);
             cm_.MenuItems.Add(flgShowAllLines_);
@@ -256,7 +261,10 @@ namespace PageLabeler
                 return;
             if (pbox_.Image != srcImage_)
                 pbox_.Image.Dispose();
-            rawImage_ = navigator_.GetDetectorAlignedImage();
+            if (flgUseDetector_.Checked)
+                rawImage_ = detector_.GetAlignedImage();
+            else
+                rawImage_ = navigator_.GetDetectorAlignedImage();
             drawOverlay_();
             Show = new ShowDelegate(ShowMain);
         }
@@ -266,7 +274,10 @@ namespace PageLabeler
                 return;
             if (pbox_.Image != srcImage_)
                 pbox_.Image.Dispose();
-            rawImage_ = navigator_.GetDetectorMainImage();
+            if (flgUseDetector_.Checked)
+                rawImage_ = detector_.GetMainImage();
+            else
+                rawImage_ = navigator_.GetDetectorMainImage();
             drawOverlay_();
             Show = new ShowDelegate(ShowMain);
         }
@@ -276,7 +287,10 @@ namespace PageLabeler
                 return;
             if (pbox_.Image != srcImage_)
                 pbox_.Image.Dispose();
-            rawImage_ = navigator_.GetDetectorFilteredImage();
+            if (flgUseDetector_.Checked)
+                rawImage_ = detector_.GetFilteredImage();
+            else
+                rawImage_ = navigator_.GetDetectorFilteredImage();
             drawOverlay_();
             Show = new ShowDelegate(ShowFiltered);
         }
@@ -286,7 +300,10 @@ namespace PageLabeler
                 return;
             if (pbox_.Image != srcImage_)
                 pbox_.Image.Dispose();
-            rawImage_ = navigator_.GetDetectorTextImage();
+            if (flgUseDetector_.Checked)
+                rawImage_ = detector_.GetTextImage();
+            else
+                rawImage_ = navigator_.GetDetectorTextImage();
             drawOverlay_();
             Show = ShowText;
             Show = new ShowDelegate(ShowText);

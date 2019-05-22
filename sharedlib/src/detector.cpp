@@ -70,8 +70,6 @@ void bujo::detector::Detector::detectWords(unsigned curve_window, unsigned word_
 			for (int i = 0; i < res.size(); i++)
 				res[i] = bujo::transform::transformWord(res[i],
 					static_cast<float>(kernel_h_), 1.0f, static_cast<float>(kernel_v_ - 1), 1.0f, 
-					//0.0f, 1.0f / float(textImg_.shape()[1] / usedImg_.shape()[1]),
-					//0.0f, 1.0f / float(textImg_.shape()[0] / usedImg_.shape()[0]),
 					1.0f);
 			return std::move(res);
 		});
@@ -101,8 +99,8 @@ xt::xtensor<float, 2> bujo::detector::Detector::wordCoordinates(unsigned lineId,
 			y_value -= wrd.neg_offset * std::fabsf(arg_y);
 		else if (arg_y < 0.0f)
 			y_value += wrd.pos_offset * std::fabsf(arg_y);
-		res.at(i, 0) = x_value / (sourceImg_.shape()[1]);
-		res.at(i, 1) = y_value / (sourceImg_.shape()[0]);
+		res.at(i, 0) = x_value / (alignedImg_.shape()[1]);
+		res.at(i, 1) = y_value / (alignedImg_.shape()[0]);
 	}
 	
 	return res;
@@ -125,8 +123,8 @@ xt::xtensor<float, 2> bujo::detector::Detector::getLine(unsigned lineId, const x
 {
 	const curves::Curve& crv = allCurves_.at(lineId);
 	auto l_param = locs * crv.len_param.at(crv.len_param.size() - 1);
-	auto x_value = (xt::interp(l_param, crv.len_param, crv.x_value) + static_cast<float>(kernel_h_)) / (usedImg_.shape()[1]);
-	auto y_value = (xt::interp(l_param, crv.len_param, crv.y_value) + static_cast<float>(kernel_v_-1)) / (usedImg_.shape()[0]);
+	auto x_value = (xt::interp(l_param, crv.len_param, crv.x_value) + static_cast<float>(kernel_h_)) / (alignedImg_.shape()[1]);
+	auto y_value = (xt::interp(l_param, crv.len_param, crv.y_value) + static_cast<float>(kernel_v_-1)) / (alignedImg_.shape()[0]);
 	xt::xtensor<float, 2> res({ x_value.size(), 2 });
 	for (unsigned i = 0; i < x_value.size(); i++)
 	{
@@ -139,8 +137,8 @@ xt::xtensor<float, 2> bujo::detector::Detector::getSupportLine(unsigned lineId, 
 {
 	const curves::Curve& crv = supportCurves_.at(lineId);
 	auto l_param = locs * crv.len_param.at(crv.len_param.size() - 1);
-	auto x_value = (xt::interp(l_param, crv.len_param, crv.x_value) + static_cast<float>(kernel_h_)) / (usedImg_.shape()[1]);
-	auto y_value = (xt::interp(l_param, crv.len_param, crv.y_value) + static_cast<float>(kernel_v_ - 1)) / (usedImg_.shape()[0]);
+	auto x_value = (xt::interp(l_param, crv.len_param, crv.x_value) + static_cast<float>(kernel_h_)) / (alignedImg_.shape()[1]);
+	auto y_value = (xt::interp(l_param, crv.len_param, crv.y_value) + static_cast<float>(kernel_v_ - 1)) / (alignedImg_.shape()[0]);
 	xt::xtensor<float, 2> res({ x_value.size(), 2 });
 	for (unsigned i = 0; i < x_value.size(); i++)
 	{

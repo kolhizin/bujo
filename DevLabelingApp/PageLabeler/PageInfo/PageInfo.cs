@@ -10,7 +10,7 @@ namespace PageLabeler.PageInfo
 {
     public class PageError
     {
-        public enum ErrorType { MISSING_WORD, MISSING_LINE, MISSING_REGION, OTHER };
+        public enum ErrorType { MISSING_WORD, BAD_LINE, MISSING_LINE, MISSING_REGION, OTHER };
         public ErrorType type;
         public string description;
         public float x, y;
@@ -20,7 +20,8 @@ namespace PageLabeler.PageInfo
             switch(err)
             {
                 case ErrorType.OTHER: return ErrorType.MISSING_WORD;
-                case ErrorType.MISSING_WORD: return ErrorType.MISSING_LINE;
+                case ErrorType.MISSING_WORD: return ErrorType.BAD_LINE;
+                case ErrorType.BAD_LINE: return ErrorType.MISSING_LINE;
                 case ErrorType.MISSING_LINE: return ErrorType.MISSING_REGION;
                 case ErrorType.MISSING_REGION: return ErrorType.OTHER;
             }

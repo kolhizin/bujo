@@ -29,38 +29,42 @@
         private void InitializeComponent()
         {
             this.splitThumb = new System.Windows.Forms.SplitContainer();
+            this.splitThumbView = new System.Windows.Forms.SplitContainer();
+            this.btnSave = new System.Windows.Forms.Button();
+            this.btnLoadDataset = new System.Windows.Forms.Button();
+            this.btnInput = new System.Windows.Forms.Button();
+            this.btnOuput = new System.Windows.Forms.Button();
+            this.thumbFlowPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.splitView = new System.Windows.Forms.SplitContainer();
             this.splitMainView = new System.Windows.Forms.SplitContainer();
-            this.pbMain = new System.Windows.Forms.PictureBox();
-            this.btnDetect = new System.Windows.Forms.Button();
-            this.detectorStatus = new System.Windows.Forms.Label();
             this.btnDetectorSettings = new System.Windows.Forms.Button();
-            this.splitThumbView = new System.Windows.Forms.SplitContainer();
-            this.btnOuput = new System.Windows.Forms.Button();
-            this.btnInput = new System.Windows.Forms.Button();
-            this.thumbFlowPanel = new System.Windows.Forms.FlowLayoutPanel();
-            this.btnLoadDataset = new System.Windows.Forms.Button();
-            this.btnSave = new System.Windows.Forms.Button();
-            this.pbWord = new System.Windows.Forms.PictureBox();
+            this.detectorStatus = new System.Windows.Forms.Label();
+            this.btnDetect = new System.Windows.Forms.Button();
+            this.pbMain = new System.Windows.Forms.PictureBox();
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.txtErrorDescription = new System.Windows.Forms.TextBox();
+            this.btnRemoveError = new System.Windows.Forms.Button();
+            this.cbErrorType = new System.Windows.Forms.ComboBox();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.cbSkipIncorrect = new System.Windows.Forms.CheckBox();
+            this.cbSkipCorrect = new System.Windows.Forms.CheckBox();
+            this.gbLine = new System.Windows.Forms.GroupBox();
+            this.cbLineStatus = new System.Windows.Forms.ComboBox();
+            this.txtLineComment = new System.Windows.Forms.TextBox();
             this.gbWord = new System.Windows.Forms.GroupBox();
-            this.txtWord = new System.Windows.Forms.TextBox();
+            this.cbWordStatus = new System.Windows.Forms.ComboBox();
             this.label2 = new System.Windows.Forms.Label();
             this.txtWordComment = new System.Windows.Forms.TextBox();
-            this.gbLine = new System.Windows.Forms.GroupBox();
-            this.txtLineComment = new System.Windows.Forms.TextBox();
-            this.cbLineStatus = new System.Windows.Forms.ComboBox();
-            this.cbWordStatus = new System.Windows.Forms.ComboBox();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.cbSkipCorrect = new System.Windows.Forms.CheckBox();
-            this.cbSkipIncorrect = new System.Windows.Forms.CheckBox();
-            this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.cbErrorType = new System.Windows.Forms.ComboBox();
-            this.btnRemoveError = new System.Windows.Forms.Button();
-            this.txtErrorDescription = new System.Windows.Forms.TextBox();
+            this.txtWord = new System.Windows.Forms.TextBox();
+            this.pbWord = new System.Windows.Forms.PictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.splitThumb)).BeginInit();
             this.splitThumb.Panel1.SuspendLayout();
             this.splitThumb.Panel2.SuspendLayout();
             this.splitThumb.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitThumbView)).BeginInit();
+            this.splitThumbView.Panel1.SuspendLayout();
+            this.splitThumbView.Panel2.SuspendLayout();
+            this.splitThumbView.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitView)).BeginInit();
             this.splitView.Panel1.SuspendLayout();
             this.splitView.Panel2.SuspendLayout();
@@ -70,15 +74,11 @@
             this.splitMainView.Panel2.SuspendLayout();
             this.splitMainView.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pbMain)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.splitThumbView)).BeginInit();
-            this.splitThumbView.Panel1.SuspendLayout();
-            this.splitThumbView.Panel2.SuspendLayout();
-            this.splitThumbView.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pbWord)).BeginInit();
-            this.gbWord.SuspendLayout();
-            this.gbLine.SuspendLayout();
-            this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
+            this.groupBox1.SuspendLayout();
+            this.gbLine.SuspendLayout();
+            this.gbWord.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pbWord)).BeginInit();
             this.SuspendLayout();
             // 
             // splitThumb
@@ -98,6 +98,78 @@
             this.splitThumb.Size = new System.Drawing.Size(1221, 874);
             this.splitThumb.SplitterDistance = 407;
             this.splitThumb.TabIndex = 0;
+            // 
+            // splitThumbView
+            // 
+            this.splitThumbView.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitThumbView.Location = new System.Drawing.Point(0, 0);
+            this.splitThumbView.Name = "splitThumbView";
+            this.splitThumbView.Orientation = System.Windows.Forms.Orientation.Horizontal;
+            // 
+            // splitThumbView.Panel1
+            // 
+            this.splitThumbView.Panel1.Controls.Add(this.btnSave);
+            this.splitThumbView.Panel1.Controls.Add(this.btnLoadDataset);
+            this.splitThumbView.Panel1.Controls.Add(this.btnInput);
+            this.splitThumbView.Panel1.Controls.Add(this.btnOuput);
+            // 
+            // splitThumbView.Panel2
+            // 
+            this.splitThumbView.Panel2.Controls.Add(this.thumbFlowPanel);
+            this.splitThumbView.Size = new System.Drawing.Size(405, 872);
+            this.splitThumbView.SplitterDistance = 281;
+            this.splitThumbView.TabIndex = 0;
+            // 
+            // btnSave
+            // 
+            this.btnSave.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnSave.Location = new System.Drawing.Point(142, 56);
+            this.btnSave.Name = "btnSave";
+            this.btnSave.Size = new System.Drawing.Size(125, 38);
+            this.btnSave.TabIndex = 11;
+            this.btnSave.Text = "Save";
+            this.btnSave.UseVisualStyleBackColor = true;
+            this.btnSave.Click += new System.EventHandler(this.BtnSave_Click);
+            // 
+            // btnLoadDataset
+            // 
+            this.btnLoadDataset.Location = new System.Drawing.Point(11, 56);
+            this.btnLoadDataset.Name = "btnLoadDataset";
+            this.btnLoadDataset.Size = new System.Drawing.Size(125, 38);
+            this.btnLoadDataset.TabIndex = 10;
+            this.btnLoadDataset.Text = "Load dataset";
+            this.btnLoadDataset.UseVisualStyleBackColor = true;
+            this.btnLoadDataset.Click += new System.EventHandler(this.BtnLoadDataset_Click);
+            // 
+            // btnInput
+            // 
+            this.btnInput.Location = new System.Drawing.Point(11, 12);
+            this.btnInput.Name = "btnInput";
+            this.btnInput.Size = new System.Drawing.Size(125, 38);
+            this.btnInput.TabIndex = 9;
+            this.btnInput.Text = "Add input";
+            this.btnInput.UseVisualStyleBackColor = true;
+            this.btnInput.Click += new System.EventHandler(this.BtnInput_Click);
+            // 
+            // btnOuput
+            // 
+            this.btnOuput.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnOuput.Location = new System.Drawing.Point(142, 12);
+            this.btnOuput.Name = "btnOuput";
+            this.btnOuput.Size = new System.Drawing.Size(125, 38);
+            this.btnOuput.TabIndex = 8;
+            this.btnOuput.Text = "Set output";
+            this.btnOuput.UseVisualStyleBackColor = true;
+            this.btnOuput.Click += new System.EventHandler(this.BtnOuput_Click);
+            // 
+            // thumbFlowPanel
+            // 
+            this.thumbFlowPanel.AutoScroll = true;
+            this.thumbFlowPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.thumbFlowPanel.Location = new System.Drawing.Point(0, 0);
+            this.thumbFlowPanel.Name = "thumbFlowPanel";
+            this.thumbFlowPanel.Size = new System.Drawing.Size(405, 587);
+            this.thumbFlowPanel.TabIndex = 2;
             // 
             // splitView
             // 
@@ -141,15 +213,23 @@
             this.splitMainView.SplitterDistance = 149;
             this.splitMainView.TabIndex = 0;
             // 
-            // pbMain
+            // btnDetectorSettings
             // 
-            this.pbMain.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pbMain.Location = new System.Drawing.Point(0, 0);
-            this.pbMain.Name = "pbMain";
-            this.pbMain.Size = new System.Drawing.Size(278, 719);
-            this.pbMain.TabIndex = 10;
-            this.pbMain.TabStop = false;
-            this.pbMain.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.PbMain_MouseDoubleClick);
+            this.btnDetectorSettings.Location = new System.Drawing.Point(134, 12);
+            this.btnDetectorSettings.Name = "btnDetectorSettings";
+            this.btnDetectorSettings.Size = new System.Drawing.Size(151, 38);
+            this.btnDetectorSettings.TabIndex = 16;
+            this.btnDetectorSettings.Text = "Detector settings";
+            this.btnDetectorSettings.UseVisualStyleBackColor = true;
+            // 
+            // detectorStatus
+            // 
+            this.detectorStatus.AutoSize = true;
+            this.detectorStatus.Location = new System.Drawing.Point(3, 53);
+            this.detectorStatus.Name = "detectorStatus";
+            this.detectorStatus.Size = new System.Drawing.Size(77, 20);
+            this.detectorStatus.TabIndex = 15;
+            this.detectorStatus.Text = "No status";
             // 
             // btnDetect
             // 
@@ -161,105 +241,134 @@
             this.btnDetect.UseVisualStyleBackColor = true;
             this.btnDetect.Click += new System.EventHandler(this.BtnDetect_Click);
             // 
-            // detectorStatus
+            // pbMain
             // 
-            this.detectorStatus.AutoSize = true;
-            this.detectorStatus.Location = new System.Drawing.Point(3, 53);
-            this.detectorStatus.Name = "detectorStatus";
-            this.detectorStatus.Size = new System.Drawing.Size(77, 20);
-            this.detectorStatus.TabIndex = 15;
-            this.detectorStatus.Text = "No status";
+            this.pbMain.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pbMain.Location = new System.Drawing.Point(0, 0);
+            this.pbMain.Name = "pbMain";
+            this.pbMain.Size = new System.Drawing.Size(278, 719);
+            this.pbMain.TabIndex = 10;
+            this.pbMain.TabStop = false;
+            this.pbMain.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.PbMain_MouseDoubleClick);
             // 
-            // btnDetectorSettings
+            // groupBox2
             // 
-            this.btnDetectorSettings.Location = new System.Drawing.Point(134, 12);
-            this.btnDetectorSettings.Name = "btnDetectorSettings";
-            this.btnDetectorSettings.Size = new System.Drawing.Size(151, 38);
-            this.btnDetectorSettings.TabIndex = 16;
-            this.btnDetectorSettings.Text = "Detector settings";
-            this.btnDetectorSettings.UseVisualStyleBackColor = true;
+            this.groupBox2.Controls.Add(this.txtErrorDescription);
+            this.groupBox2.Controls.Add(this.btnRemoveError);
+            this.groupBox2.Controls.Add(this.cbErrorType);
+            this.groupBox2.Dock = System.Windows.Forms.DockStyle.Top;
+            this.groupBox2.Location = new System.Drawing.Point(0, 553);
+            this.groupBox2.Name = "groupBox2";
+            this.groupBox2.Size = new System.Drawing.Size(524, 122);
+            this.groupBox2.TabIndex = 25;
+            this.groupBox2.TabStop = false;
+            this.groupBox2.Text = "Errors";
             // 
-            // splitThumbView
+            // txtErrorDescription
             // 
-            this.splitThumbView.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.splitThumbView.Location = new System.Drawing.Point(0, 0);
-            this.splitThumbView.Name = "splitThumbView";
-            this.splitThumbView.Orientation = System.Windows.Forms.Orientation.Horizontal;
+            this.txtErrorDescription.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.txtErrorDescription.Location = new System.Drawing.Point(202, 25);
+            this.txtErrorDescription.Multiline = true;
+            this.txtErrorDescription.Name = "txtErrorDescription";
+            this.txtErrorDescription.Size = new System.Drawing.Size(164, 82);
+            this.txtErrorDescription.TabIndex = 27;
+            this.txtErrorDescription.TextChanged += new System.EventHandler(this.TxtErrorDescription_TextChanged);
             // 
-            // splitThumbView.Panel1
+            // btnRemoveError
             // 
-            this.splitThumbView.Panel1.Controls.Add(this.btnSave);
-            this.splitThumbView.Panel1.Controls.Add(this.btnLoadDataset);
-            this.splitThumbView.Panel1.Controls.Add(this.btnInput);
-            this.splitThumbView.Panel1.Controls.Add(this.btnOuput);
+            this.btnRemoveError.Location = new System.Drawing.Point(11, 64);
+            this.btnRemoveError.Name = "btnRemoveError";
+            this.btnRemoveError.Size = new System.Drawing.Size(185, 43);
+            this.btnRemoveError.TabIndex = 26;
+            this.btnRemoveError.Text = "Remove";
+            this.btnRemoveError.UseVisualStyleBackColor = true;
+            this.btnRemoveError.Click += new System.EventHandler(this.BtnRemoveError_Click);
             // 
-            // splitThumbView.Panel2
+            // cbErrorType
             // 
-            this.splitThumbView.Panel2.Controls.Add(this.thumbFlowPanel);
-            this.splitThumbView.Size = new System.Drawing.Size(405, 872);
-            this.splitThumbView.SplitterDistance = 281;
-            this.splitThumbView.TabIndex = 0;
+            this.cbErrorType.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.cbErrorType.FormattingEnabled = true;
+            this.cbErrorType.Items.AddRange(new object[] {
+            "MISSING_WORD",
+            "MISSING_LINE",
+            "MISSING_REGION",
+            "OTHER",
+            "BAD_LINE"});
+            this.cbErrorType.Location = new System.Drawing.Point(11, 25);
+            this.cbErrorType.Name = "cbErrorType";
+            this.cbErrorType.Size = new System.Drawing.Size(185, 33);
+            this.cbErrorType.TabIndex = 25;
+            this.cbErrorType.SelectedIndexChanged += new System.EventHandler(this.CbErrorType_SelectedIndexChanged);
             // 
-            // btnOuput
+            // groupBox1
             // 
-            this.btnOuput.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnOuput.Location = new System.Drawing.Point(142, 12);
-            this.btnOuput.Name = "btnOuput";
-            this.btnOuput.Size = new System.Drawing.Size(125, 38);
-            this.btnOuput.TabIndex = 8;
-            this.btnOuput.Text = "Set output";
-            this.btnOuput.UseVisualStyleBackColor = true;
-            this.btnOuput.Click += new System.EventHandler(this.BtnOuput_Click);
+            this.groupBox1.Controls.Add(this.cbSkipIncorrect);
+            this.groupBox1.Controls.Add(this.cbSkipCorrect);
+            this.groupBox1.Dock = System.Windows.Forms.DockStyle.Top;
+            this.groupBox1.Location = new System.Drawing.Point(0, 449);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(524, 104);
+            this.groupBox1.TabIndex = 24;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "Navigation";
             // 
-            // btnInput
+            // cbSkipIncorrect
             // 
-            this.btnInput.Location = new System.Drawing.Point(11, 12);
-            this.btnInput.Name = "btnInput";
-            this.btnInput.Size = new System.Drawing.Size(125, 38);
-            this.btnInput.TabIndex = 9;
-            this.btnInput.Text = "Add input";
-            this.btnInput.UseVisualStyleBackColor = true;
-            this.btnInput.Click += new System.EventHandler(this.BtnInput_Click);
+            this.cbSkipIncorrect.AutoSize = true;
+            this.cbSkipIncorrect.Location = new System.Drawing.Point(11, 55);
+            this.cbSkipIncorrect.Name = "cbSkipIncorrect";
+            this.cbSkipIncorrect.Size = new System.Drawing.Size(131, 24);
+            this.cbSkipIncorrect.TabIndex = 1;
+            this.cbSkipIncorrect.Text = "Skip incorrect";
+            this.cbSkipIncorrect.UseVisualStyleBackColor = true;
+            this.cbSkipIncorrect.CheckedChanged += new System.EventHandler(this.CbSkipIncorrect_CheckedChanged);
             // 
-            // thumbFlowPanel
+            // cbSkipCorrect
             // 
-            this.thumbFlowPanel.AutoScroll = true;
-            this.thumbFlowPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.thumbFlowPanel.Location = new System.Drawing.Point(0, 0);
-            this.thumbFlowPanel.Name = "thumbFlowPanel";
-            this.thumbFlowPanel.Size = new System.Drawing.Size(405, 587);
-            this.thumbFlowPanel.TabIndex = 2;
+            this.cbSkipCorrect.AutoSize = true;
+            this.cbSkipCorrect.Location = new System.Drawing.Point(11, 25);
+            this.cbSkipCorrect.Name = "cbSkipCorrect";
+            this.cbSkipCorrect.Size = new System.Drawing.Size(119, 24);
+            this.cbSkipCorrect.TabIndex = 0;
+            this.cbSkipCorrect.Text = "Skip correct";
+            this.cbSkipCorrect.UseVisualStyleBackColor = true;
+            this.cbSkipCorrect.CheckedChanged += new System.EventHandler(this.CbSkipCorrect_CheckedChanged);
             // 
-            // btnLoadDataset
+            // gbLine
             // 
-            this.btnLoadDataset.Location = new System.Drawing.Point(11, 56);
-            this.btnLoadDataset.Name = "btnLoadDataset";
-            this.btnLoadDataset.Size = new System.Drawing.Size(125, 38);
-            this.btnLoadDataset.TabIndex = 10;
-            this.btnLoadDataset.Text = "Load dataset";
-            this.btnLoadDataset.UseVisualStyleBackColor = true;
-            this.btnLoadDataset.Click += new System.EventHandler(this.BtnLoadDataset_Click);
+            this.gbLine.Controls.Add(this.cbLineStatus);
+            this.gbLine.Controls.Add(this.txtLineComment);
+            this.gbLine.Dock = System.Windows.Forms.DockStyle.Top;
+            this.gbLine.Location = new System.Drawing.Point(0, 318);
+            this.gbLine.Name = "gbLine";
+            this.gbLine.Size = new System.Drawing.Size(524, 131);
+            this.gbLine.TabIndex = 23;
+            this.gbLine.TabStop = false;
+            this.gbLine.Text = "Line";
             // 
-            // btnSave
+            // cbLineStatus
             // 
-            this.btnSave.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnSave.Location = new System.Drawing.Point(142, 56);
-            this.btnSave.Name = "btnSave";
-            this.btnSave.Size = new System.Drawing.Size(125, 38);
-            this.btnSave.TabIndex = 11;
-            this.btnSave.Text = "Save";
-            this.btnSave.UseVisualStyleBackColor = true;
-            this.btnSave.Click += new System.EventHandler(this.BtnSave_Click);
+            this.cbLineStatus.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.cbLineStatus.FormattingEnabled = true;
+            this.cbLineStatus.Items.AddRange(new object[] {
+            "Unknown",
+            "Correct",
+            "Incorrect"});
+            this.cbLineStatus.Location = new System.Drawing.Point(11, 25);
+            this.cbLineStatus.Name = "cbLineStatus";
+            this.cbLineStatus.Size = new System.Drawing.Size(185, 33);
+            this.cbLineStatus.TabIndex = 23;
+            this.cbLineStatus.SelectedIndexChanged += new System.EventHandler(this.CbLineStatus_SelectedIndexChanged);
             // 
-            // pbWord
+            // txtLineComment
             // 
-            this.pbWord.Dock = System.Windows.Forms.DockStyle.Top;
-            this.pbWord.Location = new System.Drawing.Point(0, 0);
-            this.pbWord.Name = "pbWord";
-            this.pbWord.Size = new System.Drawing.Size(524, 141);
-            this.pbWord.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.pbWord.TabIndex = 0;
-            this.pbWord.TabStop = false;
+            this.txtLineComment.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.txtLineComment.Location = new System.Drawing.Point(11, 64);
+            this.txtLineComment.Multiline = true;
+            this.txtLineComment.Name = "txtLineComment";
+            this.txtLineComment.Size = new System.Drawing.Size(355, 55);
+            this.txtLineComment.TabIndex = 22;
+            this.txtLineComment.TextChanged += new System.EventHandler(this.TxtLineComment_TextChanged);
             // 
             // gbWord
             // 
@@ -275,14 +384,19 @@
             this.gbWord.TabStop = false;
             this.gbWord.Text = "Word";
             // 
-            // txtWord
+            // cbWordStatus
             // 
-            this.txtWord.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.txtWord.Location = new System.Drawing.Point(11, 65);
-            this.txtWord.Name = "txtWord";
-            this.txtWord.Size = new System.Drawing.Size(353, 35);
-            this.txtWord.TabIndex = 19;
-            this.txtWord.TextChanged += new System.EventHandler(this.TxtWord_TextChanged);
+            this.cbWordStatus.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.cbWordStatus.FormattingEnabled = true;
+            this.cbWordStatus.Items.AddRange(new object[] {
+            "UNKNOWN",
+            "CORRECT",
+            "INCORRECT"});
+            this.cbWordStatus.Location = new System.Drawing.Point(11, 25);
+            this.cbWordStatus.Name = "cbWordStatus";
+            this.cbWordStatus.Size = new System.Drawing.Size(185, 33);
+            this.cbWordStatus.TabIndex = 24;
+            this.cbWordStatus.SelectedIndexChanged += new System.EventHandler(this.CbWordStatus_SelectedIndexChanged);
             // 
             // label2
             // 
@@ -303,137 +417,24 @@
             this.txtWordComment.TabIndex = 22;
             this.txtWordComment.TextChanged += new System.EventHandler(this.TxtWordComment_TextChanged);
             // 
-            // gbLine
+            // txtWord
             // 
-            this.gbLine.Controls.Add(this.cbLineStatus);
-            this.gbLine.Controls.Add(this.txtLineComment);
-            this.gbLine.Dock = System.Windows.Forms.DockStyle.Top;
-            this.gbLine.Location = new System.Drawing.Point(0, 318);
-            this.gbLine.Name = "gbLine";
-            this.gbLine.Size = new System.Drawing.Size(524, 131);
-            this.gbLine.TabIndex = 23;
-            this.gbLine.TabStop = false;
-            this.gbLine.Text = "Line";
+            this.txtWord.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.txtWord.Location = new System.Drawing.Point(11, 65);
+            this.txtWord.Name = "txtWord";
+            this.txtWord.Size = new System.Drawing.Size(353, 35);
+            this.txtWord.TabIndex = 19;
+            this.txtWord.TextChanged += new System.EventHandler(this.TxtWord_TextChanged);
             // 
-            // txtLineComment
+            // pbWord
             // 
-            this.txtLineComment.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.txtLineComment.Location = new System.Drawing.Point(11, 64);
-            this.txtLineComment.Multiline = true;
-            this.txtLineComment.Name = "txtLineComment";
-            this.txtLineComment.Size = new System.Drawing.Size(355, 55);
-            this.txtLineComment.TabIndex = 22;
-            this.txtLineComment.TextChanged += new System.EventHandler(this.TxtLineComment_TextChanged);
-            // 
-            // cbLineStatus
-            // 
-            this.cbLineStatus.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.cbLineStatus.FormattingEnabled = true;
-            this.cbLineStatus.Items.AddRange(new object[] {
-            "Unknown",
-            "Correct",
-            "Incorrect"});
-            this.cbLineStatus.Location = new System.Drawing.Point(11, 25);
-            this.cbLineStatus.Name = "cbLineStatus";
-            this.cbLineStatus.Size = new System.Drawing.Size(185, 33);
-            this.cbLineStatus.TabIndex = 23;
-            this.cbLineStatus.SelectedIndexChanged += new System.EventHandler(this.CbLineStatus_SelectedIndexChanged);
-            // 
-            // cbWordStatus
-            // 
-            this.cbWordStatus.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.cbWordStatus.FormattingEnabled = true;
-            this.cbWordStatus.Items.AddRange(new object[] {
-            "UNKNOWN",
-            "CORRECT",
-            "INCORRECT"});
-            this.cbWordStatus.Location = new System.Drawing.Point(11, 25);
-            this.cbWordStatus.Name = "cbWordStatus";
-            this.cbWordStatus.Size = new System.Drawing.Size(185, 33);
-            this.cbWordStatus.TabIndex = 24;
-            this.cbWordStatus.SelectedIndexChanged += new System.EventHandler(this.CbWordStatus_SelectedIndexChanged);
-            // 
-            // groupBox1
-            // 
-            this.groupBox1.Controls.Add(this.cbSkipIncorrect);
-            this.groupBox1.Controls.Add(this.cbSkipCorrect);
-            this.groupBox1.Dock = System.Windows.Forms.DockStyle.Top;
-            this.groupBox1.Location = new System.Drawing.Point(0, 449);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(524, 104);
-            this.groupBox1.TabIndex = 24;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Navigation";
-            // 
-            // cbSkipCorrect
-            // 
-            this.cbSkipCorrect.AutoSize = true;
-            this.cbSkipCorrect.Location = new System.Drawing.Point(11, 25);
-            this.cbSkipCorrect.Name = "cbSkipCorrect";
-            this.cbSkipCorrect.Size = new System.Drawing.Size(119, 24);
-            this.cbSkipCorrect.TabIndex = 0;
-            this.cbSkipCorrect.Text = "Skip correct";
-            this.cbSkipCorrect.UseVisualStyleBackColor = true;
-            this.cbSkipCorrect.CheckedChanged += new System.EventHandler(this.CbSkipCorrect_CheckedChanged);
-            // 
-            // cbSkipIncorrect
-            // 
-            this.cbSkipIncorrect.AutoSize = true;
-            this.cbSkipIncorrect.Location = new System.Drawing.Point(11, 55);
-            this.cbSkipIncorrect.Name = "cbSkipIncorrect";
-            this.cbSkipIncorrect.Size = new System.Drawing.Size(131, 24);
-            this.cbSkipIncorrect.TabIndex = 1;
-            this.cbSkipIncorrect.Text = "Skip incorrect";
-            this.cbSkipIncorrect.UseVisualStyleBackColor = true;
-            this.cbSkipIncorrect.CheckedChanged += new System.EventHandler(this.CbSkipIncorrect_CheckedChanged);
-            // 
-            // groupBox2
-            // 
-            this.groupBox2.Controls.Add(this.txtErrorDescription);
-            this.groupBox2.Controls.Add(this.btnRemoveError);
-            this.groupBox2.Controls.Add(this.cbErrorType);
-            this.groupBox2.Dock = System.Windows.Forms.DockStyle.Top;
-            this.groupBox2.Location = new System.Drawing.Point(0, 553);
-            this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(524, 122);
-            this.groupBox2.TabIndex = 25;
-            this.groupBox2.TabStop = false;
-            this.groupBox2.Text = "Errors";
-            // 
-            // cbErrorType
-            // 
-            this.cbErrorType.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.cbErrorType.FormattingEnabled = true;
-            this.cbErrorType.Items.AddRange(new object[] {
-            "MISSING_WORD",
-            "MISSING_LINE",
-            "MISSING_REGION",
-            "OTHER"});
-            this.cbErrorType.Location = new System.Drawing.Point(11, 25);
-            this.cbErrorType.Name = "cbErrorType";
-            this.cbErrorType.Size = new System.Drawing.Size(185, 33);
-            this.cbErrorType.TabIndex = 25;
-            this.cbErrorType.SelectedIndexChanged += new System.EventHandler(this.CbErrorType_SelectedIndexChanged);
-            // 
-            // btnRemoveError
-            // 
-            this.btnRemoveError.Location = new System.Drawing.Point(11, 64);
-            this.btnRemoveError.Name = "btnRemoveError";
-            this.btnRemoveError.Size = new System.Drawing.Size(185, 43);
-            this.btnRemoveError.TabIndex = 26;
-            this.btnRemoveError.Text = "Remove";
-            this.btnRemoveError.UseVisualStyleBackColor = true;
-            this.btnRemoveError.Click += new System.EventHandler(this.BtnRemoveError_Click);
-            // 
-            // txtErrorDescription
-            // 
-            this.txtErrorDescription.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.txtErrorDescription.Location = new System.Drawing.Point(202, 25);
-            this.txtErrorDescription.Multiline = true;
-            this.txtErrorDescription.Name = "txtErrorDescription";
-            this.txtErrorDescription.Size = new System.Drawing.Size(164, 82);
-            this.txtErrorDescription.TabIndex = 27;
-            this.txtErrorDescription.TextChanged += new System.EventHandler(this.TxtErrorDescription_TextChanged);
+            this.pbWord.Dock = System.Windows.Forms.DockStyle.Top;
+            this.pbWord.Location = new System.Drawing.Point(0, 0);
+            this.pbWord.Name = "pbWord";
+            this.pbWord.Size = new System.Drawing.Size(524, 141);
+            this.pbWord.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.pbWord.TabIndex = 0;
+            this.pbWord.TabStop = false;
             // 
             // PageLabeler
             // 
@@ -450,6 +451,10 @@
             this.splitThumb.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitThumb)).EndInit();
             this.splitThumb.ResumeLayout(false);
+            this.splitThumbView.Panel1.ResumeLayout(false);
+            this.splitThumbView.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.splitThumbView)).EndInit();
+            this.splitThumbView.ResumeLayout(false);
             this.splitView.Panel1.ResumeLayout(false);
             this.splitView.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitView)).EndInit();
@@ -460,19 +465,15 @@
             ((System.ComponentModel.ISupportInitialize)(this.splitMainView)).EndInit();
             this.splitMainView.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.pbMain)).EndInit();
-            this.splitThumbView.Panel1.ResumeLayout(false);
-            this.splitThumbView.Panel2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.splitThumbView)).EndInit();
-            this.splitThumbView.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.pbWord)).EndInit();
-            this.gbWord.ResumeLayout(false);
-            this.gbWord.PerformLayout();
-            this.gbLine.ResumeLayout(false);
-            this.gbLine.PerformLayout();
-            this.groupBox1.ResumeLayout(false);
-            this.groupBox1.PerformLayout();
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
+            this.gbLine.ResumeLayout(false);
+            this.gbLine.PerformLayout();
+            this.gbWord.ResumeLayout(false);
+            this.gbWord.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pbWord)).EndInit();
             this.ResumeLayout(false);
 
         }

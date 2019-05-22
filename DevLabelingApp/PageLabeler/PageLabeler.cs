@@ -20,11 +20,16 @@ namespace PageLabeler
         private PageInfo.PageNavigator navigator_;
         private HashSet<WordInfo.WordStatus> skipSet_;
 
-        private bool checkDataset_()
+        private bool checkDataset_(bool skipOutput = false)
         {
             if (dataset_ == null)
             {
-                MessageBox.Show("Need to setup output first!");
+                MessageBox.Show("Need to load dataset first!");
+                return false;
+            }
+            if((!skipOutput) && (!dataset_.HasOutput()))
+            {
+                MessageBox.Show("Need to set output first!");
                 return false;
             }
             return true;
@@ -160,7 +165,7 @@ namespace PageLabeler
 
         private void BtnOuput_Click(object sender, EventArgs e)
         {
-            if (!checkDataset_())
+            if (!checkDataset_(true))
                 return;
             SaveFileDialog sfd = new SaveFileDialog();
             sfd.Filter = "JSON files (.json)|*.json";

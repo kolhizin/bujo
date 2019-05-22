@@ -32,8 +32,13 @@ namespace PageLabeler.PageInfo
             lineIter_ = curPage_.lines.First;
             wordIter_ = null;
             errorIter_ = curPage_.errors.First;
-            if(lineIter_ != null)
+            while (lineIter_ != null)
+            {
                 wordIter_ = lineIter_.Value.words.First;
+                if (wordIter_ != null)
+                    return;
+                lineIter_ = lineIter_.Next;
+            }
         }
 
         public Image GetDetectorAlignedImage()
