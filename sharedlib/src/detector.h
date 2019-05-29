@@ -33,7 +33,7 @@ namespace bujo
 			unsigned textLineDelta_ = 0;
 			void clear_();
 		public:
-			void loadImage(const xt::xtensor<float, 2>& src, float scale = 1.0f, const FilteringOptions &options = FilteringOptions());
+			void loadImage(const xt::xtensor<float, 2>& src, float scale = 1.0f, float max_text_angle = 1.57f, const FilteringOptions &options = FilteringOptions());
 
 			void updateRegionAuto(float min_angle = 0.5f, unsigned num_angles = 50, float minimal_abs_split_intensity = 10.0f,
 				float maximal_abs_intersection = 2.0f, float minimal_pct_split = 0.05f);

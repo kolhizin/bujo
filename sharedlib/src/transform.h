@@ -17,7 +17,7 @@ namespace bujo
 		xt::xtensor<float, 2> resizeImage(const xt::xtensor<float, 2>& src, float factor);
 		xt::xtensor<float, 2> rotateImage(const xt::xtensor<float, 2>& src, float angle);
 		
-		float getTextAngle(const xt::xtensor<float, 2> &src);
+		float getTextAngle(const xt::xtensor<float, 2> &src, float max_angle = 1.57f);
 		int getTextLineDelta(const xt::xtensor<float, 2>& src);
 
 		xt::xtensor<float, 2> filterVarianceQuantile(const xt::xtensor<float, 2>& src, unsigned size_w, unsigned size_h, float qw, float qh);

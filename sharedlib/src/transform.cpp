@@ -72,14 +72,14 @@ xt::xtensor<float, 2> bujo::transform::rotateImage(const xt::xtensor<float, 2>& 
 }
 
 
-float bujo::transform::getTextAngle(const xt::xtensor<float, 2>& src)
+float bujo::transform::getTextAngle(const xt::xtensor<float, 2>& src, float max_angle)
 {
 	float sz = std::sqrtf(static_cast<float>(src.shape()[0] * src.shape()[0] + src.shape()[1] * src.shape()[1]));
 	unsigned num_angles = std::min(100, int(std::ceilf(sz * 0.5f)));
 	if (!(num_angles & 1))
 		num_angles += 1; //make odd number of angles to include angle 0
 	unsigned num_offset = std::min(100, int(std::ceilf(sz * 0.5f)));
-	auto angles = xt::linspace<float>(-pi_f * 0.5f, pi_f * 0.5f, num_angles);
+	auto angles = xt::linspace<float>(-max_angle, max_angle, num_angles);
 	auto res1 = bujo::radon::radon(src, angles, 100, bujo::radon::RT_RADON);
 	auto res2 = std::get<0>(res1);
 	auto res3 = xt::abs(xt::view(res2, xt::all(), xt::range(1, xt::placeholders::_)) - xt::view(res2, xt::all(), xt::range(xt::placeholders::_, -1)));

@@ -11,8 +11,14 @@ namespace bujo{
 }
 
 namespace BuJoDetector {
+	public ref class DetectorSettings
+	{
+	public:
+		float maximumTextRotationAngle = 1.57f;
+	};
 	public ref class ManagedDetector
 	{
+		DetectorSettings ^settings_;
 		unsigned timeLoad_, timeCompute_;
 		bujo::detector::Detector* impl_;
 
@@ -24,6 +30,9 @@ namespace BuJoDetector {
 
 		void LoadImage(Bitmap ^bmp, float sizeFactor);
 		void RunDetection();
+
+		DetectorSettings^ GetSettings() { return settings_; }
+		void SetSettings(DetectorSettings^ settings) { settings_ = settings; }
 
 		unsigned GetTimeLoad() { return timeLoad_; }
 		unsigned GetTimeCompute() { return timeCompute_; }

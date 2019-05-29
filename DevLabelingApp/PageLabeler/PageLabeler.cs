@@ -139,6 +139,10 @@ namespace PageLabeler
             Bitmap bmp = new Bitmap(img, img.Width / 5, img.Height / 5);
             detectorStatus.Text = "Loading in detector...";
             detectorStatus.Update();
+
+            DetectorSettings dSsettings = new DetectorSettings();
+            dSsettings.maximumTextRotationAngle = 0.7f;
+            detector_.SetSettings(dSsettings);
             detector_.LoadImage(bmp, 0.5f);
             detectorStatus.Text = "Loaded in detector. Running detection...";
             detectorStatus.Update();

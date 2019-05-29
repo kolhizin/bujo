@@ -13,6 +13,10 @@ Assembly System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f
 	hash=None, flags=None
 Assembly System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089: 
 	hash=None, flags=None
+Class BuJoDetector.DetectorSettings: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
+    Void .ctor(): PrivateScope, Public, HideBySig, SpecialName, RTSpecialName
+  Fields:
+    Single maximumTextRotationAngle : Public
 Class BuJoDetector.ManagedDetector: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
     Void .ctor(): PrivateScope, Public, HideBySig, SpecialName, RTSpecialName
   Interfaces:
@@ -20,6 +24,8 @@ Class BuJoDetector.ManagedDetector: AutoLayout, AnsiClass, Class, Public, Before
   Methods:
     LoadImage(Bitmap, Single): PrivateScope, Public, HideBySig
     RunDetection(): PrivateScope, Public, HideBySig
+    GetSettings(): PrivateScope, Public, HideBySig
+    SetSettings(DetectorSettings): PrivateScope, Public, HideBySig
     GetTimeLoad(): PrivateScope, Public, HideBySig
     GetTimeCompute(): PrivateScope, Public, HideBySig
     GetNumSupportLines(): PrivateScope, Public, HideBySig

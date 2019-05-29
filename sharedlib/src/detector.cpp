@@ -10,7 +10,7 @@ void bujo::detector::Detector::clear_()
 	allCurves_.clear();
 }
 
-void bujo::detector::Detector::loadImage(const xt::xtensor<float, 2>& src, float scale, const FilteringOptions& options)
+void bujo::detector::Detector::loadImage(const xt::xtensor<float, 2>& src, float scale, float max_text_angle, const FilteringOptions& options)
 {
 	clear_();
 
@@ -19,7 +19,7 @@ void bujo::detector::Detector::loadImage(const xt::xtensor<float, 2>& src, float
 	sourceImg_ = bujo::transform::resizeImage(originalImg_, scale);
 	scale_ = static_cast<float>(sourceImg_.shape()[0])/originalImg_.shape()[0];
 
-	angle_ = bujo::transform::getTextAngle(sourceImg_);
+	angle_ = bujo::transform::getTextAngle(sourceImg_, max_text_angle);
 	alignedImg_ = bujo::transform::rotateImage(sourceImg_, -angle_);
 	alignedOriginalImg_ = bujo::transform::rotateImage(originalImg_, -angle_);
 	textLineDelta_ = bujo::transform::getTextLineDelta(alignedImg_);

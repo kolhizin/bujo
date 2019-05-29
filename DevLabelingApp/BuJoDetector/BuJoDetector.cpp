@@ -13,6 +13,7 @@ bujo::detector::Detector* BuJoDetector::ManagedDetector::impl()
 
 BuJoDetector::ManagedDetector::ManagedDetector() : impl_(new bujo::detector::Detector)
 {
+	settings_ = gcnew BuJoDetector::DetectorSettings();
 }
 
 BuJoDetector::ManagedDetector::~ManagedDetector()
@@ -57,7 +58,7 @@ void BuJoDetector::ManagedDetector::LoadImage(Bitmap^ bmp, float sizeFactor)
 		}
 	bmp->UnlockBits(bmpData);
 	
-	impl()->loadImage(tmp, sizeFactor);
+	impl()->loadImage(tmp, sizeFactor, settings_->maximumTextRotationAngle);
 
 	timeLoad_ = sw->ElapsedMilliseconds;
 }
