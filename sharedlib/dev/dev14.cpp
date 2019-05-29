@@ -48,8 +48,8 @@ void dev14()
 		}
 	}
 	cv1 = bujo::util::xt2cv(det.mainImage() > det.textCutoff(), CV_8U);
-	for (int i = 0; i < static_cast<int>(det.numLines()); i++)
-		plot(cv1, det.getLine(i));
+	//for (int i = 0; i < static_cast<int>(det.numLines()); i++)
+	//	plot(cv1, det.getLine(i));
 
 
 	std::cout << "Elapsed " << std::chrono::duration<float>(t1 - t0).count() << "s.\n\n";
