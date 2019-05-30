@@ -43,6 +43,7 @@ namespace bujo
 			unsigned num_radon_offsets = 50;
 			float angle_regularization_coef = 0.1f;
 			float angle_regularization_power = 0.25f;
+			bool check_angle_fields = false;
 		};
 
 

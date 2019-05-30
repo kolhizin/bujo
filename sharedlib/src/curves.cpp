@@ -78,6 +78,28 @@ xt::xtensor<float, 2> bujo::curves::extractCurveRegion(const xt::xtensor<float, 
 	return res;
 }
 
+bool checkField_(const xt::xtensor<float, 2>& src)
+{
+	int isz2 = src.shape()[0] / 2, jsz2 = src.shape()[1] / 2;
+	auto xv1 = xt::view(src, xt::all(), xt::range(0, jsz2));
+	auto xv2 = xt::view(src, xt::all(), xt::range(jsz2, xt::placeholders::_));
+	auto xv3 = xt::view(src, xt::range(0, isz2), xt::all());
+	auto xv4 = xt::view(src, xt::range(isz2, xt::placeholders::_), xt::all());
+	float sd1 = xt::stddev(xv1)[0];
+	float sd2 = xt::stddev(xv2)[0];
+	float sd3 = xt::stddev(xv3)[0];
+	float sd4 = xt::stddev(xv4)[0];
+	if(sd1 < 1e-5f)
+		return false;
+	if (sd2 < 1e-5f)
+		return false;
+	if (sd3 < 1e-5f)
+		return false;
+	if (sd4 < 1e-5f)
+		return false;
+	return true;
+}
+
 /*
 Performs checks on arguments, creates specified views and returns result. Just fancy wrapper.
 */
@@ -88,9 +110,14 @@ float getLocalAngle_(const xt::xtensor<float, 2>& src, const xt::xtensor<float, 
 	int ri1 = std::min(static_cast<int>(src.shape()[0]), std::max(i0, i1));
 
 	int rj0 = std::max(0, std::min(j0, j1));
-	int rj1 = std::min(static_cast<int>(src.shape()[0]), std::max(j0, j1));
+	int rj1 = std::min(static_cast<int>(src.shape()[1]), std::max(j0, j1));
 
-	return bujo::radon::findAngle(xt::view(src, xt::range(ri0, ri1), xt::range(rj0, rj1)),
+	xt::xtensor<float, 2> xv = xt::view(src, xt::range(ri0, ri1), xt::range(rj0, rj1));
+	
+	if (options.check_angle_fields && (!checkField_(xv)))
+		return 0.0f;
+
+	return bujo::radon::findAngle(xv,
 		angles, options.num_radon_offsets, bujo::radon::RT_RADON,
 		options.angle_regularization_coef, options.angle_regularization_power);
 }
