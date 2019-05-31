@@ -17,6 +17,8 @@ Class BuJoDetector.DetectorSettings: AutoLayout, AnsiClass, Class, Public, Befor
     Void .ctor(): PrivateScope, Public, HideBySig, SpecialName, RTSpecialName
   Fields:
     Single maximumTextRotationAngle : Public
+    Single textCutoffQuantile : Public
+    Boolean checkAngleField : Public
 Class BuJoDetector.ManagedDetector: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
     Void .ctor(): PrivateScope, Public, HideBySig, SpecialName, RTSpecialName
   Interfaces:

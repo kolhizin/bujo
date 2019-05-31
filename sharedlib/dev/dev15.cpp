@@ -31,7 +31,7 @@ void dev15()
 	det.updateRegionAuto(1.2f, 100, 10.0f, 0.0f, 0.05f);
 
 	det.selectSupportCurvesAuto(6, 25);
-	//det.detectWords(25, 5);
+	det.detectWords(25, 5);
 
 	auto t1 = std::chrono::system_clock::now();
 
@@ -53,8 +53,10 @@ void dev15()
 	*/
 	
 	cv1 = bujo::util::xt2cv(det.mainImage() > det.textCutoff(), CV_8U);
-	for (int i = 0; i < static_cast<int>(det.numSupportLines()); i++)
-		plot(cv1, det.getSupportLineCurve(i));
+	//for (int i = 0; i < static_cast<int>(det.numSupportLines()); i++)
+	//	plot(cv1, det.getSupportLineCurve(i));
+	for (int i = 0; i < static_cast<int>(det.numLines()); i++)
+		plot(cv1, det.getLineCurve(i));
 
 
 	std::cout << "Elapsed " << std::chrono::duration<float>(t1 - t0).count() << "s.\n\n";

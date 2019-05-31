@@ -57,8 +57,11 @@ void BuJoDetector::ManagedDetector::LoadImage(Bitmap^ bmp, float sizeFactor)
 			tmp.at(i, j) = r / 255.0f;
 		}
 	bmp->UnlockBits(bmpData);
+
+	bujo::detector::FilteringOptions opts;
+	opts.cutoff_quantile = settings_->textCutoffQuantile;
 	
-	impl()->loadImage(tmp, sizeFactor, settings_->maximumTextRotationAngle);
+	impl()->loadImage(tmp, sizeFactor, settings_->maximumTextRotationAngle, opts);
 
 	timeLoad_ = sw->ElapsedMilliseconds;
 }
@@ -68,7 +71,9 @@ void BuJoDetector::ManagedDetector::RunDetection()
 	auto sw = System::Diagnostics::Stopwatch::StartNew();
 
 	impl()->updateRegionAuto(1.2f, 100, 10.0f, 0.0f, 0.05f);
-	impl()->selectSupportCurvesAuto(6, 25);
+	bujo::curves::CurveGenerationOptions options;
+	options.check_angle_fields = settings_->checkAngleField;
+	impl()->selectSupportCurvesAuto(6, 25, 0.5f, 0.5f, 0.5f, options);
 	impl()->detectWords(25, 5);
 
 	timeCompute_ = sw->ElapsedMilliseconds;

@@ -54,6 +54,8 @@ std::vector<std::tuple<unsigned, unsigned>> bujo::curves::selectSupportPoints(co
 				best_v = val;
 			}
 		}
+		best_i = std::max(0, std::min(static_cast<int>(src.shape()[0] - 1), best_i));
+		best_j = std::max(0, std::min(static_cast<int>(src.shape()[1] - 1), best_j));
 		res.emplace_back(unsigned(best_i), unsigned(best_j));
 	}
 
@@ -179,8 +181,8 @@ std::vector<std::tuple<int, int>> makeCurve1_(const xt::xtensor<float, 2>& src, 
 
 			float rstep = std::min(rdi, rdj) * 0.9f;
 
-			ni1 = static_cast<int>(std::roundf(ci + di1 * rstep));
-			nj1 = static_cast<int>(std::roundf(cj + dj1 * rstep));
+			ni1 = std::max(0, std::min(static_cast<int>(src.shape()[0] - 1), static_cast<int>(std::roundf(ci + di1 * rstep))));
+			nj1 = std::max(0, std::min(static_cast<int>(src.shape()[1] - 1), static_cast<int>(std::roundf(cj + dj1 * rstep))));
 			res.emplace_back(ni1, nj1);
 			break;
 		}
@@ -216,6 +218,7 @@ Curve bujo::curves::generateCurve(const xt::xtensor<float, 2>& src, int i0, int 
 	
 	for (int i = 0; i < crv0.size(); i++)
 	{
+		auto tmp = static_cast<float>(std::get<0>(crv0[i]));
 		res.y_value[i] = static_cast<float>(std::get<0>(crv0[i]));
 		res.x_value[i] = static_cast<float>(std::get<1>(crv0[i]));
 	}
@@ -320,7 +323,7 @@ Curve bujo::curves::optimizeCurve(const xt::xtensor<float, 2>& src, const Curve&
 	xt::xtensor<float, 1> offsets;
 	offsets.resize({ static_cast<size_t>(num_offsets) });
 	for (int i = 0; i < num_offsets; i++)
-		offsets[i] = static_cast<float>(i - max_offset_y);
+		offsets[i] = static_cast<float>(i - static_cast<int>(max_offset_y));
 
 	xt::xtensor<float, 2> cumulativeIntegral = integral::calcAccumIntegralOverCurve(src, curve, offsets);
 	xt::xtensor<int, 1> curOffsets;
@@ -347,11 +350,15 @@ Curve bujo::curves::optimizeCurve(const xt::xtensor<float, 2>& src, const Curve&
 		window = window >> 1;
 	}
 
+	
+
 	Curve res;
 	res.x_value = curve.x_value;
-	res.y_value = curve.y_value + xt::cast<float>(curOffsets - max_offset_y);
+	res.y_value = curve.y_value + xt::cast<float>(curOffsets - static_cast<int>(max_offset_y));
 	res.len_param.resize({ res.x_value.size() });
 	res.calculateLenParametrization();
+
+
 	return res;
 }
 
@@ -974,7 +981,8 @@ xt::xtensor<float, 2> bujo::curves::integral::calcAccumIntegralOverCurve(const x
 	auto xyLocs = getDenseXY(curve);
 	const auto& xLocs = std::get<0>(xyLocs);
 	const auto& yLocs = std::get<1>(xyLocs);
-	int clampMax = static_cast<int>(src.shape()[0]) - 1;
+	int clampMaxI = static_cast<int>(src.shape()[0]) - 1;
+	int clampMaxJ = static_cast<int>(src.shape()[1]) - 1;
 
 	xt::xtensor<float, 2> res({ xLocs.size(), offsets.size() });
 	
@@ -985,7 +993,8 @@ xt::xtensor<float, 2> bujo::curves::integral::calcAccumIntegralOverCurve(const x
 		{
 			int real_j = static_cast<int>(std::roundf(xLocs[j]));
 			int real_i = static_cast<int>(std::roundf(yLocs[j] + offsets[i]));
-			real_i = std::max(0, std::min(clampMax, real_i));
+			real_i = std::max(0, std::min(clampMaxI, real_i));
+			real_j = std::max(0, std::min(clampMaxJ, real_j));
 			val += src.at(real_i, real_j);
 			res.at(j, i) = val;
 		}

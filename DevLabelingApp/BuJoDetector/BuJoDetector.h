@@ -15,6 +15,8 @@ namespace BuJoDetector {
 	{
 	public:
 		float maximumTextRotationAngle = 1.57f;
+		float textCutoffQuantile = 0.9f;
+		bool checkAngleField = false;
 	};
 	public ref class ManagedDetector
 	{

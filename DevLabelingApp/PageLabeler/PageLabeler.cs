@@ -140,9 +140,10 @@ namespace PageLabeler
             detectorStatus.Text = "Loading in detector...";
             detectorStatus.Update();
 
-            DetectorSettings dSsettings = new DetectorSettings();
-            dSsettings.maximumTextRotationAngle = 0.7f;
-            detector_.SetSettings(dSsettings);
+            DetectorSettings dSettings = new DetectorSettings();
+            dSettings.textCutoffQuantile = 0.95f;
+            dSettings.checkAngleField = true;
+            detector_.SetSettings(dSettings);
             detector_.LoadImage(bmp, 0.5f);
             detectorStatus.Text = "Loaded in detector. Running detection...";
             detectorStatus.Update();
