@@ -14,6 +14,11 @@ namespace bujo
 			float cutoff_quantile = 0.9f, cutoff_coef = 0.5f;
 			float coarse_scale = 0.25f, coarse_sigma = 0.5f, coarse_cutoff = 0.2f;
 		};
+
+		struct WordOptions
+		{
+			float cutoff_min = 0.8f; //cutoff on maximum value of local minimum for word separation (as pct of max)
+		};
 		class Detector
 		{
 			xt::xtensor<float, 2> originalImg_, alignedOriginalImg_;
@@ -41,7 +46,8 @@ namespace bujo
 			void selectSupportCurvesAuto(unsigned num_curves, unsigned window, float quantile_v = 0.5f, float quantile_h = 0.5f, float reg_coef = 0.5f,
 				const bujo::curves::CurveGenerationOptions &options=bujo::curves::CurveGenerationOptions());
 
-			void detectWords(unsigned curve_window, unsigned word_window, float word_cutoff=0.1f, float reg_coef=0.1f);
+			void detectWords(unsigned curve_window, unsigned word_window, float reg_coef, float word_cutoff);
+			void detectWords(unsigned curve_window, unsigned word_window, float reg_coef = 0.1f, const bujo::curves::WordDetectionOptions& options= bujo::curves::WordDetectionOptions());
 
 			inline float textAngle() const { return angle_; }
 			inline unsigned textDelta() const { return static_cast<unsigned>(textLineDelta_ / scale_); }

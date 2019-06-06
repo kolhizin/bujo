@@ -47,6 +47,16 @@ namespace bujo
 		};
 
 
+		struct WordDetectionOptions
+		{
+			float cutoff_min = 0.8f; //cutoff on maximum value of local minimum for word separation (as pct of max)
+			float cutoff_ratio = 0.5f; //cutoff on offseted ratio of separation point and maximum inside specified window
+			float cutoff_offset = 0.1f; //offset to move separation point (as pct of max)
+			float sigma_h = 10.0f, sigma_v = 2.0f; //for blob-detection parameters of gaussian smoothing
+			float cutoff_word_std = 0.05f; //cutoff for elimination of non-words
+			float reg_lo = 3.0f, reg_hi = 2.0f; //regularization options for selection of inside-of-curve
+		};
+
 		
 		std::vector<std::tuple<unsigned, unsigned>> selectSupportPoints(const xt::xtensor<float, 2>& src,
 			unsigned num_points, float quantile_v, float quantile_h);
@@ -81,6 +91,7 @@ namespace bujo
 
 		std::tuple<unsigned, unsigned> getCurveHeight(const xt::xtensor<float, 2>& src, const Curve& curve, unsigned max_offset, float reg_coef);
 
-		std::vector<std::tuple<float, float>> locateWordsInLine(const xt::xtensor<float, 2>& srcLine, unsigned window, float min_value);
+		std::vector<std::tuple<float, float>> locateWordsInLine(const xt::xtensor<float, 2>& srcLine, unsigned window, float min_value);//legacy version
+		std::vector<std::tuple<float, float>> locateWordsInLine(const xt::xtensor<float, 2>& srcLine, unsigned window, const WordDetectionOptions &options = WordDetectionOptions());
 	}
 }

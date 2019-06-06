@@ -266,6 +266,24 @@ std::vector<Word> bujo::transform::generateWords(const xt::xtensor<float, 2>& sr
 	return std::move(res);
 }
 
+std::vector<Word> bujo::transform::generateWords(const xt::xtensor<float, 2>& src, const bujo::curves::Curve& curve, unsigned max_offset, float reg_coef, unsigned window, const bujo::curves::WordDetectionOptions& options)
+{
+	auto h = bujo::curves::getCurveHeight(src, curve, max_offset, reg_coef);
+	auto line = bujo::curves::extractCurveRegion(src, curve, std::get<0>(h), std::get<1>(h));
+	auto ranges = bujo::curves::locateWordsInLine(line, window, options);
+	std::vector<Word> res;
+	res.reserve(ranges.size());
+	for (int i = 0; i < ranges.size(); i++)
+	{
+		Word wrd;
+		wrd.curve = bujo::curves::extractCurve(curve, ranges[i]);
+		wrd.neg_offset = static_cast<float>(std::get<0>(h));
+		wrd.pos_offset = static_cast<float>(std::get<1>(h));
+		res.push_back(std::move(wrd));
+	}
+	return std::move(res);
+}
+
 Word bujo::transform::transformWord(const Word& wrd, float x_offset, float x_factor, float y_offset, float y_factor, float h_factor)
 {
 	Word res;

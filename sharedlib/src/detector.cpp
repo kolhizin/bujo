@@ -56,7 +56,7 @@ void bujo::detector::Detector::selectSupportCurvesAuto(unsigned num_curves, unsi
 		quantile_v, quantile_h, window, textLineDelta_, options, reg_coef);
 }
 
-void bujo::detector::Detector::detectWords(unsigned curve_window, unsigned word_window, float word_cutoff, float reg_coef)
+void bujo::detector::Detector::detectWords(unsigned curve_window, unsigned word_window, float reg_coef, float word_cutoff)
 {
 	words_.clear();
 	allCurves_.clear();
@@ -66,10 +66,29 @@ void bujo::detector::Detector::detectWords(unsigned curve_window, unsigned word_
 	words_.reserve(allCurves_.size());
 	std::transform(allCurves_.cbegin(), allCurves_.cend(), std::back_inserter(words_),
 		[this, &tmp, &reg_coef, &word_cutoff, &word_window](const auto & v) {
-			auto res = bujo::transform::generateWords(tmp, v, textLineDelta_ * 2, word_cutoff, word_window, reg_coef);
+			auto res = bujo::transform::generateWords(tmp, v, textLineDelta_ * 2, reg_coef, word_window, word_cutoff);
 			for (int i = 0; i < res.size(); i++)
 				res[i] = bujo::transform::transformWord(res[i],
 					static_cast<float>(kernel_h_), 1.0f, static_cast<float>(kernel_v_ - 1), 1.0f, 
+					1.0f);
+			return std::move(res);
+		});
+}
+
+void bujo::detector::Detector::detectWords(unsigned curve_window, unsigned word_window, float reg_coef, const bujo::curves::WordDetectionOptions& options)
+{
+	words_.clear();
+	allCurves_.clear();
+	allCurves_ = bujo::transform::generateAllCurves(textImg_, supportCurves_, curve_window, textLineDelta_);
+	auto tmp = usedImg_ > textCutoff_;
+
+	words_.reserve(allCurves_.size());
+	std::transform(allCurves_.cbegin(), allCurves_.cend(), std::back_inserter(words_),
+		[this, &tmp, &reg_coef, &options, &word_window](const auto & v) {
+			auto res = bujo::transform::generateWords(tmp, v, textLineDelta_ * 2, reg_coef, word_window, options);
+			for (int i = 0; i < res.size(); i++)
+				res[i] = bujo::transform::transformWord(res[i],
+					static_cast<float>(kernel_h_), 1.0f, static_cast<float>(kernel_v_ - 1), 1.0f,
 					1.0f);
 			return std::move(res);
 		});

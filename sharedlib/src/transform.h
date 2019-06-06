@@ -38,6 +38,9 @@ namespace bujo
 		std::vector<Word> generateWords(const xt::xtensor<float, 2>& src, const bujo::curves::Curve& curve,
 			unsigned max_offset, float reg_coef, unsigned window, float cutoff_value);
 
+		std::vector<Word> generateWords(const xt::xtensor<float, 2>& src, const bujo::curves::Curve& curve,
+			unsigned max_offset, float reg_coef, unsigned window, const bujo::curves::WordDetectionOptions &options = bujo::curves::WordDetectionOptions());
+
 		Word transformWord(const Word& word, float x_offset, float x_factor, float y_offset, float y_factor, float h_factor);
 		xt::xtensor<float, 2> extractWord(const xt::xtensor<float, 2>& src, const Word& word);
 	}

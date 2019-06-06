@@ -937,6 +937,69 @@ std::vector<std::tuple<float, float>> bujo::curves::locateWordsInLine(const xt::
 	return res;
 }
 
+std::vector<std::tuple<float, float>> bujo::curves::locateWordsInLine(const xt::xtensor<float, 2>& srcLine, unsigned window, const WordDetectionOptions& options)
+{
+	std::vector<std::tuple<float, float>> res;
+	auto src_flt = filters::filterGaussianH(filters::filterGaussianV(srcLine, options.sigma_v), options.sigma_h);
+	auto v0 = xt::amax(src_flt, 0);
+	float v0max = xt::amax(v0)[0];
+	auto mins0 = bujo::extremum::getLocalMinimas(v0);
+
+	
+	//filter local minimas based on value
+	std::vector<unsigned> mins1;
+	mins1.reserve(mins0.size());
+	for (unsigned i = 0; i < mins0.size(); i++)
+		if (v0.at(mins0[i]) < options.cutoff_min * v0max)
+			mins1.push_back(mins0[i]);
+
+	//fill with minima/maxima values
+	std::vector<float> vmins1, vmaxs1;
+	vmins1.reserve(mins1.size());
+	vmaxs1.reserve(mins1.size());
+	for (unsigned i = 0; i < mins1.size(); i++)
+	{
+		vmins1.push_back(v0.at(mins1[i]) - options.cutoff_offset * v0max);
+		int j = mins1[i];
+		int j1 = std::min(j + static_cast<int>(window / 2) + 1, static_cast<int>(v0.size()));
+		int j0 = std::max(j - static_cast<int>(window / 2), 0);
+		float vneg = xt::amax(xt::view(v0, xt::range(j0, j)))[0];
+		float vpos = xt::amax(xt::view(v0, xt::range(j, j1)))[0];
+		vmaxs1.push_back(std::min(vneg, vpos));
+	}
+	
+	//filter local minimas based on minima/maxima ratio
+	std::vector<unsigned> mins2;
+	mins2.reserve(mins1.size());
+	for (unsigned i = 0; i < mins1.size(); i++)
+	{
+		float coef = (vmaxs1[i] - vmins1[i]) / std::max(1e-4f, vmins1[i]);
+		if (coef > options.cutoff_ratio)
+			mins2.push_back(mins1[i]);
+	}
+	
+	//create tuples of pairs
+	res.reserve(mins2.size() + 1);
+	for (int i = -1; i < mins1.size(); i++)
+	{
+		int x0 = 0;
+		if (i >= 0)
+			x0 = mins2[i];
+		int x1 = v0.size();
+		if (i < mins2.size() - 1)
+			x1 = mins2[i + 1];
+		auto tmp = xt::view(srcLine, xt::all(), xt::range(x0, x1));
+		auto mean1 = xt::mean(tmp)[0];
+		auto mean2 = xt::mean(tmp * tmp)[0];
+
+		float std = std::sqrtf((mean2 / tmp.size()) - mean1 * mean1);
+		if (std > options.cutoff_word_std)
+			res.emplace_back(static_cast<float>(x0), static_cast<float>(x1));
+	}
+	
+	return res;
+}
+
 float bujo::curves::integral::calcIntegralOverCurve(const xt::xtensor<float, 2>& src, const Curve& curve, float offset)
 {
 	xt::xtensor<float, 1> off_tensor;
