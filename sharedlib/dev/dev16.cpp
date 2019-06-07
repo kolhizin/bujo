@@ -26,16 +26,18 @@ void dev16()
 
 	bujo::detector::Detector det;
 	bujo::detector::FilteringOptions opts;
+	bujo::curves::WordDetectionOptions wopts;
 	opts.cutoff_quantile = 0.95f;
 	det.loadImage(img0, 0.2f, 0.7f, opts);
 	det.updateRegionAuto(1.2f, 100, 10.0f, 0.0f, 0.05f);
 
 	det.selectSupportCurvesAuto(6, 25);
-	det.detectWords(25, 5);
+	det.detectLines(25);
+	det.detectWords(5, 4, 0.1f, wopts);
 
 	auto t1 = std::chrono::system_clock::now();
 
-	/*
+	
 	for (int i = 0; i < static_cast<int>(det.numLines()); i++)
 	{
 		std::cout << i << ": " << det.numWords(i) << "\n";
@@ -50,7 +52,7 @@ void dev16()
 			cv::imwrite(ss.str(), bujo::util::xt2cv(det.extractWord(i, j, 1.3f), CV_8U));
 		}
 	}
-	*/
+	
 
 	cv1 = bujo::util::xt2cv(det.mainImage() > det.textCutoff(), CV_8U);
 	//for (int i = 0; i < static_cast<int>(det.numSupportLines()); i++)

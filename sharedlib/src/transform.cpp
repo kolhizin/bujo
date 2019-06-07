@@ -5,6 +5,8 @@
 #include <xtensor/xview.hpp>
 #include <xtensor/xsort.hpp>
 
+#include <src/util/cv_ops.h>
+
 using namespace bujo::transform;
 constexpr float pi_f = 3.1415926f;
 
@@ -266,19 +268,19 @@ std::vector<Word> bujo::transform::generateWords(const xt::xtensor<float, 2>& sr
 	return std::move(res);
 }
 
-std::vector<Word> bujo::transform::generateWords(const xt::xtensor<float, 2>& src, const bujo::curves::Curve& curve, unsigned max_offset, float reg_coef, unsigned window, const bujo::curves::WordDetectionOptions& options)
+std::vector<Word> bujo::transform::generateWords(const xt::xtensor<float, 2>& src, const bujo::curves::Curve& curve, unsigned pos_offset, unsigned neg_offset, unsigned filter_size, unsigned window, const bujo::curves::WordDetectionOptions& options)
 {
-	auto h = bujo::curves::getCurveHeight(src, curve, max_offset, reg_coef);
-	auto line = bujo::curves::extractCurveRegion(src, curve, std::get<0>(h), std::get<1>(h));
-	auto ranges = bujo::curves::locateWordsInLine(line, window, options);
+	auto line = bujo::curves::extractCurveRegion(src, curve, neg_offset, pos_offset);
+
+	auto ranges = bujo::curves::locateWordsInLine(line, window, filter_size, options);
 	std::vector<Word> res;
 	res.reserve(ranges.size());
 	for (int i = 0; i < ranges.size(); i++)
 	{
 		Word wrd;
 		wrd.curve = bujo::curves::extractCurve(curve, ranges[i]);
-		wrd.neg_offset = static_cast<float>(std::get<0>(h));
-		wrd.pos_offset = static_cast<float>(std::get<1>(h));
+		wrd.neg_offset = static_cast<float>(neg_offset);
+		wrd.pos_offset = static_cast<float>(pos_offset);
 		res.push_back(std::move(wrd));
 	}
 	return std::move(res);

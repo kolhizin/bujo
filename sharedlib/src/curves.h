@@ -92,6 +92,6 @@ namespace bujo
 		std::tuple<unsigned, unsigned> getCurveHeight(const xt::xtensor<float, 2>& src, const Curve& curve, unsigned max_offset, float reg_coef);
 
 		std::vector<std::tuple<float, float>> locateWordsInLine(const xt::xtensor<float, 2>& srcLine, unsigned window, float min_value);//legacy version
-		std::vector<std::tuple<float, float>> locateWordsInLine(const xt::xtensor<float, 2>& srcLine, unsigned window, const WordDetectionOptions &options = WordDetectionOptions());
+		std::vector<std::tuple<float, float>> locateWordsInLine(const xt::xtensor<float, 2>& srcLine, unsigned window, unsigned filter_size, const WordDetectionOptions &options = WordDetectionOptions());
 	}
 }

@@ -46,8 +46,9 @@ namespace bujo
 			void selectSupportCurvesAuto(unsigned num_curves, unsigned window, float quantile_v = 0.5f, float quantile_h = 0.5f, float reg_coef = 0.5f,
 				const bujo::curves::CurveGenerationOptions &options=bujo::curves::CurveGenerationOptions());
 
-			void detectWords(unsigned curve_window, unsigned word_window, float reg_coef, float word_cutoff);
-			void detectWords(unsigned curve_window, unsigned word_window, float reg_coef = 0.1f, const bujo::curves::WordDetectionOptions& options= bujo::curves::WordDetectionOptions());
+			void detectLines(unsigned curve_window);
+			void detectWords(unsigned word_window, float reg_coef = 0.1f, float word_cutoff = 0.1f);
+			void detectWords(unsigned word_window, unsigned filter_size, float reg_coef, const bujo::curves::WordDetectionOptions& options= bujo::curves::WordDetectionOptions());
 
 			inline float textAngle() const { return angle_; }
 			inline unsigned textDelta() const { return static_cast<unsigned>(textLineDelta_ / scale_); }

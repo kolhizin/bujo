@@ -62,6 +62,37 @@ xt::xtensor<float, 2> bujo::filters::filterVarianceQuantileVH(const xt::xtensor<
 	return xt::view(xv, xt::all(), xt::range(1, -1)) * xt::view(xh, xt::range(1, -1), xt::all());
 }
 
+xt::xtensor<float, 2> bujo::filters::filterStdDev(const xt::xtensor<float, 2>& src, unsigned kernel_w, unsigned kernel_h)
+{
+	/*
+	f_x1 = np.cumsum(np.cumsum(src, axis=0), axis=1)
+	f_x2 = np.cumsum(np.cumsum(np.power(src, 2.0), axis=0), axis=1)
+	nsize = flt_w * flt_h
+	d_x1 = f_x1[flt_h:,flt_w:]-f_x1[:-flt_h,flt_w:]-f_x1[flt_h:,:-flt_w]+f_x1[:-flt_h,:-flt_w]
+	d_x2 = f_x2[flt_h:,flt_w:]-f_x2[:-flt_h,flt_w:]-f_x2[flt_h:,:-flt_w]+f_x2[:-flt_h,:-flt_w]
+	return np.sqrt(np.maximum(0,(d_x2 - d_x1*d_x1/nsize))/nsize)
+	*/
+	xt::xtensor<float, 2> src2 = xt::square(src);
+	auto f_x1 = xt::cumsum(xt::cumsum(src, 0), 1);
+	auto f_x2 = xt::cumsum(xt::cumsum(src2, 0), 1);
+	float nsize = kernel_h * kernel_w;
+	int kw = kernel_w;
+	int kh = kernel_h;
+
+	auto d_x1 = xt::view(f_x1, xt::range(kh, xt::placeholders::_), xt::range(kw, xt::placeholders::_))
+		- xt::view(f_x1, xt::range(xt::placeholders::_, -kh), xt::range(kw, xt::placeholders::_))
+		- xt::view(f_x1, xt::range(kh, xt::placeholders::_), xt::range(xt::placeholders::_, -kw))
+		+ xt::view(f_x1, xt::range(xt::placeholders::_, -kh), xt::range(xt::placeholders::_, -kw));
+	
+	auto d_x2 = xt::view(f_x2, xt::range(kh, xt::placeholders::_), xt::range(kw, xt::placeholders::_))
+		- xt::view(f_x2, xt::range(xt::placeholders::_, -kh), xt::range(kw, xt::placeholders::_))
+		- xt::view(f_x2, xt::range(kh, xt::placeholders::_), xt::range(xt::placeholders::_, -kw))
+		+ xt::view(f_x2, xt::range(xt::placeholders::_, -kh), xt::range(xt::placeholders::_, -kw));
+		
+	auto res = (d_x2 - d_x1 * d_x1 / nsize) / nsize;
+	return xt::sqrt(xt::maximum(0.0f, res));
+}
+
 xt::xtensor<float, 2> kernel_gaussian2d_(float sigma, float cutoff)
 {
 	double sigma2 = sigma * sigma;
@@ -91,7 +122,7 @@ xt::xtensor<float, 2> kernel_gaussian2d_(float sigma, float cutoff)
 		}
 	return xt::cast<float>(res / xt::sum(res)[0]);
 }
-xt::xtensor<float, 2> kernel_gaussian1d_(float sigma, float cutoff)
+xt::xtensor<float, 1> kernel_gaussian1d_(float sigma, float cutoff)
 {
 	double sigma2 = sigma * sigma;
 

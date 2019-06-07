@@ -7,6 +7,8 @@
 #include <xtensor/xindex_view.hpp>
 #include "util/quantiles.h"
 
+#include <src/util/cv_ops.h>
+
 using namespace bujo::curves;
 
 std::vector<std::tuple<unsigned, unsigned>> bujo::curves::selectSupportPoints(const xt::xtensor<float, 2>& src, unsigned num_points, float quantile_v, float quantile_h)
@@ -937,13 +939,30 @@ std::vector<std::tuple<float, float>> bujo::curves::locateWordsInLine(const xt::
 	return res;
 }
 
-std::vector<std::tuple<float, float>> bujo::curves::locateWordsInLine(const xt::xtensor<float, 2>& srcLine, unsigned window, const WordDetectionOptions& options)
+std::vector<std::tuple<float, float>> bujo::curves::locateWordsInLine(const xt::xtensor<float, 2>& srcLine, unsigned window, unsigned filter_size, const WordDetectionOptions& options)
 {
 	std::vector<std::tuple<float, float>> res;
-	auto src_flt = filters::filterGaussianH(filters::filterGaussianV(srcLine, options.sigma_v), options.sigma_h);
+	auto line_flt = bujo::filters::filterStdDev(srcLine, filter_size, filter_size);
+	auto src_flt = filters::filterGaussianH(filters::filterGaussianV(line_flt, options.sigma_v), options.sigma_h);
 	auto v0 = xt::amax(src_flt, 0);
 	float v0max = xt::amax(v0)[0];
 	auto mins0 = bujo::extremum::getLocalMinimas(v0);
+	/*
+	auto tmp = bujo::util::xt2cv(srcLine / xt::amax(srcLine)[0], CV_8U);
+	cv::namedWindow("Src", cv::WINDOW_AUTOSIZE);
+	cv::imshow("Src", tmp);
+	cv::waitKey(0);
+
+	tmp = bujo::util::xt2cv(line_flt / xt::amax(line_flt)[0], CV_8U);
+	cv::namedWindow("Src", cv::WINDOW_AUTOSIZE);
+	cv::imshow("Src", tmp);
+	cv::waitKey(0);
+
+	tmp = bujo::util::xt2cv(src_flt / xt::amax(src_flt)[0], CV_8U);
+	cv::namedWindow("Src", cv::WINDOW_AUTOSIZE);
+	cv::imshow("Src", tmp);
+	cv::waitKey(0);
+	*/
 
 	
 	//filter local minimas based on value
@@ -977,24 +996,29 @@ std::vector<std::tuple<float, float>> bujo::curves::locateWordsInLine(const xt::
 		if (coef > options.cutoff_ratio)
 			mins2.push_back(mins1[i]);
 	}
+
+	int fs2 = filter_size / 2;
+
+	float d_fs = srcLine.shape()[1] / static_cast<float>(line_flt.shape()[1]);
 	
 	//create tuples of pairs
 	res.reserve(mins2.size() + 1);
-	for (int i = -1; i < mins1.size(); i++)
+	for (int i = -1; i < static_cast<int>(mins2.size()); i++)
 	{
 		int x0 = 0;
 		if (i >= 0)
 			x0 = mins2[i];
 		int x1 = v0.size();
-		if (i < mins2.size() - 1)
+		if (i < static_cast<int>(mins2.size()) - 1)
 			x1 = mins2[i + 1];
 		auto tmp = xt::view(srcLine, xt::all(), xt::range(x0, x1));
+		auto tmpsize = tmp.size();
 		auto mean1 = xt::mean(tmp)[0];
 		auto mean2 = xt::mean(tmp * tmp)[0];
 
-		float std = std::sqrtf((mean2 / tmp.size()) - mean1 * mean1);
+		float std = std::sqrtf(mean2 - mean1 * mean1);
 		if (std > options.cutoff_word_std)
-			res.emplace_back(static_cast<float>(x0), static_cast<float>(x1));
+			res.emplace_back(static_cast<float>(x0) * d_fs, static_cast<float>(x1) * d_fs);
 	}
 	
 	return res;
