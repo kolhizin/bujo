@@ -37,7 +37,7 @@ void dev16()
 
 	auto t1 = std::chrono::system_clock::now();
 
-	
+	cv::imwrite("TempResult/img_aligned_original.jpg", bujo::util::xt2cv(det.alignedOriginalImage(), CV_8U));
 	for (int i = 0; i < static_cast<int>(det.numLines()); i++)
 	{
 		std::cout << i << ": " << det.numWords(i) << "\n";

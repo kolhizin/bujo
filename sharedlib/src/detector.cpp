@@ -82,10 +82,12 @@ void bujo::detector::Detector::detectWords(unsigned word_window, float reg_coef,
 void bujo::detector::Detector::detectWords(unsigned word_window, unsigned filter_size, float reg_coef, const bujo::curves::WordDetectionOptions& options)
 {
 	auto tmp = usedImg_ > textCutoff_;
+	float conversion_coef_x = static_cast<float>(alignedImg_.shape()[1]) / (alignedOriginalImg_.shape()[1]);
+	float conversion_coef_y = static_cast<float>(alignedImg_.shape()[0]) / (alignedOriginalImg_.shape()[0]);
 	words_.clear();
 	words_.reserve(allCurves_.size());
 	std::transform(allCurves_.cbegin(), allCurves_.cend(), std::back_inserter(words_),
-		[this, &tmp, &reg_coef, &options, &word_window, &filter_size](const auto & v) {
+		[this, &tmp, &reg_coef, &options, &word_window, &filter_size, &conversion_coef_x, &conversion_coef_y](const auto & v) {
 			curves::Curve ncrv;
 			ncrv.x_value = (v.x_value + static_cast<float>(kernel_h_)) / (alignedImg_.shape()[1]) * (alignedOriginalImg_.shape()[1]);
 			ncrv.y_value = (v.y_value + static_cast<float>(kernel_v_-1)) / (alignedImg_.shape()[0]) * (alignedOriginalImg_.shape()[0]);
@@ -100,8 +102,7 @@ void bujo::detector::Detector::detectWords(unsigned word_window, unsigned filter
 			auto res = bujo::transform::generateWords(alignedOriginalImg_, ncrv, neg_offset, pos_offset, filter_size, word_window, options);
 			for (int i = 0; i < res.size(); i++)
 				res[i] = bujo::transform::transformWord(res[i],
-					static_cast<float>(kernel_h_), 1.0f, static_cast<float>(kernel_v_ - 1), 1.0f,
-					1.0f);
+					0.0f, conversion_coef_x, 0.0f, conversion_coef_y, 1.0f);
 			return std::move(res);
 		});
 }
