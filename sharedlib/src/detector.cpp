@@ -26,7 +26,7 @@ void bujo::detector::Detector::loadImage(const xt::xtensor<float, 2>& src, float
 	kernel_v_ = static_cast<unsigned>(std::floorf(textLineDelta_ * options.kernel_v_factor));
 	kernel_h_ = static_cast<unsigned>(std::floorf(textLineDelta_ * options.kernel_h_factor));
 
-	std::cout << textLineDelta_ << " " << kernel_h_ << " " << kernel_v_ << " " << textLineDelta_ / 2 << "\n";
+	//std::cout << textLineDelta_ << " " << kernel_h_ << " " << kernel_v_ << " " << textLineDelta_ / 2 << "\n";
 
 	filteredImg_ = bujo::transform::filterVarianceQuantile(alignedImg_, kernel_h_, kernel_v_,
 		options.quantile_h, options.quantile_v);

@@ -5,7 +5,7 @@
 #include <xtensor/xview.hpp>
 #include <xtensor/xsort.hpp>
 
-#include <src/util/cv_ops.h>
+//#include <src/util/cv_ops.h>
 
 using namespace bujo::transform;
 constexpr float pi_f = 3.1415926f;
@@ -195,13 +195,6 @@ std::vector<bujo::splits::RegionSplit> bujo::transform::findVSplits(const xt::xt
 			break;
 		res.push_back(splt);
 		bujo::splits::setRegionValue(tmp, splt.desc, 1, 0.0f);
-		/*
-		cv::Mat cv1 = bujo::util::xt2cv(tmp, CV_8U);
-		cv::line(cv1, cv::Point(j0, i0), cv::Point(j1, i1), cv::Scalar(255));
-		cv::namedWindow("Tmp", cv::WINDOW_AUTOSIZE);
-		cv::imshow("Tmp", cv1);
-
-		break;*/
 	}
 
 	return res;

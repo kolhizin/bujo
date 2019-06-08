@@ -7,7 +7,7 @@
 #include <xtensor/xindex_view.hpp>
 #include "util/quantiles.h"
 
-#include <src/util/cv_ops.h>
+//#include <src/util/cv_ops.h>
 
 using namespace bujo::curves;
 
@@ -951,23 +951,6 @@ std::vector<std::tuple<float, float>> bujo::curves::locateWordsInLine(const xt::
 	auto v0 = xt::amax(src_flt, 0);
 	float v0max = xt::amax(v0)[0];
 	auto mins0 = bujo::extremum::getLocalMinimas(v0);
-	/*
-	auto tmp = bujo::util::xt2cv(srcLine / xt::amax(srcLine)[0], CV_8U);
-	cv::namedWindow("Src", cv::WINDOW_AUTOSIZE);
-	cv::imshow("Src", tmp);
-	cv::waitKey(0);
-
-	tmp = bujo::util::xt2cv(line_flt / xt::amax(line_flt)[0], CV_8U);
-	cv::namedWindow("Src", cv::WINDOW_AUTOSIZE);
-	cv::imshow("Src", tmp);
-	cv::waitKey(0);
-
-	tmp = bujo::util::xt2cv(src_flt / xt::amax(src_flt)[0], CV_8U);
-	cv::namedWindow("Src", cv::WINDOW_AUTOSIZE);
-	cv::imshow("Src", tmp);
-	cv::waitKey(0);
-	*/
-
 	
 	//filter local minimas based on value
 	std::vector<unsigned> mins1;
