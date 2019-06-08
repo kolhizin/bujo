@@ -82,6 +82,7 @@ void BuJoDetector::ManagedDetector::DetectLines()
 void BuJoDetector::ManagedDetector::DetectWords()
 {
 	bujo::curves::WordDetectionOptions wopts;
+	wopts.cutoff_word_std = 0.02;
 	impl()->detectWords(5, 4, 0.1f, wopts);
 }
 

@@ -1,0 +1,1 @@
+C:\Anaconda3\Scripts\tensorboard.exe --logdir ./
