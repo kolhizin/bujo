@@ -67,17 +67,21 @@ std::vector<std::tuple<unsigned, unsigned>> bujo::curves::selectSupportPoints(co
 xt::xtensor<float, 2> bujo::curves::extractCurveRegion(const xt::xtensor<float, 2>& src, const Curve& curve, unsigned dNeg, unsigned dPos)
 {
 	unsigned num_y = dPos + dNeg + 1;
-	int min_x = static_cast<int>(std::floorf(xt::amin(curve.x_value)[0]));
-	int max_x = static_cast<int>(std::ceilf(xt::amax(curve.x_value)[0]));
-	xt::xtensor<float, 2> res({ static_cast<size_t>(num_y), static_cast<size_t>(max_x - min_x)});
+	float min_len = xt::amin(curve.len_param)[0];
+	float max_len = xt::amax(curve.len_param)[0];
+	int num_len = static_cast<int>(std::ceilf(max_len)) - static_cast<int>(std::floorf(min_len));
+	xt::xtensor<float, 2> res({ static_cast<size_t>(num_y), static_cast<size_t>(num_len)});
 
 	int imax = static_cast<int>(src.shape()[0] - 1);
-	xt::xtensor<float, 1> yvals = xt::interp(xt::arange<float>(static_cast<float>(max_x - min_x)) + min_x, curve.x_value, curve.y_value);
+	int jmax = static_cast<int>(src.shape()[1] - 1);
+	xt::xtensor<float, 1> xvals = xt::interp(xt::linspace<float>(min_len, max_len, num_len), curve.len_param, curve.x_value);
+	xt::xtensor<float, 1> yvals = xt::interp(xt::linspace<float>(min_len, max_len, num_len), curve.len_param, curve.y_value);
 	for (int i = 0; i < static_cast<int>(num_y); i++)
-		for (int j = 0; j < max_x - min_x; j++)
+		for (int j = 0; j < num_len; j++)
 		{
+			int jval = std::max(0, std::min(jmax, static_cast<int>(xvals[j])));
 			int ival = std::max(0, std::min(imax, static_cast<int>(yvals[j] + i - dNeg)));
-			res.at(i, j) = src.at(ival, j + min_x);
+			res.at(i, j) = src.at(ival, jval);
 		}
 	return res;
 }

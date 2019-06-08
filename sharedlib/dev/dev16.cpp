@@ -28,6 +28,8 @@ void dev16()
 	bujo::detector::FilteringOptions opts;
 	bujo::curves::WordDetectionOptions wopts;
 	opts.cutoff_quantile = 0.95f;
+	wopts.sigma_h = 7.0f; //default is 10
+	wopts.cutoff_ratio = 0.5f;
 	det.loadImage(img0, 0.2f, 0.7f, opts);
 	det.updateRegionAuto(1.2f, 100, 10.0f, 0.0f, 0.05f);
 

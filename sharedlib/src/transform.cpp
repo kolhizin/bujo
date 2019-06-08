@@ -274,9 +274,6 @@ std::vector<Word> bujo::transform::generateWords(const xt::xtensor<float, 2>& sr
 {
 	auto line = bujo::curves::extractCurveRegion(src, curve, neg_offset, pos_offset);
 
-	cv::imwrite("TempResult/tmp.jpg", bujo::util::xt2cv(line, CV_8U));
-
-
 	auto ranges = bujo::curves::locateWordsInLine(line, window, filter_size, options);
 	std::vector<Word> res;
 	res.reserve(ranges.size());
@@ -286,25 +283,21 @@ std::vector<Word> bujo::transform::generateWords(const xt::xtensor<float, 2>& sr
 		float p0 = std::get<0>(ranges[i]);
 		float p1 = std::get<1>(ranges[i]);
 		//std::cout << "(" << p0 << ", " << p1 << ") ";
-
+		/*
 		xt::xtensor<float, 1> tmpt;
 		tmpt.resize({ 2 });
 		tmpt.at(0) = p0; tmpt.at(1) = p1;
 		auto tmpr = xt::interp(tmpt, curve.len_param, curve.x_value);
 		std::cout << "(" << tmpr[0] << ", " << tmpr[1] << ") ";
-
+		*/
 		
 		Word wrd;
 		wrd.curve = bujo::curves::extractCurve(curve, p0, p1);
 		wrd.neg_offset = static_cast<float>(neg_offset);
 		wrd.pos_offset = static_cast<float>(pos_offset);
 
-		cv::imwrite("TempResult/tmpw.jpg", bujo::util::xt2cv(
-			bujo::curves::extractCurveRegion(src, wrd.curve, neg_offset, pos_offset), CV_8U));
-
 		res.push_back(std::move(wrd));
 	}
-	std::cout << "\n\n";
 	return std::move(res);
 }
 
