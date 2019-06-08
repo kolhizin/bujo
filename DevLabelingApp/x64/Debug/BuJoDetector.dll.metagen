@@ -25,9 +25,13 @@ Class BuJoDetector.ManagedDetector: AutoLayout, AnsiClass, Class, Public, Before
     System.IDisposable
   Methods:
     LoadImage(Bitmap, Single): PrivateScope, Public, HideBySig
-    RunDetection(): PrivateScope, Public, HideBySig
+    DetectRegion(): PrivateScope, Public, HideBySig
+    DetectLines(): PrivateScope, Public, HideBySig
+    DetectWords(): PrivateScope, Public, HideBySig
     GetSettings(): PrivateScope, Public, HideBySig
     SetSettings(DetectorSettings): PrivateScope, Public, HideBySig
+    StartComputeTimer(): PrivateScope, Public, HideBySig
+    FinishComputeTimer(): PrivateScope, Public, HideBySig
     GetTimeLoad(): PrivateScope, Public, HideBySig
     GetTimeCompute(): PrivateScope, Public, HideBySig
     GetNumSupportLines(): PrivateScope, Public, HideBySig

@@ -21,6 +21,7 @@ namespace BuJoDetector {
 	public ref class ManagedDetector
 	{
 		DetectorSettings ^settings_;
+		System::Diagnostics::Stopwatch ^computeSW_;
 		unsigned timeLoad_, timeCompute_;
 		bujo::detector::Detector* impl_;
 
@@ -30,11 +31,16 @@ namespace BuJoDetector {
 		~ManagedDetector();
 		!ManagedDetector();
 
-		void LoadImage(Bitmap ^bmp, float sizeFactor);
-		void RunDetection();
+		void LoadImage(Bitmap^ bmp, float sizeFactor);
+		void DetectRegion();
+		void DetectLines();
+		void DetectWords();
 
 		DetectorSettings^ GetSettings() { return settings_; }
 		void SetSettings(DetectorSettings^ settings) { settings_ = settings; }
+
+		void StartComputeTimer() { computeSW_ = System::Diagnostics::Stopwatch::StartNew(); }
+		void FinishComputeTimer() { timeCompute_ = computeSW_->ElapsedMilliseconds;  computeSW_->Stop(); }
 
 		unsigned GetTimeLoad() { return timeLoad_; }
 		unsigned GetTimeCompute() { return timeCompute_; }

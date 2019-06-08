@@ -66,17 +66,23 @@ void BuJoDetector::ManagedDetector::LoadImage(Bitmap^ bmp, float sizeFactor)
 	timeLoad_ = sw->ElapsedMilliseconds;
 }
 
-void BuJoDetector::ManagedDetector::RunDetection()
+void BuJoDetector::ManagedDetector::DetectRegion()
 {
-	auto sw = System::Diagnostics::Stopwatch::StartNew();
+	impl()->updateRegionAuto(1.2f, 100, 10.0f, 0.0f, 0.05f);;
+}
 
-	impl()->updateRegionAuto(1.2f, 100, 10.0f, 0.0f, 0.05f);
+void BuJoDetector::ManagedDetector::DetectLines()
+{
 	bujo::curves::CurveGenerationOptions options;
 	options.check_angle_fields = settings_->checkAngleField;
 	impl()->selectSupportCurvesAuto(6, 25, 0.5f, 0.5f, 0.5f, options);
-	impl()->detectWords(25, 5);
+	impl()->detectLines(25);
+}
 
-	timeCompute_ = sw->ElapsedMilliseconds;
+void BuJoDetector::ManagedDetector::DetectWords()
+{
+	bujo::curves::WordDetectionOptions wopts;
+	impl()->detectWords(5, 4, 0.1f, wopts);
 }
 
 Bitmap ^xt2bitmap(const xt::xtensor<float, 2>& src)

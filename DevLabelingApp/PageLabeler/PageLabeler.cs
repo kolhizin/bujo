@@ -136,7 +136,7 @@ namespace PageLabeler
                 return;
             }
             Image img = mainView_.GetOriginalImage();
-            Bitmap bmp = new Bitmap(img, img.Width / 5, img.Height / 5);
+            Bitmap bmp = new Bitmap(img, img.Width / 2, img.Height / 2);
             detectorStatus.Text = "Loading in detector...";
             detectorStatus.Update();
 
@@ -144,16 +144,27 @@ namespace PageLabeler
             dSettings.textCutoffQuantile = 0.95f;
             dSettings.checkAngleField = true;
             detector_.SetSettings(dSettings);
-            detector_.LoadImage(bmp, 0.5f);
-            detectorStatus.Text = "Loaded in detector. Running detection...";
+            detector_.LoadImage(bmp, 0.2f);
+            detectorStatus.Text = "Loaded in detector. Detecting region...";
             detectorStatus.Update();
             dataset_.GetPage(mainView_.GetSelected()).angle = detector_.GetAngle();
             bmp.Dispose();
             bool fSuccess = true;
             try
             {
-                detector_.RunDetection();
-            }catch
+                detector_.StartComputeTimer();
+                detector_.DetectRegion();
+                detectorStatus.Text = "Detected region. Detecting lines...";
+                detectorStatus.Update();
+
+                detector_.DetectLines();
+                detectorStatus.Text = "Detected lines. Detecting words...";
+                detectorStatus.Update();
+
+                detector_.DetectWords();
+                detector_.FinishComputeTimer();
+            }
+            catch
             {
                 fSuccess = false;
             }

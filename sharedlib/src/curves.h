@@ -52,7 +52,7 @@ namespace bujo
 			float cutoff_min = 0.8f; //cutoff on maximum value of local minimum for word separation (as pct of max)
 			float cutoff_ratio = 0.5f; //cutoff on offseted ratio of separation point and maximum inside specified window
 			float cutoff_offset = 0.1f; //offset to move separation point (as pct of max)
-			float sigma_h = 10.0f, sigma_v = 2.0f; //for blob-detection parameters of gaussian smoothing
+			float sigma_h = 7.0f, sigma_v = 2.0f; //for blob-detection parameters of gaussian smoothing
 			float cutoff_word_std = 0.05f; //cutoff for elimination of non-words
 			float reg_lo = 3.0f, reg_hi = 2.0f; //regularization options for selection of inside-of-curve
 		};
