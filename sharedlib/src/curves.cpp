@@ -919,6 +919,7 @@ std::tuple<unsigned, unsigned> bujo::curves::getCurveHeight(const xt::xtensor<fl
 	return std::make_tuple(getClosestLocalMin1D_(vneg), getClosestLocalMin1D_(vpos));
 }
 
+
 std::vector<std::tuple<float, float>> bujo::curves::locateWordsInLine(const xt::xtensor<float, 2>& srcLine, unsigned window, float min_value)
 {
 	auto v0 = xt::amax(srcLine, 0);
@@ -943,14 +944,15 @@ std::vector<std::tuple<float, float>> bujo::curves::locateWordsInLine(const xt::
 	return res;
 }
 
-std::vector<std::tuple<float, float>> bujo::curves::locateWordsInLine(const xt::xtensor<float, 2>& srcLine, unsigned window, unsigned filter_size, const WordDetectionOptions& options)
+std::vector<std::tuple<float, float, float>> bujo::curves::locateWordsInLine(const xt::xtensor<float, 2>& srcLine, unsigned window, unsigned filter_size, float reg_center, const WordDetectionOptions& options)
 {
-	std::vector<std::tuple<float, float>> res;
+	std::vector<std::tuple<float, float, float>> res;
 	auto line_flt = bujo::filters::filterStdDev(srcLine, filter_size, filter_size);
 	auto src_flt = filters::filterGaussianH(filters::filterGaussianV(line_flt, options.sigma_v), options.sigma_h);
 	auto v0 = xt::amax(src_flt, 0);
 	float v0max = xt::amax(v0)[0];
 	auto mins0 = bujo::extremum::getLocalMinimas(v0);
+
 	
 	//filter local minimas based on value
 	std::vector<unsigned> mins1;
@@ -1004,11 +1006,36 @@ std::vector<std::tuple<float, float>> bujo::curves::locateWordsInLine(const xt::
 		auto mean2 = xt::mean(tmp * tmp)[0];
 
 		float std = std::sqrtf(mean2 - mean1 * mean1);
-		if (std > options.cutoff_word_std)
-			res.emplace_back(static_cast<float>(x0) * d_fs, static_cast<float>(x1) * d_fs);
+		if (std < options.cutoff_word_std)
+			continue;
+
+		unsigned i_offset = locateWordOffset(xt::view(line_flt, xt::all(), xt::range(x0, x1)), reg_center, options);
+		float y_offset = static_cast<float>(i_offset)/line_flt.shape()[0] - 0.5f;
+
+		res.emplace_back(static_cast<float>(x0) * d_fs, static_cast<float>(x1) * d_fs, y_offset);
 	}
 	
 	return res;
+}
+
+unsigned bujo::curves::locateWordOffset(const xt::xtensor<float, 2>& srcWord, float reg_center, const WordDetectionOptions& options)
+{
+	auto src0 = xt::mean(srcWord, 1);
+	auto src1 = src0 - xt::amin(src0)[0];
+	auto src2 = bujo::filters::filterGaussian1D(src1, options.offset_sigma);
+
+	auto reg1 = xt::abs(xt::linspace<float>(0.0f, 1.0f, src0.size()) - reg_center);
+	auto reg2 = xt::minimum(1.0f, reg1 / std::min(reg1[0], reg1[reg1.size() - 1]));
+	auto regf = xt::pow(1.0f - xt::pow(reg2, options.offset_reg_hi), options.offset_reg_lo);
+	
+
+	auto res = src2 * regf;
+	/*
+	reg1 = np.abs(np.linspace(0, 1, height) - reg_center_pct)
+	reg2 = np.minimum(1.0, reg1 / min(reg1[0], reg1[-1]))
+	return np.power(1 - np.power(reg2, reg_hi), reg_lo)
+	*/
+	return xt::argmax(res)[0];
 }
 
 float bujo::curves::integral::calcIntegralOverCurve(const xt::xtensor<float, 2>& src, const Curve& curve, float offset)

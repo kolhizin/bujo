@@ -226,6 +226,30 @@ xt::xtensor<float, 2> bujo::filters::filterGaussianH(const xt::xtensor<float, 2>
 	return res;
 }
 
+xt::xtensor<float, 1> bujo::filters::filterGaussian1D(const xt::xtensor<float, 1>& src, float sigma)
+{
+	xt::xtensor<float, 1> res;
+	res.resize({ src.size() });
+	auto kernel = kernel_gaussian1d_(sigma, 1e-3f);
+	int ksize = static_cast<int>(kernel.size());
+	int center = ksize >> 1;
+
+	for (int i = 0; i < res.size(); i++)
+	{
+		float tres = 0.0;
+		for (int d = -center; d <= center; d++)
+		{
+			int s = i + d;
+			if ((s < 0) || (s >= src.size()))
+				continue;
+			tres += kernel.at(d + center) * src.at(s);
+		}
+		res.at(i) = tres;
+	}
+
+	return res;
+}
+
 /*
 Calculates local maxima filter and applies cutoff
 
