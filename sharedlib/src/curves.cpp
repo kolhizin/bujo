@@ -1025,9 +1025,9 @@ unsigned bujo::curves::locateWordOffset(const xt::xtensor<float, 2>& srcWord, fl
 	auto src2 = bujo::filters::filterGaussian1D(src1, options.offset_sigma);
 
 	auto reg1 = xt::abs(xt::linspace<float>(0.0f, 1.0f, src0.size()) - reg_center);
-	auto reg2 = xt::minimum(1.0f, reg1 / std::min(reg1[0], reg1[reg1.size() - 1]));
+	float norm_coef = std::min(reg1[0], reg1[reg1.size() - 1]);
+	auto reg2 = xt::minimum(1.0f, reg1 / norm_coef);
 	auto regf = xt::pow(1.0f - xt::pow(reg2, options.offset_reg_hi), options.offset_reg_lo);
-	
 
 	auto res = src2 * regf;
 	/*

@@ -289,9 +289,16 @@ std::vector<Word> bujo::transform::generateWords(const xt::xtensor<float, 2>& sr
 		
 		Word wrd;
 		wrd.curve = bujo::curves::extractCurve(curve, p0, p1);
-		wrd.curve.y_value = wrd.curve.y_value + dy;
-		wrd.neg_offset = static_cast<float>(neg_offset);
-		wrd.pos_offset = static_cast<float>(pos_offset);
+		if (options.update_word_y_location)
+		{
+			wrd.curve.y_value = wrd.curve.y_value + dy;
+			wrd.neg_offset = static_cast<float>(neg_offset + pos_offset) * 0.5f;
+			wrd.pos_offset = static_cast<float>(neg_offset + pos_offset) * 0.5f;
+		}
+		else {
+			wrd.neg_offset = static_cast<float>(neg_offset);
+			wrd.pos_offset = static_cast<float>(pos_offset);
+		}
 
 		res.push_back(std::move(wrd));
 	}

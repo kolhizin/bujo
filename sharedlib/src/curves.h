@@ -57,6 +57,7 @@ namespace bujo
 
 			float offset_sigma = 3.0f;
 			float offset_reg_lo = 8.0f, offset_reg_hi = 4.0f; //regularization options for selection of word offset
+			bool update_word_y_location = true;
 		};
 
 		
