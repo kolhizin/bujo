@@ -267,7 +267,9 @@ std::vector<Word> bujo::transform::generateWords(const xt::xtensor<float, 2>& sr
 {
 	auto line = bujo::curves::extractCurveRegion(src, curve, neg_offset, pos_offset);
 
-	auto ranges = bujo::curves::locateWordsInLine(line, window, filter_size, options);
+	float reg_center = static_cast<float>(neg_offset) / (neg_offset + pos_offset);
+
+	auto ranges = bujo::curves::locateWordsInLine(line, window, filter_size, reg_center, options);
 	std::vector<Word> res;
 	res.reserve(ranges.size());
 
@@ -275,6 +277,7 @@ std::vector<Word> bujo::transform::generateWords(const xt::xtensor<float, 2>& sr
 	{
 		float p0 = std::get<0>(ranges[i]);
 		float p1 = std::get<1>(ranges[i]);
+		float dy = std::get<2>(ranges[i]) * line.shape()[0];
 		//std::cout << "(" << p0 << ", " << p1 << ") ";
 		/*
 		xt::xtensor<float, 1> tmpt;
@@ -286,6 +289,7 @@ std::vector<Word> bujo::transform::generateWords(const xt::xtensor<float, 2>& sr
 		
 		Word wrd;
 		wrd.curve = bujo::curves::extractCurve(curve, p0, p1);
+		wrd.curve.y_value = wrd.curve.y_value + dy;
 		wrd.neg_offset = static_cast<float>(neg_offset);
 		wrd.pos_offset = static_cast<float>(pos_offset);
 

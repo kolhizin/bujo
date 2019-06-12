@@ -18,6 +18,7 @@ namespace bujo
 		xt::xtensor<float, 2> filterGaussian2D(const xt::xtensor<float, 2>& src, float sigma);
 		xt::xtensor<float, 2> filterGaussianV(const xt::xtensor<float, 2>& src, float sigma);
 		xt::xtensor<float, 2> filterGaussianH(const xt::xtensor<float, 2>& src, float sigma);
+		xt::xtensor<float, 1> filterGaussian1D(const xt::xtensor<float, 1>& src, float sigma);
 
 		xt::xtensor<float, 2> filterLocalMax2DV(const xt::xtensor<float, 2>& src,
 			unsigned window_size, unsigned slack_size, float threshold);
