@@ -85,7 +85,8 @@ public class MainActivity extends AppCompatActivity {
 
             int []pixels = new int[width * height]; // assume RGBA, do once only
             bitmap.getPixels(pixels, 0, width, 0, 0, width, height);
-
+            int res = loadImageIntoDecoder(pixels, width, height);
+            textView.setText(String.valueOf(res));
         } catch (FileNotFoundException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

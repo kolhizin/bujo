@@ -29,11 +29,18 @@ Java_com_kolhizin_test02_1bujo_MainActivity_loadImageIntoDecoder(JNIEnv *env, jo
 
     xt::xtensor<float, 2> srcImage({h, w});
     for(int i = 0; i < h; i++)
-        for(int j = 0; j < h; j++)
+        for(int j = 0; j < w; j++)
         {
             unsigned char * p = ptr + stride * i + j * 4;
             float r = static_cast<float>(p[0]) + static_cast<float>(p[1]) + static_cast<float>(p[2]);
+            srcImage.at(i, j) = r / (255.0f * 3.0f);
         }
 
+    bujo::detector::FilteringOptions opts;
+    opts.cutoff_quantile = 0.95f;
+    det.loadImage(srcImage, 0.2f, 0.5f, opts);
+
     env->ReleaseIntArrayElements(pixels_, pixels, 0);
+
+    return det.textDelta();
 }
