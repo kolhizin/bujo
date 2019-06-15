@@ -36,11 +36,22 @@ Java_com_kolhizin_test02_1bujo_MainActivity_loadImageIntoDecoder(JNIEnv *env, jo
             srcImage.at(i, j) = r / (255.0f * 3.0f);
         }
 
-    bujo::detector::FilteringOptions opts;
-    opts.cutoff_quantile = 0.95f;
-    det.loadImage(srcImage, 0.2f, 0.5f, opts);
+    bujo::detector::FilteringOptions f_opts;
+    bujo::curves::CurveGenerationOptions cg_opts;
+    bujo::curves::WordDetectionOptions w_opts;
+    f_opts.cutoff_quantile = 0.95f;
+    w_opts.cutoff_word_std = 0.02;
+
+    det.loadImage(srcImage, 0.2f, 0.5f, f_opts);
+    det.updateRegionAuto(1.2f, 100, 10.0f, 0.0f, 0.05f);
+
+    det.selectSupportCurvesAuto(6, 50, 0.5f, 0.5f, 0.5f, cg_opts);
+    det.detectLines(50);
+
+
+    det.detectWords(10, 4, 0.1f, w_opts);
 
     env->ReleaseIntArrayElements(pixels_, pixels, 0);
 
-    return det.textDelta();
+    return det.numWords();
 }
