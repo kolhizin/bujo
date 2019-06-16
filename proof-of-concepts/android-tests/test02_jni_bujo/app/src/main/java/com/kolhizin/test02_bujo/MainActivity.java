@@ -41,6 +41,8 @@ public class MainActivity extends AppCompatActivity {
         btnLoad = findViewById(R.id.btnLoad);
         imageView = findViewById(R.id.imageView);
 
+        textView.setText("Wellcome!");
+
         btnLoad.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -53,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
                 Intent intent = new Intent(Intent.ACTION_PICK,
                         android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                 startActivityForResult(intent, 0);
-                textView.setText("Clicked");
+                textView.setText("Wait");
             }
         });
 
@@ -77,7 +79,8 @@ public class MainActivity extends AppCompatActivity {
         Bitmap bitmap;
         try {
             // bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(targetUri));
-            bitmap = scaleImage(this, imageUri, imageView.getMaxHeight());
+            Bitmap bitmap0 = scaleImage(this, imageUri, imageView.getMaxHeight());
+            bitmap = Bitmap.createScaledBitmap(bitmap0, bitmap0.getWidth()/2, bitmap0.getHeight()/2, true);
             imageView.setImageBitmap(bitmap);
 
             int width = bitmap.getWidth();
@@ -85,8 +88,12 @@ public class MainActivity extends AppCompatActivity {
 
             int []pixels = new int[width * height]; // assume RGBA, do once only
             bitmap.getPixels(pixels, 0, width, 0, 0, width, height);
+            long start = System.nanoTime();
             int res = loadImageIntoDecoder(pixels, width, height);
-            textView.setText(String.valueOf(res));
+            long end = System.nanoTime();
+            double diff = (end - start) / 1000000000.0;
+            String szString = String.valueOf(width) + "x" + String.valueOf(height);
+            textView.setText(String.valueOf(res) + " in " + String.valueOf(diff) + " for " + szString);
         } catch (FileNotFoundException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

@@ -1,6 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
+    signingConfigs {
+        internal_release {
+            storeFile file('C:\\Users\\KolhiziN\\.android\\internal_release.jks')
+            storePassword 'kn1989cpp'
+            keyPassword 'kn1989cpp'
+            keyAlias = 'internal_release'
+        }
+    }
     compileSdkVersion 28
     defaultConfig {
         applicationId "com.kolhizin.test02_bujo"
@@ -19,6 +27,7 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.internal_release
         }
     }
     externalNativeBuild {

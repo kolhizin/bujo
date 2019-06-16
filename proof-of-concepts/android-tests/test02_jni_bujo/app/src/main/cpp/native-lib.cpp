@@ -45,11 +45,11 @@ Java_com_kolhizin_test02_1bujo_MainActivity_loadImageIntoDecoder(JNIEnv *env, jo
     det.loadImage(srcImage, 0.2f, 0.5f, f_opts);
     det.updateRegionAuto(1.2f, 100, 10.0f, 0.0f, 0.05f);
 
-    det.selectSupportCurvesAuto(6, 50, 0.5f, 0.5f, 0.5f, cg_opts);
-    det.detectLines(50);
+    det.selectSupportCurvesAuto(6, 25, 0.5f, 0.5f, 0.5f, cg_opts);
+    det.detectLines(25);
 
 
-    det.detectWords(10, 4, 0.1f, w_opts);
+    det.detectWords(5, 4, 0.1f, w_opts);
 
     env->ReleaseIntArrayElements(pixels_, pixels, 0);
 
