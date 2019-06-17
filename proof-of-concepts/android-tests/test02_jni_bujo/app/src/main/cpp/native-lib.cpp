@@ -19,7 +19,6 @@ Java_com_kolhizin_test02_1bujo_MainActivity_loadImageIntoDecoder(JNIEnv *env, jo
                                                                  jintArray pixels_, jint width,
                                                                  jint height) {
     jint *pixels = env->GetIntArrayElements(pixels_, NULL);
-
     // TODO
     bujo::detector::Detector det;
 
