@@ -22,9 +22,11 @@ public class AsyncDetectionTask extends AsyncTask<Uri, BuJoPage, BuJoPage> {
     private Context context_;
     private int maxImageDim_;
     private BuJoPage res_;
+    private BuJoSettings settings_;
 
-    public AsyncDetectionTask(Context context, int maxImageDim){
+    public AsyncDetectionTask(Context context, BuJoSettings settings, int maxImageDim){
         super();
+        settings_ = settings;
         context_ = context;
         maxImageDim_ = maxImageDim;
     }
@@ -32,27 +34,27 @@ public class AsyncDetectionTask extends AsyncTask<Uri, BuJoPage, BuJoPage> {
     @Override
     protected BuJoPage doInBackground(Uri ...params){
         res_ = new BuJoPage();
-        res_.status = "Reading image!";
+        res_.setStatusStart("Loading image!");
         notifyUpdate();
 
         try {
-            res_.bitmap = loadImage(context_, params[0], maxImageDim_);
+            res_.setOriginal(loadImage(context_, params[0], maxImageDim_));
         }catch (FileNotFoundException e)
         {
             e.printStackTrace();
-            res_.status = "File not found!";
+            res_.setError("Image not found!");
             return res_;
         }catch (IOException e)
         {
             e.printStackTrace();
-            res_.status = "IO Exception!";
+            res_.setError("IO Exception: " + e.getMessage());
             return res_;
         }
 
-        res_.status = "Finished reading image!";
+        res_.setStatusLoadedBitmap("Finished reading image! Initiating full detection!");
         notifyUpdate();
 
-        detect(res_, this);
+        detect(res_, settings_);
 
         return res_;
     }
@@ -137,5 +139,5 @@ public class AsyncDetectionTask extends AsyncTask<Uri, BuJoPage, BuJoPage> {
         return cursor.getInt(0);
     }
 
-    public native int detect(BuJoPage page, AsyncDetectionTask detectionTask);
+    public native int detect(BuJoPage page, BuJoSettings settings);
 }

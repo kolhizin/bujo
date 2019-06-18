@@ -5,6 +5,10 @@
 
 cmake_minimum_required(VERSION 3.4.1)
 
+include_directories(
+        D:/Programming/3rdParty/Include
+)
+
 # Creates and names a library, sets it as either STATIC
 # or SHARED, and provides the relative paths to its source code.
 # You can define multiple libraries, and CMake builds them for you.
@@ -17,6 +21,14 @@ add_library( # Sets the name of the library.
         SHARED
 
         # Provides a relative path to your source file(s).
+        extremum.cpp
+        filters.cpp
+        radon.cpp
+        splits.cpp
+        curves.cpp
+        transform.cpp
+        detector.cpp
+        AsyncDetect.cpp
         native-lib.cpp)
 
 # Searches for a specified prebuilt library and stores the path as a

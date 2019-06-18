@@ -24,15 +24,15 @@ import java.io.InputStream;
 public class MainActivity extends AppCompatActivity {
 
     class AsyncDetect extends AsyncDetectionTask{
-        AsyncDetect(Context context, int maxDim){
-            super(context, maxDim);
+        AsyncDetect(Context context, BuJoSettings settings, int maxDim){
+            super(context, settings, maxDim);
         }
         @Override
         protected void onProgressUpdate(BuJoPage ...values){
             super.onProgressUpdate(values);
-            txtStatus.setText(values[0].status);
-            if(values[0].bitmap != null)
-                imgView.setImageBitmap(values[0].bitmap);
+            txtStatus.setText(values[0].getStatusMessage());
+            if(values[0].getOriginal() != null)
+                imgView.setImageBitmap(values[0].getOriginal());
         }
     }
 
@@ -73,8 +73,8 @@ public class MainActivity extends AppCompatActivity {
 
         if (resultCode == RESULT_OK){
             Uri targetUri = data.getData();
-            txtStatus.setText("Test");
-            AsyncDetect task = new AsyncDetect(this, imgView.getMaxHeight());
+            BuJoSettings settings = new BuJoSettings();
+            AsyncDetect task = new AsyncDetect(this, settings, imgView.getMaxHeight());
             task.execute(targetUri);
         }
     }
