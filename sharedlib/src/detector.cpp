@@ -10,7 +10,46 @@ void bujo::detector::Detector::clear_()
 	allCurves_.clear();
 }
 
-void bujo::detector::Detector::loadImage(const xt::xtensor<float, 2>& src, float scale, float max_text_angle, const FilteringOptions& options)
+void bujo::detector::Detector::loadImage(const xt::xtensor<float, 2>& src, float scale)
+{
+	clear_();
+
+	originalImg_ = src;
+
+	sourceImg_ = bujo::transform::resizeImage(originalImg_, scale);
+	scale_ = static_cast<float>(sourceImg_.shape()[0]) / originalImg_.shape()[0];
+}
+
+float bujo::detector::Detector::detectAngle(float max_text_angle)
+{
+	angle_ = bujo::transform::getTextAngle(sourceImg_, max_text_angle);
+	return angle_;
+}
+
+void bujo::detector::Detector::alignImages()
+{
+	alignedImg_ = bujo::transform::rotateImage(sourceImg_, -angle_);
+	alignedOriginalImg_ = bujo::transform::rotateImage(originalImg_, -angle_);
+}
+
+void bujo::detector::Detector::filterImages(const FilteringOptions& options)
+{
+	textLineDelta_ = bujo::transform::getTextLineDelta(alignedImg_);
+	kernel_v_ = static_cast<unsigned>(std::floorf(textLineDelta_ * options.kernel_v_factor));
+	kernel_h_ = static_cast<unsigned>(std::floorf(textLineDelta_ * options.kernel_h_factor));
+
+	filteredImg_ = bujo::transform::filterVarianceQuantile(alignedImg_, kernel_h_, kernel_v_,
+		options.quantile_h, options.quantile_v);
+	textCutoff_ = bujo::transform::calculateQuantile(filteredImg_, options.cutoff_quantile) * options.cutoff_coef;
+
+	auto tmp = bujo::transform::thresholdImage(filteredImg_, textCutoff_);
+	coarseImg_ = bujo::transform::coarseImage(tmp, options.coarse_scale, options.coarse_sigma, options.coarse_cutoff);
+
+	usedImg_ = filteredImg_;
+	textImg_ = bujo::filters::filterLocalMax2DV(usedImg_, textLineDelta_, 2, textCutoff_);
+}
+
+void bujo::detector::Detector::loadImageFull(const xt::xtensor<float, 2>& src, float scale, float max_text_angle, const FilteringOptions& options)
 {
 	clear_();
 

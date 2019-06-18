@@ -61,7 +61,7 @@ void BuJoDetector::ManagedDetector::LoadImage(Bitmap^ bmp, float sizeFactor)
 	bujo::detector::FilteringOptions opts;
 	opts.cutoff_quantile = settings_->textCutoffQuantile;
 	
-	impl()->loadImage(tmp, sizeFactor, settings_->maximumTextRotationAngle, opts);
+	impl()->loadImageFull(tmp, sizeFactor, settings_->maximumTextRotationAngle, opts);
 
 	timeLoad_ = sw->ElapsedMilliseconds;
 }

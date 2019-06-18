@@ -79,40 +79,4 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
-/*
-    private Bitmap loadImage(Uri imageUri)
-    {
-        Bitmap bitmap;
-        try {
-            // bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(targetUri));
-            Bitmap bitmap0 = scaleImage(this, imageUri, imgView.getMaxHeight());
-            bitmap = Bitmap.createScaledBitmap(bitmap0, bitmap0.getWidth()/2, bitmap0.getHeight()/2, true);
-            imgView.setImageBitmap(bitmap);
-
-            int width = bitmap.getWidth();
-            int height = bitmap.getHeight();
-
-            int []pixels = new int[width * height]; // assume RGBA, do once only
-            bitmap.getPixels(pixels, 0, width, 0, 0, width, height);
-            long start = System.nanoTime();
-            int res = loadImageIntoDecoder(pixels, width, height);
-            long end = System.nanoTime();
-            double diff = (end - start) / 1000000000.0;
-            String szString = String.valueOf(width) + "x" + String.valueOf(height);
-            textView.setText(String.valueOf(res) + " in " + String.valueOf(diff) + " for " + szString);
-        } catch (FileNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-    }
-*/
-    /**
-     * A native method that is implemented by the 'native-lib' native library,
-     * which is packaged with this application.
-     */
-    public native String stringFromJNI();
 }
