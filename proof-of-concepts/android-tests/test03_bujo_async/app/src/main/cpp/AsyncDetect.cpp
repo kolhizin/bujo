@@ -4,7 +4,7 @@
 #include "AsyncDetect.h"
 #include <exception>
 #include <android/bitmap.h>
-
+#include <sstream>
 
 BuJoSettings::BuJoSettings(JNIEnv *env, jobject settings) {
     env_ = env;
@@ -12,6 +12,15 @@ BuJoSettings::BuJoSettings(JNIEnv *env, jobject settings) {
     class_ = env_->FindClass("com/kolhizin/asyncbujo/BuJoSettings");
     if(!class_)
         throw std::runtime_error("Could not link BuJoSettings-class in JNI!");
+
+    loadFloatField_("detectorScaleFactor");
+}
+
+float BuJoSettings::getFloatValue(const std::string &name, float defValue) const {
+    auto it = fields_.find(name);
+    if(it == fields_.end())
+        return defValue;
+    return env_->GetFloatField(object_, it->second);
 }
 
 BuJoPage::BuJoPage(JNIEnv *env, jobject page) {
@@ -27,6 +36,9 @@ BuJoPage::BuJoPage(JNIEnv *env, jobject page) {
     setStatusTransformedImage_ = env_->GetMethodID(class_, "setStatusTransformedImage", "(Ljava/lang/String;)V");
     if(!setStatusTransformedImage_) throw std::runtime_error("Could not link BuJoPage::setStatusTransformedImage method in JNI!");
 
+    setStatusStartedDetector_ = env_->GetMethodID(class_, "setStatusStartedDetector", "(Ljava/lang/String;)V");
+    if(!setStatusStartedDetector_) throw std::runtime_error("Could not link BuJoPage::setStatusTransformedImage method in JNI!");
+
     setError_ = env_->GetMethodID(class_, "setError", "(Ljava/lang/String;)V");
     if(!setError_) throw std::runtime_error("Could not link BuJoPage::setError method in JNI!");
 
@@ -37,6 +49,8 @@ void BuJoPage::setStatus(BuJoStatus status, const std::string &message)
     jobject msg = env_->NewStringUTF(message.c_str());
     if(status == BuJoStatus::CONVERTED_BITMAP)
         env_->CallVoidMethod(object_, setStatusTransformedImage_, msg);
+    else if(status == BuJoStatus::LOADED_DETECTOR)
+        env_->CallVoidMethod(object_, setStatusStartedDetector_, msg);
     else
         throw std::runtime_error("Unexpected status in BuJoPage::setStatus!");
 }
@@ -92,6 +106,14 @@ void performDetection(BuJoPage &page, const BuJoSettings &settings, const TaskNo
 {
     jobject bitmap = page.getOriginal();
     auto original = bitmap2tensor(page.getEnv(), bitmap);
-    page.setStatus(BuJoStatus::CONVERTED_BITMAP, "Converted bitmap!");
+    page.setStatus(BuJoStatus::CONVERTED_BITMAP, "Converted bitmap! Loading in detector...");
+    notifier.notify();
+
+    bujo::detector::Detector detector;
+    float scaleFactor = settings.getFloatValue("detectorScaleFactor", 1.0f);
+    detector.loadImage(original, scaleFactor);
+    std::stringstream ss;
+    ss << "Image " << original.shape()[0] << "x" << original.shape()[1] << "*" << scaleFactor;
+    page.setStatus(BuJoStatus::LOADED_DETECTOR, ss.str());
     notifier.notify();
 }

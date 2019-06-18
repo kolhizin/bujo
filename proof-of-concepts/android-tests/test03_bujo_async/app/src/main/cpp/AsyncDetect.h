@@ -9,6 +9,7 @@
 #import "detector.h"
 #include <xtensor/xtensor.hpp>
 #include <string>
+#include <map>
 
 class TaskNotifier
 {
@@ -26,8 +27,19 @@ class BuJoSettings
     JNIEnv *env_;
     jclass class_;
     jobject object_;
+
+    std::map<std::string, jfieldID> fields_;
+    inline void loadFloatField_(const std::string &name)
+    {
+        auto tmp = env_->GetFieldID(class_, name.c_str(), "F");
+        if(!tmp)
+            throw std::runtime_error("Failed to load field-location in BuJoSettings!");
+        fields_[name] = tmp;
+    }
 public:
     BuJoSettings(JNIEnv *env, jobject settings);
+
+    float getFloatValue(const std::string &name, float defValue) const;
 };
 
 enum BuJoStatus{
@@ -46,7 +58,7 @@ class BuJoPage
     jmethodID getOriginal_;
     jmethodID setError_;
 
-    jmethodID setStatusTransformedImage_;
+    jmethodID setStatusTransformedImage_, setStatusStartedDetector_;
 public:
     BuJoPage(JNIEnv *env, jobject page);
 

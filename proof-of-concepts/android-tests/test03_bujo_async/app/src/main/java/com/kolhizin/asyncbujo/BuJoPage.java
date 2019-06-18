@@ -78,14 +78,23 @@ public class BuJoPage {
         status.errorMessage = "";
     }
 
+
+    public void setStatusLoadedBitmap(String msg){
+        status.fLoadedBitmap = true;
+
+        status.statusMessage = msg;
+    }
+
+
     public void setStatusTransformedImage(String msg){
         status.fTransformedImage = true;
 
         status.statusMessage = msg;
     }
 
-    public void setStatusLoadedBitmap(String msg){
-        status.fLoadedBitmap = true;
+
+    public void setStatusStartedDetector(String msg){
+        status.fStartedDetector = true;
 
         status.statusMessage = msg;
     }

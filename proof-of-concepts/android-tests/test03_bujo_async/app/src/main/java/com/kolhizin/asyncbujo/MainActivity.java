@@ -74,6 +74,7 @@ public class MainActivity extends AppCompatActivity {
         if (resultCode == RESULT_OK){
             Uri targetUri = data.getData();
             BuJoSettings settings = new BuJoSettings();
+            settings.detectorScaleFactor = 0.2f;
             AsyncDetect task = new AsyncDetect(this, settings, imgView.getMaxHeight());
             task.execute(targetUri);
         }
