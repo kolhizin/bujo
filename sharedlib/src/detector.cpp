@@ -81,9 +81,9 @@ void bujo::detector::Detector::loadImageFull(const xt::xtensor<float, 2>& src, f
 void bujo::detector::Detector::updateRegionAuto(float min_angle, unsigned num_angles, float minimal_abs_split_intensity, float maximal_abs_intersection, float minimal_pct_split)
 {
 	float dsize = static_cast<float>(usedImg_.shape()[0]) / coarseImg_.shape()[0];
-	auto splits = bujo::transform::findVSplits(coarseImg_, min_angle, num_angles, minimal_abs_split_intensity,
-		maximal_abs_intersection, minimal_pct_split);
-	bujo::transform::setRegionsValue(usedImg_, splits, dsize, 0.0f);
+	splits_ = bujo::transform::findVSplits(coarseImg_, min_angle,
+		num_angles, minimal_abs_split_intensity, maximal_abs_intersection, minimal_pct_split);
+	bujo::transform::setRegionsValue(usedImg_, splits_, dsize, 0.0f);
 
 	textImg_ = bujo::filters::filterLocalMax2DV(usedImg_, textLineDelta_, 2, textCutoff_);
 }

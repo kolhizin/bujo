@@ -32,6 +32,8 @@ namespace bujo
 			std::vector<bujo::curves::Curve> supportCurves_, allCurves_;
 			std::vector<std::vector<bujo::transform::Word>> words_;
 
+			std::vector<bujo::splits::RegionSplit> splits_;
+
 			unsigned kernel_v_ = 0, kernel_h_ = 0;
 
 			float angle_ = 0.0f, textCutoff_ = 0.0f, scale_ = 1.0f;
@@ -46,7 +48,8 @@ namespace bujo
 
 			void loadImageFull(const xt::xtensor<float, 2>& src, float scale = 1.0f, float max_text_angle = 1.57f, const FilteringOptions &options = FilteringOptions());
 
-			void updateRegionAuto(float min_angle = 0.5f, unsigned num_angles = 50, float minimal_abs_split_intensity = 10.0f,
+			void updateRegionAuto(float min_angle = 0.5f,
+				unsigned num_angles = 50, float minimal_abs_split_intensity = 10.0f,
 				float maximal_abs_intersection = 2.0f, float minimal_pct_split = 0.05f);
 
 			void selectSupportCurvesAuto(unsigned num_curves, unsigned window, float quantile_v = 0.5f, float quantile_h = 0.5f, float reg_coef = 0.5f,
@@ -67,6 +70,8 @@ namespace bujo
 			const xt::xtensor<float, 2>& coarseImage() const { return coarseImg_; }
 			const xt::xtensor<float, 2>& textImage() const { return textImg_; }
 
+			inline unsigned numSplits() const { return static_cast<unsigned>(splits_.size()); }
+			const bujo::splits::RegionSplit& getSplit(unsigned i) const { return splits_.at(i); }
 
 			inline unsigned numLines() const { return static_cast<unsigned>(words_.size()); }
 			inline unsigned numSupportLines() const { return static_cast<unsigned>(supportCurves_.size()); }

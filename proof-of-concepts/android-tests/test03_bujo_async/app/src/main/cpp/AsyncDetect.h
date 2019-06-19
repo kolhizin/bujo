@@ -32,21 +32,30 @@ class BuJoSettings
     inline void loadFloatField_(const std::string &name)
     {
         auto tmp = env_->GetFieldID(class_, name.c_str(), "F");
-        if(!tmp)
-            throw std::runtime_error("Failed to load field-location in BuJoSettings!");
+        if(!tmp)throw std::runtime_error("Failed to load field-location in BuJoSettings!");
+        fields_[name] = tmp;
+    }
+    inline void loadIntField_(const std::string &name)
+    {
+        auto tmp = env_->GetFieldID(class_, name.c_str(), "I");
+        if(!tmp)throw std::runtime_error("Failed to load field-location in BuJoSettings!");
         fields_[name] = tmp;
     }
 public:
     BuJoSettings(JNIEnv *env, jobject settings);
 
     float getFloatValue(const std::string &name, float defValue) const;
+    int getIntValue(const std::string &name, int defValue) const;
 };
 
 enum BuJoStatus{
     UNDEFINED,
     CONVERTED_BITMAP,
     LOADED_DETECTOR,
-    DETECTED_ANGLE
+    DETECTED_ANGLE,
+    ALIGNED_IMAGES,
+    FILTERED_IMAGES,
+    DETECTED_REGION
 };
 
 class BuJoPage
@@ -56,14 +65,27 @@ class BuJoPage
     jobject object_;
 
     jmethodID getOriginal_;
-    jmethodID setError_;
+    jmethodID setError_, setAngle_, addSplit_;
 
-    jmethodID setStatusTransformedImage_, setStatusStartedDetector_;
+    jmethodID setStatusTransformedImage_, setStatusStartedDetector_, setStatusDetectedAngle_,
+            setStatusAlignedImages_, setStatusFilteredImages_, setStatusDetectedRegion_;
+
+    inline void loadMethod_(jmethodID &var, const char * name, const char * sig){
+        var = env_->GetMethodID(class_, name, sig);
+        if(!var){
+            std::string err_msg = "Could not link BuJoPage::";
+            throw std::runtime_error(err_msg + name + " method in JNI with signature: " + sig + "!");
+        }
+    }
 public:
     BuJoPage(JNIEnv *env, jobject page);
 
     inline JNIEnv * getEnv() {return env_;}
     jobject getOriginal();
+    inline void setAngle(float a) const { env_->CallVoidMethod(object_, setAngle_, a); }
+    inline void addSplit(const bujo::splits::RegionSplit &splt) const{
+        env_->CallVoidMethod(object_, addSplit_, splt.desc.angle, splt.desc.offset, splt.desc.offset_margin, splt.desc.direction);
+    }
     void setStatus(BuJoStatus status, const std::string &message);
     void setError(const std::string &str);
 };
