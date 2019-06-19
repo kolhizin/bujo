@@ -83,8 +83,8 @@ public:
     inline JNIEnv * getEnv() {return env_;}
     jobject getOriginal();
     inline void setAngle(float a) const { env_->CallVoidMethod(object_, setAngle_, a); }
-    inline void addSplit(const bujo::splits::RegionSplit &splt) const{
-        env_->CallVoidMethod(object_, addSplit_, splt.desc.angle, splt.desc.offset, splt.desc.offset_margin, splt.desc.direction);
+    inline void addSplit(const bujo::splits::SplitDesc &splt) const{
+        env_->CallVoidMethod(object_, addSplit_, splt.angle, splt.offset, splt.offset_margin, splt.direction);
     }
     void setStatus(BuJoStatus status, const std::string &message);
     void setError(const std::string &str);

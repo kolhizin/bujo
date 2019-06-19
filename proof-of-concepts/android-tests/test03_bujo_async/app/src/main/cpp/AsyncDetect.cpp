@@ -48,7 +48,7 @@ BuJoPage::BuJoPage(JNIEnv *env, jobject page) {
     loadMethod_(getOriginal_, "getOriginal", "()Landroid/graphics/Bitmap;");
 
     loadMethod_(setAngle_, "setAngle", "(F)V");
-    loadMethod_(addSplit_, "addSplit", "(F,F,F,I)V");
+    loadMethod_(addSplit_, "addSplit", "(FFFI)V");
 
     loadMethod_(setStatusTransformedImage_, "setStatusTransformedImage", "(Ljava/lang/String;)V");
     loadMethod_(setStatusStartedDetector_, "setStatusStartedDetector", "(Ljava/lang/String;)V");
@@ -167,8 +167,11 @@ void performDetection(BuJoPage &page, const BuJoSettings &settings, const TaskNo
     detector.updateRegionAuto(minSplitAngle, numSplitAngle, minSplitIntensityAbs, maxSplitIntersectionAbs, minSplitRatio);
     std::stringstream ss1;
     ss1 << "Image " << original.shape()[0] << "x" << original.shape()[1] << "/" << angle << "*" << detector.numSplits();
-    for(unsigned i = 0; i < detector.numSplits(); i++)
-        page.addSplit(detector.getSplit(i));
+    auto mainShape = detector.mainImage().shape();
+    float mainDiag = std::sqrtf(mainShape[0]*mainShape[0]+mainShape[1]*mainShape[1]);
+    for(unsigned i = 0; i < detector.numSplits(); i++) {
+        page.addSplit(bujo::splits::rescaleSplit(detector.getSplit(i).desc, 1.0f / mainDiag));
+    }
     page.setStatus(BuJoStatus::DETECTED_REGION, ss1.str());
     notifier.notify();
 }

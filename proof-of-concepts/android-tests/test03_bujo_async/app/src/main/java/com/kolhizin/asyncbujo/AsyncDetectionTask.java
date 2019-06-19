@@ -54,7 +54,7 @@ public class AsyncDetectionTask extends AsyncTask<Uri, BuJoPage, BuJoPage> {
         res_.setStatusLoadedBitmap("Finished reading image! Initiating full detection!");
         notifyUpdate();
 
-        detect(res_, settings_);
+        //detect(res_, settings_);
 
         return res_;
     }

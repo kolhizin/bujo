@@ -81,6 +81,14 @@ public class BuJoPage {
         split.direction = direction;
         splits.add(split);
     }
+    public BuJoSplit getSplit(int id){
+        return splits.get(id);
+    }
+    public int numSplits(){
+        return splits.size();
+    }
+
+    public BuJoStatus getStatus(){ return status; }
 
     public void setAngle(float a){ angle = a; }
     public float getAngle(){ return angle; }
