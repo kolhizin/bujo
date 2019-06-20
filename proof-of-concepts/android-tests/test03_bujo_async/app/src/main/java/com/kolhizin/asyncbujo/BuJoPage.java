@@ -52,14 +52,18 @@ public class BuJoPage {
         float angle = 0.0f, offset = 0.0f, margin = 0.0f;
         int direction = 0;
     }
-
+    public class BuJoWord {
+        float [] xCoords;
+        float [] yCoords;
+        float negOffset, posOffset;
+    }
 
     private BuJoStatus status;
     private Bitmap original;
     private float angle;
     private List<BuJoSplit> splits;
     private List<BuJoLine> lines;
-
+    private BuJoWord [][] words;
 
     public BuJoPage()
     {
@@ -90,6 +94,22 @@ public class BuJoPage {
     public int numSplits(){
         return splits.size();
     }
+
+    public void resetNumWordLines(int n){
+        words = new BuJoWord[n][];
+    }
+    public void resetNumWords(int lineId, int n){
+        words[lineId] = new BuJoWord[n];
+    }
+    public void setWord(int lineId, int wordId, float []xs, float []ys, float negOffset, float posOffset){
+        BuJoWord w = new BuJoWord();
+        w.xCoords = xs;
+        w.yCoords = ys;
+        w.negOffset = negOffset;
+        w.posOffset = posOffset;
+        words[lineId][wordId] = w;
+    }
+    public BuJoWord[][] getWords(){return words;}
 
     public void addLine(float []xs, float []ys){
         if(xs.length != ys.length)
@@ -169,6 +189,10 @@ public class BuJoPage {
     }
     public void setStatusDetectedLines(String msg){
         status.fDetectedLines = true;
+        status.statusMessage = msg;
+    }
+    public void setStatusDetectedWords(String msg){
+        status.fDetectedWords = true;
         status.statusMessage = msg;
     }
 }

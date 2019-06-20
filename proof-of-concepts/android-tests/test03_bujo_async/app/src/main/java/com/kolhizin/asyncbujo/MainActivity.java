@@ -39,10 +39,13 @@ public class MainActivity extends AppCompatActivity {
             txtStatus.setText(values[0].getStatusMessage());
             if(values[0].getStatus().fErrors)
                 txtStatus.setText(values[0].getErrorMessage());
-            if(values[0].getStatus().fDetectedLines){
-                txtStatus.setText(String.valueOf(values[0].numLines()));
+            if(values[0].getStatus().fDetectedWords){
                 Bitmap img0 = BuJoTools.shadeRegions(values[0].getOriginal(), values[0].getSplits());
-                Bitmap img = img0;//BuJoTools
+                Bitmap img = BuJoTools.drawWords(img0, values[0].getWords());
+                imgView.setImageBitmap(img);
+            }else if(values[0].getStatus().fDetectedLines){
+                Bitmap img0 = BuJoTools.shadeRegions(values[0].getOriginal(), values[0].getSplits());
+                Bitmap img = BuJoTools.drawLines(img0, values[0].getLines());
                 imgView.setImageBitmap(img);
             }else if(values[0].getStatus().fDetectedRegion){
                 Bitmap img = BuJoTools.shadeRegions(values[0].getOriginal(), values[0].getSplits());

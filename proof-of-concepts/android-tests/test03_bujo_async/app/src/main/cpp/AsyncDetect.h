@@ -57,7 +57,8 @@ enum BuJoStatus{
     FILTERED_IMAGES,
     DETECTED_REGION,
     DETECTED_CURVES,
-    DETECTED_LINES
+    DETECTED_LINES,
+    DETECTED_WORDS
 };
 
 class BuJoPage
@@ -67,11 +68,11 @@ class BuJoPage
     jobject object_;
 
     jmethodID getOriginal_;
-    jmethodID setError_, setAngle_, addSplit_, addLine_;
+    jmethodID setError_, setAngle_, addSplit_, addLine_, resetNumWordLines_, resetNumWords_, setWord_;
 
     jmethodID setStatusTransformedImage_, setStatusStartedDetector_, setStatusDetectedAngle_,
             setStatusAlignedImages_, setStatusFilteredImages_, setStatusDetectedRegion_,
-            setStatusDetectedCurves_, setStatusDetectedLines_;
+            setStatusDetectedCurves_, setStatusDetectedLines_, setStatusDetectedWords_;
 
     inline void loadMethod_(jmethodID &var, const char * name, const char * sig){
         var = env_->GetMethodID(class_, name, sig);
@@ -89,6 +90,14 @@ public:
     inline void addSplit(const bujo::splits::SplitDesc &splt) const{
         env_->CallVoidMethod(object_, addSplit_, splt.angle, splt.offset, splt.offset_margin, splt.direction);
     }
+    inline void resetNumWordLines(int n) const {
+        env_->CallVoidMethod(object_, resetNumWordLines_, n);
+    }
+    inline void resetNumWords(int id, int n) const {
+        env_->CallVoidMethod(object_, resetNumWords_, id, n);
+    }
+    void setWord(int lid, int wid, const xt::xtensor<float, 1> &xCoord, const xt::xtensor<float, 1> &yCoord,
+            float negOffset, float posOffset) const;
     void addLine(const bujo::curves::Curve &curve) const;
     void setStatus(BuJoStatus status, const std::string &message);
     void setError(const std::string &str);

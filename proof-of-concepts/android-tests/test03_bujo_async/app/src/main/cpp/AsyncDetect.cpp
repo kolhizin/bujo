@@ -5,6 +5,7 @@
 #include <exception>
 #include <android/bitmap.h>
 #include <sstream>
+#include <xtensor/xview.hpp>
 
 BuJoSettings::BuJoSettings(JNIEnv *env, jobject settings) {
     env_ = env;
@@ -50,6 +51,9 @@ BuJoPage::BuJoPage(JNIEnv *env, jobject page) {
     loadMethod_(setAngle_, "setAngle", "(F)V");
     loadMethod_(addSplit_, "addSplit", "(FFFI)V");
     loadMethod_(addLine_, "addLine", "([F[F)V");
+    loadMethod_(resetNumWordLines_, "resetNumWordLines", "(I)V");
+    loadMethod_(resetNumWords_, "resetNumWords", "(II)V");
+    loadMethod_(setWord_, "setWord", "(II[F[FFF)V");
 
     loadMethod_(setStatusTransformedImage_, "setStatusTransformedImage", "(Ljava/lang/String;)V");
     loadMethod_(setStatusStartedDetector_, "setStatusStartedDetector", "(Ljava/lang/String;)V");
@@ -59,6 +63,7 @@ BuJoPage::BuJoPage(JNIEnv *env, jobject page) {
     loadMethod_(setStatusDetectedRegion_, "setStatusDetectedRegion", "(Ljava/lang/String;)V");
     loadMethod_(setStatusDetectedCurves_, "setStatusDetectedCurves", "(Ljava/lang/String;)V");
     loadMethod_(setStatusDetectedLines_, "setStatusDetectedLines", "(Ljava/lang/String;)V");
+    loadMethod_(setStatusDetectedWords_, "setStatusDetectedWords", "(Ljava/lang/String;)V");
 }
 
 void BuJoPage::setStatus(BuJoStatus status, const std::string &message)
@@ -80,6 +85,8 @@ void BuJoPage::setStatus(BuJoStatus status, const std::string &message)
         env_->CallVoidMethod(object_, setStatusDetectedCurves_, msg);
     else if(status == BuJoStatus::DETECTED_LINES)
         env_->CallVoidMethod(object_, setStatusDetectedLines_, msg);
+    else if(status == BuJoStatus::DETECTED_WORDS)
+        env_->CallVoidMethod(object_, setStatusDetectedWords_, msg);
     else
         throw std::runtime_error("Unexpected status in BuJoPage::setStatus!");
 }
@@ -99,6 +106,15 @@ void BuJoPage::addLine(const bujo::curves::Curve &curve) const {
     env_->SetFloatArrayRegion(xArr, 0, curve.x_value.size(), &curve.x_value[0]);
     env_->SetFloatArrayRegion(yArr, 0, curve.y_value.size(), &curve.y_value[0]);
     env_->CallVoidMethod(object_, addLine_, xArr, yArr);
+}
+
+void BuJoPage::setWord(int lid, int wid, const xt::xtensor<float, 1> &xCoord, const xt::xtensor<float, 1> &yCoord,
+        float negOffset, float posOffset) const {
+    jfloatArray xArr = env_->NewFloatArray(xCoord.size());
+    jfloatArray yArr = env_->NewFloatArray(yCoord.size());
+    env_->SetFloatArrayRegion(xArr, 0, xCoord.size(), &xCoord[0]);
+    env_->SetFloatArrayRegion(yArr, 0, yCoord.size(), &yCoord[0]);
+    env_->CallVoidMethod(object_, setWord_, lid, wid, xArr, yArr, negOffset, posOffset);
 }
 
 TaskNotifier::TaskNotifier(JNIEnv *env, jobject task, const char * className) {
@@ -214,6 +230,32 @@ void performDetection(BuJoPage &page, const BuJoSettings &settings, const TaskNo
         page.addLine(bujo::curves::affineTransformCurve(detector.getLineCurve(i),
                 0.0f, 1.0f/xDetSize, 0.0f, 1.0f/yDetSize));
     }
-    page.setStatus(BuJoStatus::DETECTED_LINES, "Detected lines.");
+    page.setStatus(BuJoStatus::DETECTED_LINES, "Detected lines. Detecting words...");
+    notifier.notify();
+
+    bujo::curves::WordDetectionOptions wordDetectionOptions;
+    wordDetectionOptions.cutoff_word_std = settings.getFloatValue("wordStdDevCutoff", 0.02f);
+    int wordFilterSize = settings.getIntValue("wordFilterSizeAbs", 4);
+    float wordRegCoef = settings.getFloatValue("wordRegCoef", 0.1f);
+    int wordXWindowAbs = settings.getIntValue("wordXWindowAbs", 5);
+    detector.detectWords(wordXWindowAbs, wordFilterSize, wordRegCoef, wordDetectionOptions);
+
+    page.resetNumWordLines(detector.numLines());
+    int wordNumPoints = settings.getIntValue("wordNumPoints", 10);
+    auto wordLocCoord = xt::linspace(0.0f, 1.0f, wordNumPoints);
+    for(int i = 0; i < detector.numLines(); i++)
+    {
+        page.resetNumWords(i, detector.numWords(i));
+        for(int j = 0; j < detector.numWords(i); j++)
+        {
+            auto wrd = detector.getWord(i, j, wordLocCoord);
+            auto off = detector.getWordHeight(i, j);
+            xt::xtensor<float, 1> xc = xt::view(wrd, xt::range(0, wrd.shape()[0]), 0);
+            xt::xtensor<float, 1> yc = xt::view(wrd, xt::range(0, wrd.shape()[0]), 1);
+            page.setWord(i, j, xc, yc, std::get<0>(off), std::get<1>(off));
+        }
+    }
+
+    page.setStatus(BuJoStatus::DETECTED_WORDS, "Detected words.");
     notifier.notify();
 }
