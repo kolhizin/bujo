@@ -83,6 +83,7 @@ namespace bujo
 					res += static_cast<unsigned>(words_[i].size());
 				return res;
 			}
+			unsigned numLineCurves() const { return allCurves_.size(); }
 			const bujo::curves::Curve& getLineCurve(unsigned lineId) const { return allCurves_.at(lineId); }
 			const bujo::curves::Curve& getSupportLineCurve(unsigned supportLineId) const { return supportCurves_.at(supportLineId); }
 

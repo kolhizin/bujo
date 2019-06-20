@@ -55,7 +55,9 @@ enum BuJoStatus{
     DETECTED_ANGLE,
     ALIGNED_IMAGES,
     FILTERED_IMAGES,
-    DETECTED_REGION
+    DETECTED_REGION,
+    DETECTED_CURVES,
+    DETECTED_LINES
 };
 
 class BuJoPage
@@ -65,10 +67,11 @@ class BuJoPage
     jobject object_;
 
     jmethodID getOriginal_;
-    jmethodID setError_, setAngle_, addSplit_;
+    jmethodID setError_, setAngle_, addSplit_, addLine_;
 
     jmethodID setStatusTransformedImage_, setStatusStartedDetector_, setStatusDetectedAngle_,
-            setStatusAlignedImages_, setStatusFilteredImages_, setStatusDetectedRegion_;
+            setStatusAlignedImages_, setStatusFilteredImages_, setStatusDetectedRegion_,
+            setStatusDetectedCurves_, setStatusDetectedLines_;
 
     inline void loadMethod_(jmethodID &var, const char * name, const char * sig){
         var = env_->GetMethodID(class_, name, sig);
@@ -86,6 +89,7 @@ public:
     inline void addSplit(const bujo::splits::SplitDesc &splt) const{
         env_->CallVoidMethod(object_, addSplit_, splt.angle, splt.offset, splt.offset_margin, splt.direction);
     }
+    void addLine(const bujo::curves::Curve &curve) const;
     void setStatus(BuJoStatus status, const std::string &message);
     void setError(const std::string &str);
 };

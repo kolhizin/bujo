@@ -37,12 +37,18 @@ public class MainActivity extends AppCompatActivity {
         protected void onProgressUpdate(BuJoPage ...values){
             super.onProgressUpdate(values);
             txtStatus.setText(values[0].getStatusMessage());
-            if(values[0].getOriginal() != null) {
-                imgView.setImageBitmap(values[0].getOriginal());
-            }
-            if(values[0].getStatus().fDetectedRegion){
+            if(values[0].getStatus().fErrors)
+                txtStatus.setText(values[0].getErrorMessage());
+            if(values[0].getStatus().fDetectedLines){
+                txtStatus.setText(String.valueOf(values[0].numLines()));
+                Bitmap img0 = BuJoTools.shadeRegions(values[0].getOriginal(), values[0].getSplits());
+                Bitmap img = img0;//BuJoTools
+                imgView.setImageBitmap(img);
+            }else if(values[0].getStatus().fDetectedRegion){
                 Bitmap img = BuJoTools.shadeRegions(values[0].getOriginal(), values[0].getSplits());
                 imgView.setImageBitmap(img);
+            }else if(values[0].getOriginal() != null) {
+                imgView.setImageBitmap(values[0].getOriginal());
             }
         }
     }

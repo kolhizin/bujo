@@ -47,7 +47,6 @@ public class BuJoPage {
     public class BuJoLine {
         float [] xCoords;
         float [] yCoords;
-        float [] lenParam;
     }
     public class BuJoSplit{
         float angle = 0.0f, offset = 0.0f, margin = 0.0f;
@@ -59,18 +58,21 @@ public class BuJoPage {
     private Bitmap original;
     private float angle;
     private List<BuJoSplit> splits;
+    private List<BuJoLine> lines;
 
 
     public BuJoPage()
     {
         status = new BuJoStatus();
         splits = new LinkedList<BuJoSplit>();
+        lines = new LinkedList<BuJoLine>();
     }
 
     public void setOriginal(Bitmap bmp){
         original = bmp;
         status.resetStatus();
         splits.clear();
+        lines.clear();
     }
 
     public void addSplit(float angle, float offset, float margin, int direction) {
@@ -87,6 +89,22 @@ public class BuJoPage {
     }
     public int numSplits(){
         return splits.size();
+    }
+
+    public void addLine(float []xs, float []ys){
+        if(xs.length != ys.length)
+            throw new IllegalArgumentException("BuJoPage.addLine: xs and ys should be same length!");
+        BuJoLine line = new BuJoLine();
+        line.xCoords = xs;
+        line.yCoords = ys;
+        lines.add(line);
+    }
+    public List<BuJoLine> getLines(){return lines;}
+    public BuJoLine getLine(int id){
+        return lines.get(id);
+    }
+    public int numLines(){
+        return lines.size();
     }
 
     public BuJoStatus getStatus(){ return status; }
@@ -143,6 +161,14 @@ public class BuJoPage {
     }
     public void setStatusDetectedRegion(String msg){
         status.fDetectedRegion = true;
+        status.statusMessage = msg;
+    }
+    public void setStatusDetectedCurves(String msg){
+        status.fDetectedCurves = true;
+        status.statusMessage = msg;
+    }
+    public void setStatusDetectedLines(String msg){
+        status.fDetectedLines = true;
         status.statusMessage = msg;
     }
 }

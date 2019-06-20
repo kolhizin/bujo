@@ -49,6 +49,7 @@ BuJoPage::BuJoPage(JNIEnv *env, jobject page) {
 
     loadMethod_(setAngle_, "setAngle", "(F)V");
     loadMethod_(addSplit_, "addSplit", "(FFFI)V");
+    loadMethod_(addLine_, "addLine", "([F[F)V");
 
     loadMethod_(setStatusTransformedImage_, "setStatusTransformedImage", "(Ljava/lang/String;)V");
     loadMethod_(setStatusStartedDetector_, "setStatusStartedDetector", "(Ljava/lang/String;)V");
@@ -56,6 +57,8 @@ BuJoPage::BuJoPage(JNIEnv *env, jobject page) {
     loadMethod_(setStatusAlignedImages_, "setStatusAlignedImages", "(Ljava/lang/String;)V");
     loadMethod_(setStatusFilteredImages_, "setStatusFilteredImages", "(Ljava/lang/String;)V");
     loadMethod_(setStatusDetectedRegion_, "setStatusDetectedRegion", "(Ljava/lang/String;)V");
+    loadMethod_(setStatusDetectedCurves_, "setStatusDetectedCurves", "(Ljava/lang/String;)V");
+    loadMethod_(setStatusDetectedLines_, "setStatusDetectedLines", "(Ljava/lang/String;)V");
 }
 
 void BuJoPage::setStatus(BuJoStatus status, const std::string &message)
@@ -73,6 +76,10 @@ void BuJoPage::setStatus(BuJoStatus status, const std::string &message)
         env_->CallVoidMethod(object_, setStatusFilteredImages_, msg);
     else if(status == BuJoStatus::DETECTED_REGION)
         env_->CallVoidMethod(object_, setStatusDetectedRegion_, msg);
+    else if(status == BuJoStatus::DETECTED_CURVES)
+        env_->CallVoidMethod(object_, setStatusDetectedCurves_, msg);
+    else if(status == BuJoStatus::DETECTED_LINES)
+        env_->CallVoidMethod(object_, setStatusDetectedLines_, msg);
     else
         throw std::runtime_error("Unexpected status in BuJoPage::setStatus!");
 }
@@ -84,6 +91,14 @@ void BuJoPage::setError(const std::string &str) {
 
 jobject BuJoPage::getOriginal() {
     return env_->CallObjectMethod(object_, getOriginal_);
+}
+
+void BuJoPage::addLine(const bujo::curves::Curve &curve) const {
+    jfloatArray xArr = env_->NewFloatArray(curve.x_value.size());
+    jfloatArray yArr = env_->NewFloatArray(curve.y_value.size());
+    env_->SetFloatArrayRegion(xArr, 0, curve.x_value.size(), &curve.x_value[0]);
+    env_->SetFloatArrayRegion(yArr, 0, curve.y_value.size(), &curve.y_value[0]);
+    env_->CallVoidMethod(object_, addLine_, xArr, yArr);
 }
 
 TaskNotifier::TaskNotifier(JNIEnv *env, jobject task, const char * className) {
@@ -136,26 +151,26 @@ void performDetection(BuJoPage &page, const BuJoSettings &settings, const TaskNo
     bujo::detector::Detector detector;
     float scaleFactor = settings.getFloatValue("detectorScaleFactor", 1.0f);
     detector.loadImage(original, scaleFactor);
-    page.setStatus(BuJoStatus::LOADED_DETECTOR, "Loaded in detector.");
+    page.setStatus(BuJoStatus::LOADED_DETECTOR, "Loaded in detector. Detecting angle...");
     notifier.notify();
 
     //detect angle
     float angle = detector.detectAngle(settings.getFloatValue("detectorMaxAlignAngle", 1.57f));
     page.setAngle(angle);
     std::stringstream ss0;
-    ss0 << "Image " << original.shape()[0] << "x" << original.shape()[1] << "/" << angle;
+    ss0 << "Detected angle (" << angle << "). Aligning images...";
     page.setStatus(BuJoStatus::DETECTED_ANGLE, ss0.str());
     notifier.notify();
 
     //use angle to align
     detector.alignImages();
-    page.setStatus(BuJoStatus::ALIGNED_IMAGES, "Aligned images.");
+    page.setStatus(BuJoStatus::ALIGNED_IMAGES, "Aligned images. Filtering images...");
     notifier.notify();
 
     //filter images
     bujo::detector::FilteringOptions filteringOptions;
     detector.filterImages(filteringOptions);
-    page.setStatus(BuJoStatus::FILTERED_IMAGES, "Filtered images.");
+    page.setStatus(BuJoStatus::FILTERED_IMAGES, "Filtered images. Detecting regions...");
     notifier.notify();
 
     //select region
@@ -165,13 +180,40 @@ void performDetection(BuJoPage &page, const BuJoSettings &settings, const TaskNo
     float maxSplitIntersectionAbs = settings.getFloatValue("splitMaxIntersectionAbs", 2.0f);
     float minSplitRatio = settings.getFloatValue("splitMinRatio", 0.05f);
     detector.updateRegionAuto(minSplitAngle, numSplitAngle, minSplitIntensityAbs, maxSplitIntersectionAbs, minSplitRatio);
-    std::stringstream ss1;
-    ss1 << "Image " << original.shape()[0] << "x" << original.shape()[1] << "/" << angle << "*" << detector.numSplits();
     auto mainShape = detector.mainImage().shape();
     float mainDiag = std::sqrtf(mainShape[0]*mainShape[0]+mainShape[1]*mainShape[1]);
     for(unsigned i = 0; i < detector.numSplits(); i++) {
         page.addSplit(bujo::splits::rescaleSplit(detector.getSplit(i).desc, 1.0f / mainDiag));
     }
-    page.setStatus(BuJoStatus::DETECTED_REGION, ss1.str());
+    page.setStatus(BuJoStatus::DETECTED_REGION, "Detected regions. Detecting curves...");
+    notifier.notify();
+
+    //select support surves
+    bujo::curves::CurveGenerationOptions curveGenerationOptions;
+    int numSupportCurves = settings.getIntValue("curvesNum", 6);
+    float curvesXWindow = settings.getFloatValue("curveXWindowRel", 0.08f);
+    float curvesQuantileV = settings.getFloatValue("curveVQuantile", 0.5f);
+    float curvesQuantileH = settings.getFloatValue("curveHQuantile", 0.5f);
+    float curvesRegCoef = settings.getFloatValue("curveRegCoef", 0.5f);
+    int curvesXWindowAbs = curvesXWindow * detector.mainImage().shape()[1];
+
+    page.setStatus(BuJoStatus::DETECTED_REGION, "Detected region. Detecting curves...");
+    notifier.notify();
+
+    detector.selectSupportCurvesAuto(numSupportCurves, curvesXWindowAbs, curvesQuantileV, curvesQuantileH,
+            curvesRegCoef, curveGenerationOptions);
+    page.setStatus(BuJoStatus::DETECTED_CURVES, "Detected curves. Detecting lines...");
+    notifier.notify();
+
+    float linesXWindow = settings.getFloatValue("lineXWindowRel", 0.08f);
+    int linesXWindowAbs = linesXWindow * detector.mainImage().shape()[1];
+    detector.detectLines(linesXWindowAbs);
+    float xDetSize = detector.mainImage().shape()[1];
+    float yDetSize = detector.mainImage().shape()[0];
+    for(int i = 0; i < detector.numLineCurves(); i++){
+        page.addLine(bujo::curves::affineTransformCurve(detector.getLineCurve(i),
+                0.0f, 1.0f/xDetSize, 0.0f, 1.0f/yDetSize));
+    }
+    page.setStatus(BuJoStatus::DETECTED_LINES, "Detected lines.");
     notifier.notify();
 }

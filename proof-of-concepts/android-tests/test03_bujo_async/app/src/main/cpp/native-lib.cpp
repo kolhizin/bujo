@@ -19,10 +19,12 @@ Java_com_kolhizin_asyncbujo_AsyncDetectionTask_detect(JNIEnv *env, jobject insta
         }catch (const std::exception &e)
         {
             page_.setError(e.what());
+            notifier.notify();
             return 1;
         }catch (...)
         {
             page_.setError("Unknown error!");
+            notifier.notify();
             return 1;
         }
 
