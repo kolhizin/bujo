@@ -81,6 +81,7 @@ public class BuJoPage {
         split.direction = direction;
         splits.add(split);
     }
+    public List<BuJoSplit> getSplits(){return splits;}
     public BuJoSplit getSplit(int id){
         return splits.get(id);
     }

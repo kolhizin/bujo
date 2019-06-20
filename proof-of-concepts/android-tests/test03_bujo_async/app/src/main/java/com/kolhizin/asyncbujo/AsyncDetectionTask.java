@@ -38,7 +38,10 @@ public class AsyncDetectionTask extends AsyncTask<Uri, BuJoPage, BuJoPage> {
         notifyUpdate();
 
         try {
-            res_.setOriginal(loadImage(context_, params[0], maxImageDim_));
+            Bitmap img0 = loadImage(context_, params[0], maxImageDim_);
+            Bitmap img = Bitmap.createScaledBitmap(img0,
+                    img0.getWidth()/2, img0.getHeight()/2, true);
+            res_.setOriginal(img);
         }catch (FileNotFoundException e)
         {
             e.printStackTrace();
@@ -54,7 +57,7 @@ public class AsyncDetectionTask extends AsyncTask<Uri, BuJoPage, BuJoPage> {
         res_.setStatusLoadedBitmap("Finished reading image! Initiating full detection!");
         notifyUpdate();
 
-        //detect(res_, settings_);
+        detect(res_, settings_);
 
         return res_;
     }

@@ -85,6 +85,9 @@ void bujo::detector::Detector::updateRegionAuto(float min_angle, unsigned num_an
 		num_angles, minimal_abs_split_intensity, maximal_abs_intersection, minimal_pct_split);
 	bujo::transform::setRegionsValue(usedImg_, splits_, dsize, 0.0f);
 
+	for (int i = 0; i < splits_.size(); i++)
+		splits_[i].desc = bujo::splits::rescaleSplit(splits_[i].desc, dsize);
+
 	textImg_ = bujo::filters::filterLocalMax2DV(usedImg_, textLineDelta_, 2, textCutoff_);
 }
 
