@@ -1,6 +1,9 @@
 package com.kolhizin.asyncbujo;
 
 import android.graphics.Bitmap;
+import android.graphics.Matrix;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -11,7 +14,7 @@ import java.util.ListIterator;
 public class BuJoPage {
     public class BuJoStatus{
         public String statusMessage, errorMessage;
-        public boolean fInProgress;
+        public boolean fInProgress, fSuccess;
         public boolean fErrors;
 
         public boolean fLoadedBitmap;
@@ -27,6 +30,7 @@ public class BuJoPage {
 
         public void resetStatus(){
             status.fInProgress = false;
+            status.fSuccess = false;
             status.fErrors = false;
 
             status.fLoadedBitmap = false;
@@ -52,14 +56,9 @@ public class BuJoPage {
         float angle = 0.0f, offset = 0.0f, margin = 0.0f;
         int direction = 0;
     }
-    public class BuJoWord {
-        float [] xCoords;
-        float [] yCoords;
-        float negOffset, posOffset;
-    }
 
     private BuJoStatus status;
-    private Bitmap original;
+    private Bitmap originalBitmap, alignedBitmap, detectorBitmap;
     private float angle;
     private List<BuJoSplit> splits;
     private List<BuJoLine> lines;
@@ -72,8 +71,12 @@ public class BuJoPage {
         lines = new LinkedList<BuJoLine>();
     }
 
-    public void setOriginal(Bitmap bmp){
-        original = bmp;
+    public void setOriginal(Bitmap bmp, float detectorScale){
+        originalBitmap = bmp;
+        int dw = (int)(bmp.getWidth() * detectorScale);
+        int dh = (int)(bmp.getHeight() * detectorScale);
+        detectorBitmap = Bitmap.createScaledBitmap(bmp, dw, dh, true);
+
         status.resetStatus();
         splits.clear();
         lines.clear();
@@ -129,16 +132,30 @@ public class BuJoPage {
 
     public BuJoStatus getStatus(){ return status; }
 
-    public void setAngle(float a){ angle = a; }
+    public void setAngle(float a){
+        angle = a;
+
+        Matrix m = new Matrix();
+        m.setRotate(-angle * 180.0f / (float)Math.PI);
+        alignedBitmap = Bitmap.createBitmap(originalBitmap, 0, 0,
+                originalBitmap.getWidth(), originalBitmap.getHeight(), m, true);
+    }
     public float getAngle(){ return angle; }
 
     public Bitmap getOriginal(){
-        return original;
+        return originalBitmap;
     }
+    public Bitmap getSource(){
+        return detectorBitmap;
+    }
+    public Bitmap getAligned() {return alignedBitmap; }
+
 
 
     public void setError(String msg){
         status.fErrors = true;
+        status.fInProgress = false;
+        status.fSuccess = false;
         status.errorMessage = msg;
     }
 
@@ -154,6 +171,10 @@ public class BuJoPage {
         status.fInProgress = true;
         status.statusMessage = msg;
         status.errorMessage = "";
+    }
+    public void setStatusFinish(boolean fSuccess){
+        status.fInProgress = false;
+        status.fSuccess = fSuccess;
     }
     public void setStatusLoadedBitmap(String msg){
         status.fLoadedBitmap = true;

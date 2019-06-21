@@ -35,11 +35,10 @@ public class BuJoTools {
         for(int i = 0; i < lines.size(); i++){
             canvas.drawPath(makeLinePath(w, h, lines.get(i)), paint);
         }
-
         return res;
     }
 
-    public static Bitmap drawWords(Bitmap src, BuJoPage.BuJoWord [][]words) {
+    public static Bitmap drawWords(Bitmap src, BuJoWord [][]words) {
         int w = src.getWidth();
         int h = src.getHeight();
 

@@ -67,7 +67,7 @@ class BuJoPage
     jclass class_;
     jobject object_;
 
-    jmethodID getOriginal_;
+    jmethodID getSource_;
     jmethodID setError_, setAngle_, addSplit_, addLine_, resetNumWordLines_, resetNumWords_, setWord_;
 
     jmethodID setStatusTransformedImage_, setStatusStartedDetector_, setStatusDetectedAngle_,
@@ -85,7 +85,7 @@ public:
     BuJoPage(JNIEnv *env, jobject page);
 
     inline JNIEnv * getEnv() {return env_;}
-    jobject getOriginal();
+    jobject getSource();
     inline void setAngle(float a) const { env_->CallVoidMethod(object_, setAngle_, a); }
     inline void addSplit(const bujo::splits::SplitDesc &splt) const{
         env_->CallVoidMethod(object_, addSplit_, splt.angle, splt.offset, splt.offset_margin, splt.direction);

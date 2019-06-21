@@ -46,7 +46,7 @@ BuJoPage::BuJoPage(JNIEnv *env, jobject page) {
         throw std::runtime_error("Could not link BuJoPage-class in JNI!");
 
     loadMethod_(setError_, "setError", "(Ljava/lang/String;)V");
-    loadMethod_(getOriginal_, "getOriginal", "()Landroid/graphics/Bitmap;");
+    loadMethod_(getSource_, "getSource", "()Landroid/graphics/Bitmap;");
 
     loadMethod_(setAngle_, "setAngle", "(F)V");
     loadMethod_(addSplit_, "addSplit", "(FFFI)V");
@@ -96,8 +96,8 @@ void BuJoPage::setError(const std::string &str) {
     env_->CallVoidMethod(object_, setError_, msg);
 }
 
-jobject BuJoPage::getOriginal() {
-    return env_->CallObjectMethod(object_, getOriginal_);
+jobject BuJoPage::getSource() {
+    return env_->CallObjectMethod(object_, getSource_);
 }
 
 void BuJoPage::addLine(const bujo::curves::Curve &curve) const {
@@ -158,7 +158,7 @@ xt::xtensor<float, 2> bitmap2tensor(JNIEnv * env, jobject bitmap)
 void performDetection(BuJoPage &page, const BuJoSettings &settings, const TaskNotifier &notifier)
 {
     //convert to tensor
-    jobject bitmap = page.getOriginal();
+    jobject bitmap = page.getSource();
     auto original = bitmap2tensor(page.getEnv(), bitmap);
     page.setStatus(BuJoStatus::CONVERTED_BITMAP, "Converted bitmap! Loading in detector...");
     notifier.notify();
@@ -177,7 +177,7 @@ void performDetection(BuJoPage &page, const BuJoSettings &settings, const TaskNo
     ss0 << "Detected angle (" << angle << "). Aligning images...";
     page.setStatus(BuJoStatus::DETECTED_ANGLE, ss0.str());
     notifier.notify();
-
+/*
     //use angle to align
     detector.alignImages();
     page.setStatus(BuJoStatus::ALIGNED_IMAGES, "Aligned images. Filtering images...");
@@ -258,4 +258,5 @@ void performDetection(BuJoPage &page, const BuJoSettings &settings, const TaskNo
 
     page.setStatus(BuJoStatus::DETECTED_WORDS, "Detected words.");
     notifier.notify();
+    */
 }
