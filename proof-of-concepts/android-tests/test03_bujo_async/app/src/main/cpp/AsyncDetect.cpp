@@ -177,7 +177,7 @@ void performDetection(BuJoPage &page, const BuJoSettings &settings, const TaskNo
     ss0 << "Detected angle (" << angle << "). Aligning images...";
     page.setStatus(BuJoStatus::DETECTED_ANGLE, ss0.str());
     notifier.notify();
-/*
+
     //use angle to align
     detector.alignImages();
     page.setStatus(BuJoStatus::ALIGNED_IMAGES, "Aligned images. Filtering images...");
@@ -258,5 +258,4 @@ void performDetection(BuJoPage &page, const BuJoSettings &settings, const TaskNo
 
     page.setStatus(BuJoStatus::DETECTED_WORDS, "Detected words.");
     notifier.notify();
-    */
 }

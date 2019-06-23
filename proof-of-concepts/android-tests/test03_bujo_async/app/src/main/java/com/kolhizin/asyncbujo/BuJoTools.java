@@ -6,9 +6,57 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 
+import java.nio.IntBuffer;
 import java.util.List;
 
 public class BuJoTools {
+    public static Bitmap extractCurve(Bitmap src, float []xs, float []ys, float negOffset, float posOffset){
+        int w = src.getWidth();
+        int h = src.getHeight();
+        float ls[] = new float[xs.length];
+        ls[0] = 0.0f;
+        for(int i = 1; i < xs.length; i++) {
+            float dx = (xs[i] - xs[i-1]) * w;
+            float dy = (ys[i] - ys[i-1]) * h;
+            ls[i] = ls[i - 1] + (float)Math.sqrt(dx*dx + dy*dy);
+        }
+        float full_length = ls[ls.length-1];
+
+        int szW = (int)Math.ceil(full_length);
+        int szH = (int)Math.ceil((negOffset+posOffset)*h);
+
+        int []srcPixels = new int[w * h];
+        src.getPixels(srcPixels, 0, w,0,0,w,h);
+
+        int []resPixels = new int[szH * szW];
+        int jSeg = 1;
+        for(int j = 0; j < szW; j++){
+            while(j > ls[jSeg]){
+                if(j < szW - 1)
+                    jSeg += 1;
+                else
+                    break;
+            }
+            float x0 = xs[jSeg-1], x1 = xs[jSeg];
+            float len0 = ls[jSeg-1], len1 = ls[jSeg];
+            float alpha = Math.min(1.0f, (((float)j) - len0)/(len1-len0));
+            float x = x0 + alpha * (x1 - x0);
+            float yc = ys[jSeg - 1] + alpha * (ys[jSeg] - ys[jSeg - 1]);
+            int sj = Math.max(0, Math.min(w-1, (int)Math.round(x * w)));
+
+            for(int i = 0; i < szH; i++){
+                float a = ((float)i) / (szH - 1) * (negOffset + posOffset) - negOffset;
+                float y = yc + a;
+                int si = Math.max(0, Math.min(h-1, (int)Math.round(y * h)));
+                resPixels[i*szW + j] = srcPixels[si*w + sj];
+            }
+        }
+
+        Bitmap res = Bitmap.createBitmap(szW, szH, src.getConfig());
+        res.copyPixelsFromBuffer(IntBuffer.wrap(resPixels));
+        return res;
+    }
+
     public static Path makeLinePath(int w, int h, float []xs, float []ys){
         Path p = new Path();
         p.moveTo(w * xs[0], h* ys[0]);

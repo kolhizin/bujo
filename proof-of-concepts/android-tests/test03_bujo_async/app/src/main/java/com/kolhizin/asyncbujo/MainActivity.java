@@ -31,7 +31,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     ImageView imgView = null;
     Button btnLoad = null;
     Button btnInspect = null;
-    BuJoPage curPage = null;
 
     class AsyncDetect extends AsyncDetectionTask{
         AsyncDetect(Context context, BuJoSettings settings, int maxDim){
@@ -62,10 +61,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         @Override
-        protected void onPostExecute(BuJoPage buJoPage) {
-            super.onPostExecute(buJoPage);
-            curPage = buJoPage;
-            if(buJoPage.getStatus().fSuccess){
+        protected void onPostExecute(BuJoPage page) {
+            super.onPostExecute(page);
+            BuJoApp app = (BuJoApp)getApplication();
+            app.setPage(page);
+            if(page.getStatus().fSuccess){
                 btnInspect.setVisibility(View.VISIBLE);
                 btnInspect.setClickable(true);
             }
@@ -114,7 +114,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void inspectPage()
     {
         Intent intent = new Intent(this, InspectActivity.class);
-        intent.putExtra("words", curPage.getWords());
         startActivity(intent);
     }
 
