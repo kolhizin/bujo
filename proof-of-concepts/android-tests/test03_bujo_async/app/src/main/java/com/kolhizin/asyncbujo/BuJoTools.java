@@ -6,10 +6,30 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 
+import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.List;
 
 public class BuJoTools {
+    public static float calcImageStdDev(Bitmap src){
+        int w = src.getWidth();
+        int h = src.getHeight();
+        int []pixels = new int[w*h];
+        src.getPixels(pixels, 0, w, 0, 0, w, h);
+
+        double sumx = 0.0, sumx2 = 0.0;
+        for(int i = 0; i < h; i++)
+            for(int j = 0; j < w; j++){
+                int val = pixels[i*w + j];
+                double dval = (val & 0xFF)+((val>>8) & 0xFF)+((val>>16) & 0xFF);
+                dval = dval / (3.0 * 255.0);
+                sumx += dval;
+                sumx2 += dval * dval;
+            }
+        double num = w * h;
+        return (float)Math.sqrt((sumx2 - sumx*sumx/num)/num);
+
+    }
     public static Bitmap extractCurve(Bitmap src, float []xs, float []ys, float negOffset, float posOffset){
         int w = src.getWidth();
         int h = src.getHeight();
