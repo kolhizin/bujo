@@ -184,6 +184,8 @@ public class BuJoTools {
             else
                 p.op(tmp, Path.Op.UNION);
         }
+        if(p == null)
+            return src;
 
         Bitmap res = src.copy(src.getConfig(), true);
         Canvas canvas = new Canvas(res);
