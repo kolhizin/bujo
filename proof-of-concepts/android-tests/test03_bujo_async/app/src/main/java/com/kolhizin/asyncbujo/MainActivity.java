@@ -15,6 +15,7 @@ import android.graphics.Path;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -146,14 +147,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 mainDirectory.mkdirs();
 
             Calendar calendar = Calendar.getInstance();
+            //File tmpFile = new File(mainDirectory, "IMG_" + calendar.getTimeInMillis() + ".jpeg");
             File tmpFile = null;
-            //+ calendar.getTimeInMillis()
             try {
-                tmpFile = File.createTempFile("IMG_" , ".jpeg", mainDirectory);
+                tmpFile = File.createTempFile(
+                        "IMG_"+calendar.getTimeInMillis(),
+                        ".jpeg",
+                        mainDirectory
+                );
             }catch (IOException e){
-                Toast.makeText(this, "Exception", Toast.LENGTH_SHORT);
+                Toast.makeText(this, "Exception", Toast.LENGTH_LONG);
             }
-            cameraImgUri = Uri.fromFile(tmpFile);
+            cameraImgUri = FileProvider.getUriForFile(this,
+                    BuildConfig.APPLICATION_ID + ".provider", tmpFile);
             Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
             cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, cameraImgUri);
             cameraIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
@@ -194,7 +200,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         if(requestCode == RC_TAKE_PHOTO){
             if(resultCode == RESULT_OK){
-                //targetUri = cameraImgUri;
+                targetUri = cameraImgUri;
             }
         }
         if(targetUri != null){

@@ -5,10 +5,12 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.provider.MediaStore;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.w3c.dom.Text;
 
@@ -40,15 +42,20 @@ public class AsyncDetectionTask extends AsyncTask<Uri, BuJoPage, BuJoPage> {
         try {
             Bitmap img0 = loadImage(context_, params[0], maxImageDim_);
             res_.setOriginal(img0, 0.5f);
-        }catch (FileNotFoundException e)
-        {
+        }catch (FileNotFoundException e){
             e.printStackTrace();
             res_.setError("Image not found!");
+            Toast.makeText(context_, e.getMessage(), Toast.LENGTH_LONG);
             return res_;
-        }catch (IOException e)
-        {
+        }catch (IOException e){
             e.printStackTrace();
             res_.setError("IO Exception: " + e.getMessage());
+            Toast.makeText(context_, e.getMessage(), Toast.LENGTH_LONG);
+            return res_;
+        }catch (Exception e){
+            e.printStackTrace();
+            res_.setError("Exception: " + e.getMessage());
+            Toast.makeText(context_, e.getMessage(), Toast.LENGTH_LONG);
             return res_;
         }
 
@@ -76,16 +83,25 @@ public class AsyncDetectionTask extends AsyncTask<Uri, BuJoPage, BuJoPage> {
         BitmapFactory.decodeStream(is, null, dbo);
         is.close();
 
-        int rotatedWidth, rotatedHeight;
-        int orientation = getOrientation(context, photoUri);
+        int rotatedWidth = dbo.outWidth, rotatedHeight = dbo.outHeight;
+        //int orientation = getOrientation(context, photoUri);
+        int orientation = getOrientationExif(context, photoUri);
 
-        if (orientation == 90 || orientation == 270) {
+        if(orientation == -1){
+            if(dbo.outWidth > dbo.outHeight)
+            {
+                orientation = 90;
+                rotatedWidth = dbo.outHeight;
+                rotatedHeight = dbo.outWidth;
+            }
+        }else if (orientation == 90 || orientation == 270) {
             rotatedWidth = dbo.outHeight;
             rotatedHeight = dbo.outWidth;
-        } else {
+        }else{
             rotatedWidth = dbo.outWidth;
             rotatedHeight = dbo.outHeight;
         }
+
 
         Bitmap srcBitmap;
         is = context.getContentResolver().openInputStream(photoUri);
@@ -132,12 +148,33 @@ public class AsyncDetectionTask extends AsyncTask<Uri, BuJoPage, BuJoPage> {
         Cursor cursor = context.getContentResolver().query(photoUri,
                 new String[] { MediaStore.Images.ImageColumns.ORIENTATION }, null, null, null);
 
-        if (cursor.getCount() != 1) {
+        int totCount = cursor.getCount();
+        int colCount = cursor.getColumnCount();
+        if (colCount != 1) {
             return -1;
         }
 
         cursor.moveToFirst();
         return cursor.getInt(0);
+    }
+
+    public static int getOrientationExif(Context context, Uri photoUri){
+        ExifInterface ei = null;
+        try {
+            InputStream inputStream = context.getContentResolver().openInputStream(photoUri);
+            ei = new ExifInterface(inputStream);
+        }catch(IOException e){
+            Toast.makeText(context, "Failed to load Exif!", Toast.LENGTH_LONG);
+            return 0;
+        }
+        int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
+        switch (orientation){
+            case ExifInterface.ORIENTATION_NORMAL: return 0;
+            case ExifInterface.ORIENTATION_ROTATE_90: return 90;
+            case ExifInterface.ORIENTATION_ROTATE_180: return 180;
+            case ExifInterface.ORIENTATION_ROTATE_270: return 270;
+        }
+        return -1;
     }
 
     public native int detect(BuJoPage page, BuJoSettings settings);

@@ -170,6 +170,9 @@ public class BuJoTools {
     }
 
     public static Bitmap shadeRegions(Bitmap src, List<BuJoPage.BuJoSplit> splits){
+        if(splits.size()==0)
+            return src;
+
         Path p = null;
         int w = src.getWidth();
         int h = src.getHeight();
