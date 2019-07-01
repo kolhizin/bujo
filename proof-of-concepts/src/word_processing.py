@@ -93,7 +93,7 @@ def perform_transform(img, transform):
                               [0,0,1]])
         return skimage.transform.warp(img, inv_map, mode='constant', cval=1.0)
     if transform['type'] == 'cutoff':
-        return 1.0*(img < transform.get('cutoff', 0.5))
+        return 1.0*(img < transform.get('cutoff', 0.5)*np.mean(img))
     if transform['type'] == 'scale':
         return rescale(img, (transform.get('x', 1.0), transform.get('y', 1.0)))
     if transform['type'] == 'resize':
