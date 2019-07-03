@@ -87,6 +87,8 @@ def perform_transform(img, transform):
         raise Exception("perform_transform() parameter 'transform' should have valid 'type' value!")
     if transform['type'] == 'rotate':
         return skimage.transform.rotate(img, transform.get('angle', 0), mode='constant', cval=1.0)
+    if transform['type'] == 'invert':
+        return 1 - img
     if transform['type'] == 'shift':
         inv_map = np.array([[1,0,-transform.get('x', 0)*img.shape[0]],
                               [0,1,-transform.get('y', 0)*img.shape[0]],
