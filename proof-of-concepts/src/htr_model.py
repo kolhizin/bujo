@@ -38,8 +38,8 @@ class HTRModel:
         
         tf.compat.v1.reset_default_graph()
         self.tf_is_train_ = tf.compat.v1.placeholder_with_default(False, shape=[], name='is_train')
-        self.tf_in_images_ = tf.placeholder(tf.float32, shape=(None, self.img_size_[0], self.img_size_[1]), name='in_image')
-        self.tf_seq_len_ = tf.placeholder(tf.int32, [None], name='in_length')
+        self.tf_in_images_ = tf.compat.v1.placeholder(tf.float32, shape=(None, self.img_size_[0], self.img_size_[1]), name='in_image')
+        self.tf_seq_len_ = tf.compat.v1.placeholder(tf.int32, [None], name='in_length')
 
         self.tf_cnn_out_ = HTRModel.setupCNN_(self.tf_in_images_, self.tf_is_train_,
                     self.cnn_kernels_, self.cnn_features_, self.cnn_pools_, self.cnn_strides_)
@@ -54,10 +54,10 @@ class HTRModel:
 
         self.snap_id_ = 0
         self.trained_samples_ = 0
-        self.tf_learning_rate_ = tf.placeholder(tf.float32, shape=[])
-        #self.tf_update_ops_ = tf.get_collection(tf.GraphKeys.UPDATE_OPS) 
-        #with tf.control_dependencies(self.tf_update_ops_):
-        #    self.tf_optimizer_ = tf.train.RMSPropOptimizer(self.tf_learning_rate_).minimize(self.tf_loss_)
+        self.tf_learning_rate_ = tf.compat.v1.placeholder(tf.float32, shape=[])
+        self.tf_update_ops_ = tf.get_collection(tf.GraphKeys.UPDATE_OPS) 
+        with tf.control_dependencies(self.tf_update_ops_):
+            self.tf_optimizer_ = tf.train.RMSPropOptimizer(self.tf_learning_rate_).minimize(self.tf_loss_)
 
         (self.tf_session_, self.tf_saver_) = HTRModel.setupTF_(model_path)
         
@@ -116,13 +116,15 @@ class HTRModel:
     def setupCTC_(self):
         self.tf_ctc_in_ = tf.transpose(self.tf_rnn_out_, [1, 0, 2]) # BxTxC -> TxBxC
         # ground truth text as sparse tensor
-        self.tf_ctc_gt_ = tf.SparseTensor(tf.placeholder(tf.int64, shape=[None, 2]) , tf.placeholder(tf.int32, [None]), tf.placeholder(tf.int64, [2]))
+        self.tf_ctc_gt_ = tf.SparseTensor(tf.compat.v1.placeholder(tf.int64, shape=[None, 2]),
+                    tf.compat.v1.placeholder(tf.int32, [None]),
+                    tf.compat.v1.placeholder(tf.int64, [2]))
 
         # calc loss for batch
         self.tf_loss_ = tf.reduce_mean(tf.nn.ctc_loss(labels=self.tf_ctc_gt_, inputs=self.tf_ctc_in_, sequence_length=self.tf_seq_len_, ctc_merge_repeated=True))
 
         # calc loss for each element to compute label probability
-        self.tf_ctc_in_saved_ = tf.placeholder(tf.float32, shape=[self.text_len_, None, len(self.chars_) + 1])
+        self.tf_ctc_in_saved_ = tf.compat.v1.placeholder(tf.float32, shape=[self.text_len_, None, len(self.chars_) + 1])
         self.tf_loss_per_elem_ = tf.nn.ctc_loss(labels=self.tf_ctc_gt_, inputs=self.tf_ctc_in_saved_, sequence_length=self.tf_seq_len_, ctc_merge_repeated=True)
 
         if self.decoder_ == 'best-path':
