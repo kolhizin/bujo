@@ -226,7 +226,7 @@ class HTRModel:
 
     def inferRaw(self, imgs):
         batch_size = len(imgs)
-        evalList = [self.tf_out_rnn_]
+        evalList = [self.tf_rnn_out_]
         feedDict = {self.tf_in_images_ : imgs,
                     self.tf_seq_len_ : [self.text_len_] * batch_size,
                     self.tf_is_train_: False}
