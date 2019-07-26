@@ -39,11 +39,6 @@ public class MainActivity extends AppCompatActivity {
         }catch (Exception e){
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG);
         }
-        if(output != null) {
-            int a = output.length;
-            int b = output[0].length;
-            int c = output[output.length - 1].length;
-        }
     }
 
     private float[][] readAssetCSV(String fname) throws RuntimeException {

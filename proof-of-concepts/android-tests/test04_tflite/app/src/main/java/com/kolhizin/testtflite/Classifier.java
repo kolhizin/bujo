@@ -16,7 +16,7 @@ public class Classifier {
     private Interpreter tflite_;
     private Activity activity_;
     private ByteBuffer inputData_ = null;
-    private float[][] outputData_ = null;
+    private float[][][] outputData_ = null;
     public final int batch_size = 1;
     public final int input_rows = 128;
     public final int input_cols = 32;
@@ -30,7 +30,7 @@ public class Classifier {
         tflite_ = new Interpreter(loadModelFile(modelPath));
         inputData_ = ByteBuffer.allocateDirect(batch_size * input_rows * input_cols * 4);
         inputData_.order(ByteOrder.nativeOrder());
-        outputData_ = new float[output_rows][output_cols];
+        outputData_ = new float[batch_size][output_rows][output_cols];
     }
 
     private MappedByteBuffer loadModelFile(String modelPath) throws IOException {
@@ -64,7 +64,7 @@ public class Classifier {
     public float [][] detect(float [][] input){
         setInput(input);
         runInference();
-        return outputData_;
+        return outputData_[0];
     }
 
     /*
