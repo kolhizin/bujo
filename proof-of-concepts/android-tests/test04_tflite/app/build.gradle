@@ -18,7 +18,6 @@ android {
     }
     aaptOptions {
         noCompress "tflite"
-        noCompress "csv"
     }
 }
 
