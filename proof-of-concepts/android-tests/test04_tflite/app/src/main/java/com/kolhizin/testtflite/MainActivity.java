@@ -21,7 +21,10 @@ public class MainActivity extends AppCompatActivity {
 
         try{
             tflite_ = new Interpreter(loadModelFile("model.tflite"));
+            Toast.makeText(this, "Created TFLite.", Toast.LENGTH_SHORT);
         }catch (IOException e){
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG);
+        }catch (Exception e){
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG);
         }
 
