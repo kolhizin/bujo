@@ -17,10 +17,12 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.lang.reflect.Array;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
 import java.util.List;
 import com.kolhizin.testtflite.Classifier;
@@ -35,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
 
         Bitmap input_ = null;
         String chars_ = null;
+        float [][] output = null;
         try {
             chars_ = readAssetChars("model.chars");
             input_ = BitmapFactory.decodeStream(getAssets().open("htr_test.jpg"));
@@ -52,13 +55,36 @@ public class MainActivity extends AppCompatActivity {
             transformMeanStd(in_tmp3, -1.0f);
             float [][] in_tmp4 = transformTranspose(in_tmp3);
 
-            float [][] output = null;
 
             output = classifier_.detect(in_tmp4);
-            float tmp = output[0][0];
         }catch (Exception e){
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
         }
+
+        String res = decodeOutput(output, chars_);
+        int tmp = res.length();
+    }
+
+    private String decodeOutput(float [][] encoded, String chars){
+        int terminal = encoded[0].length - 1;
+        LinkedList<Integer> res0 = new LinkedList<Integer>();
+        int prev = -1;
+        for(int i = 0; i < encoded.length; i++){
+            int best = 0;
+            for(int j = 1; j < encoded[i].length; j++){
+                if(encoded[i][j] > encoded[i][best])
+                    best = j;
+            }
+            if(best == prev)
+                continue;
+            prev = best;
+            if(best != terminal)
+                res0.add(best);
+        }
+        StringBuffer res = new StringBuffer();
+        for(int i = 0; i < res0.size(); i++)
+            res.append(chars.charAt(res0.get(i)));
+        return res.toString();
     }
 
     private void saveImage(Bitmap finalBitmap, String image_name) {
@@ -259,7 +285,7 @@ public class MainActivity extends AppCompatActivity {
     private String readAssetChars(String fname) throws RuntimeException {
         String res = null;
         try {
-            InputStreamReader is = new InputStreamReader(getAssets().open(fname), "utf8");
+            InputStreamReader is = new InputStreamReader(getAssets().open(fname), StandardCharsets.UTF_16);
             BufferedReader reader = new BufferedReader(is);
             res = reader.readLine();
         } catch (IOException e) {
