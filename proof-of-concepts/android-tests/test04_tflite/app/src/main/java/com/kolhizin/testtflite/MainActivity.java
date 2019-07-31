@@ -1,18 +1,24 @@
 package com.kolhizin.testtflite;
 
+import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Array;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.LinkedList;
@@ -28,7 +34,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         Bitmap input_ = null;
+        String chars_ = null;
         try {
+            chars_ = readAssetChars("model.chars");
             input_ = BitmapFactory.decodeStream(getAssets().open("htr_test.jpg"));
             classifier_ = new Classifier(this, "model.tflite");
         }catch (IOException e){
@@ -37,16 +45,38 @@ public class MainActivity extends AppCompatActivity {
 
         try {
             //Bitmap bmp = fitSizeBitmap(input_, 32, 128);
-            float [][] in_tmp1 = transformBitmap(input_);
-            transformCutoff(in_tmp1, 0.7f);
-            float [][] in_tmp2 = transformTrimY(transformTrimX(in_tmp1));
-            transformMeanStd(in_tmp2);
+            float [][] in_tmp1 = transformGrayscale(input_);
+            transformCutoff(in_tmp1, 0.7f, 1.0f, 0.0f);
+            float [][] in_tmp2 = transformTrim(in_tmp1, 1e-3f);
+            float [][] in_tmp3 = transformFitSize(in_tmp2, 32, 128, 0.0f);
+            transformMeanStd(in_tmp3, -1.0f);
+            float [][] in_tmp4 = transformTranspose(in_tmp3);
 
             float [][] output = null;
 
-            //output = classifier_.detect(input);
+            output = classifier_.detect(in_tmp4);
+            float tmp = output[0][0];
         }catch (Exception e){
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void saveImage(Bitmap finalBitmap, String image_name) {
+
+        String root = Environment.getExternalStorageDirectory().toString();
+        File myDir = new File(root);
+        myDir.mkdirs();
+        String fname = "Image-" + image_name+ ".jpg";
+        File file = new File(myDir, fname);
+        if (file.exists())
+            file.delete();
+        try {
+            FileOutputStream out = new FileOutputStream(file);
+            finalBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+            out.flush();
+            out.close();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -68,16 +98,41 @@ public class MainActivity extends AppCompatActivity {
     private float [][] bitmap2Array(Bitmap src){
         int rows = src.getHeight();
         int cols = src.getWidth();
+        int nbytes = src.getByteCount();
+        byte [] buff = new byte[nbytes];
+        src.copyPixelsToBuffer(ByteBuffer.wrap(buff));
         float [][] res = new float[rows][cols];
         for(int i = 0; i < rows; i++){
             for(int j = 0; j < cols; j++){
-                res[i][j] = ((float)src.getPixel(j, i)) / 255.0f;
+                int tmp = ((int)buff[i*cols+j])&(0xFF);
+                res[i][j] = ((float)tmp) / 255.0f;
             }
         }
         return res;
     }
-    private float[][] fitSizeArray(float [][]src, int rows, int cols, float fillValue){
-        
+    private float[][] transformFitSize(float [][]src, int rows, int cols, float fillValue){
+        Bitmap bmp = array2Bitmap(src);
+        Bitmap rsz = fitSizeBitmap(bmp, rows, cols);
+        float [][] tmp = bitmap2Array(rsz);
+        if((tmp.length == rows) && (tmp[0].length == cols))
+            return tmp;
+        float [][] res = new float[rows][cols];
+        for(int i = 0; i < rows; i++){
+            if(i >= tmp.length){
+                for(int j = 0; j < cols; j++){
+                    res[i][j] = fillValue;
+                }
+                continue;
+            }
+            for(int j = 0; j < cols; j++){
+                if(j >= tmp[i].length){
+                    res[i][j] = fillValue;
+                }else{
+                    res[i][j] = tmp[i][j];
+                }
+            }
+        }
+        return res;
     }
 
     private Bitmap fitSizeBitmap(Bitmap src, int rows, int cols){
@@ -86,7 +141,7 @@ public class MainActivity extends AppCompatActivity {
         float f = Math.min(fX, fY);
         return Bitmap.createScaledBitmap(src, (int)(src.getWidth()*f), (int)(src.getHeight()*f), true);
     }
-    private float [][] transformBitmap(Bitmap src){
+    private float [][] transformGrayscale(Bitmap src){
         int rows = src.getHeight();
         int cols = src.getWidth();
         float [][] res = new float[rows][cols];
@@ -99,7 +154,8 @@ public class MainActivity extends AppCompatActivity {
         }
         return res;
     }
-    private void transformCutoff(float [][]arr, float cutoff){
+
+    private void transformCutoff(float [][]arr, float cutoff, float valueBelow, float valueAbove){
         //1.0*(img < transform.get('cutoff', 0.5)*np.mean(img))
         float sum_x = 0.0f;
         for(int i = 0; i < arr.length; i++) {
@@ -112,80 +168,63 @@ public class MainActivity extends AppCompatActivity {
         for(int i = 0; i < arr.length; i++){
             for(int j = 0; j < arr[i].length; j++){
                 if(arr[i][j] < val)
-                    arr[i][j] = 1.0f;
+                    arr[i][j] = valueBelow;
                 else
-                    arr[i][j] = 0.0f;
+                    arr[i][j] = valueAbove;
             }
         }
     }
-    private float [][] transformTrimX(float [][] arr){
-        int rows = arr.length;
-        int cols = arr[0].length;
-        boolean [] tmax = new boolean[cols];
-        for(int j = 0; j < cols; j++){
-            tmax[j] = false;
-            for(int i = 0; i < rows; i++){
-                if(arr[i][j] > 1e-5f) {
-                    tmax[j] = true;
-                    break;
-                }
-            }
+    private int findFirstNonzero(boolean []arr){
+        for(int i = 0; i < arr.length; i++){
+            if(arr[i])
+                return i;
         }
-        int id1 = 0, id2 = cols-1;
-        while(id1 < cols){
-            if(tmax[id1])
-                break;
-            id1++;
-        }
-        while(id2 > 0){
-            if(tmax[id2])
-                break;
-            id2--;
-        }
-        id2++;
-        float [][] res = new float[rows][id2-id1];
-        for(int i = 0; i < rows; i++) {
-            for (int j = 0; j < id2 - id1; j++) {
-                res[i][j] = arr[i][id1+j];
-            }
-        }
-        return res;
+        return arr.length;
     }
-    private float [][] transformTrimY(float [][] arr){
+    private int findLastNonzero(boolean []arr){
+        for(int i = arr.length-1; i >= 0; i--){
+            if(arr[i])
+                return i+1;
+        }
+        return 0;
+    }
+    private float [][] transformTrim(float [][]arr, float cutoff) throws Exception{
         int rows = arr.length;
         int cols = arr[0].length;
-        boolean [] tmax = new boolean[rows];
+        boolean [] col_any = new boolean[cols];
+        boolean [] row_any = new boolean[rows];
+        for(int i = 0; i < cols; i++){
+            col_any[i] = false;
+        }
         for(int i = 0; i < rows; i++){
-            tmax[i] = false;
+            row_any[i] = false;
+        }
+        for(int i = 0; i < rows; i++){
             for(int j = 0; j < cols; j++){
-                if(arr[i][j] > 1e-5f) {
-                    tmax[i] = true;
-                    break;
+                if(arr[i][j] > cutoff){
+                    col_any[j] = true;
+                    row_any[i] = true;
                 }
             }
         }
-        int id1 = 0, id2 = rows-1;
-        while(id1 < rows){
-            if(tmax[id1])
-                break;
-            id1++;
+
+        int col_id1 = findFirstNonzero(col_any);
+        int col_id2 = findLastNonzero(col_any);
+        int row_id1 = findFirstNonzero(row_any);
+        int row_id2 = findLastNonzero(row_any);
+
+        if((col_id1 >= col_id2)||(row_id1 >= row_id2)){
+            throw new Exception("trimArray: image is empty!");
         }
-        while(id2 > 0){
-            if(tmax[id2])
-                break;
-            id2--;
-        }
-        id2++;
-        float [][] res = new float[id2-id1][cols];
-        for(int i = 0; i < id2-id1; i++) {
-            for (int j = 0; j < cols; j++) {
-                res[i][j] = arr[i+id1][j];
+        float [][] res = new float[row_id2-row_id1][col_id2-col_id1];
+        for(int i = 0; i < row_id2-row_id1; i++) {
+            for (int j = 0; j < col_id2-col_id1; j++) {
+                res[i][j] = arr[row_id1+i][col_id1+j];
             }
         }
         return res;
     }
-
-    private void transformMeanStd(float [][]arr){
+    private void transformMeanStd(float [][]arr, float coef){
         int rows = arr.length;
         int cols = arr[0].length;
 
@@ -201,9 +240,32 @@ public class MainActivity extends AppCompatActivity {
         float std = (float)Math.sqrt(sum_x2 / num - mean*mean);
         for(int i = 0; i < rows; i++){
             for(int j = 0; j < cols; j++){
-                arr[i][j] = (arr[i][j]-mean) / std;
+                arr[i][j] = coef * (arr[i][j]-mean) / std;
             }
         }
+    }
+
+    private float [][] transformTranspose(float [][]arr){
+        int rows = arr.length;
+        int cols = arr[0].length;
+        float [][] res = new float[cols][rows];
+        for(int i = 0; i < rows; i++){
+            for(int j = 0; j < cols; j++){
+                res[j][i] = arr[i][j];
+            }
+        }
+        return res;
+    }
+    private String readAssetChars(String fname) throws RuntimeException {
+        String res = null;
+        try {
+            InputStreamReader is = new InputStreamReader(getAssets().open(fname), "utf8");
+            BufferedReader reader = new BufferedReader(is);
+            res = reader.readLine();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return res;
     }
 
     private float[][] readAssetCSV(String fname) throws RuntimeException {
@@ -235,5 +297,6 @@ public class MainActivity extends AppCompatActivity {
             res[i++] = v;
         return res;
     }
+
 
 }
