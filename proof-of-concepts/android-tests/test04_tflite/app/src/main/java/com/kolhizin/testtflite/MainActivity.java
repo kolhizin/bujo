@@ -9,6 +9,7 @@ import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
@@ -29,11 +30,13 @@ import com.kolhizin.testtflite.Classifier;
 
 public class MainActivity extends AppCompatActivity {
     private Classifier classifier_ = null;
+    private TextView textView = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        textView = (TextView)findViewById(R.id.mainText);
 
         Bitmap input_ = null;
         String chars_ = null;
@@ -46,22 +49,47 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG);
         }
 
+        long tStart = System.currentTimeMillis();
+        long tPrep = tStart;
+        long tGray = tStart;
+        long tCutoff = tStart;
+        long tTrim = tStart;
+        long tFit = tStart;
+        long tNorm = tStart;
         try {
+
             float [][] in_tmp1 = transformGrayscale(input_);
+            tGray = System.currentTimeMillis();
             transformCutoff(in_tmp1, 0.7f, 1.0f, 0.0f);
+            tCutoff = System.currentTimeMillis();
             float [][] in_tmp2 = transformTrim(in_tmp1, 1e-3f);
+            tTrim = System.currentTimeMillis();
             float [][] in_tmp3 = transformFitSize(in_tmp2, 32, 128, 0.0f);
+            tFit = System.currentTimeMillis();
             transformMeanStd(in_tmp3, -1.0f);
+            tNorm = System.currentTimeMillis();
             float [][] in_tmp4 = transformTranspose(in_tmp3);
 
-
+            tPrep = System.currentTimeMillis();
             output = classifier_.detect(in_tmp4);
         }catch (Exception e){
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
         }
 
         String res = decodeOutput(output, chars_);
-        int tmp = res.length();
+        long tEnd = System.currentTimeMillis();
+        double tArgPrep = (tPrep-tStart)/1000.0;
+        double tInfer = (tEnd-tPrep)/1000.0;
+        String strTime = "";
+        strTime += "Arg-prep: " + Double.toString(tArgPrep) + "s;\n";
+        strTime += "Inference: " + Double.toString(tInfer) + "s;\n";
+        strTime += "AP\tGray: " + Double.toString((tGray - tStart)/1000.0) + "s;\n";
+        strTime += "AP\tCutoff: " + Double.toString((tCutoff - tGray)/1000.0) + "s;\n";
+        strTime += "AP\tTrim: " + Double.toString((tTrim - tCutoff)/1000.0) + "s;\n";
+        strTime += "AP\tFit: " + Double.toString((tFit - tTrim)/1000.0) + "s;\n";
+        strTime += "AP\tNorm: " + Double.toString((tNorm - tFit)/1000.0) + "s;\n";
+        strTime += "AP\tTranspose: " + Double.toString((tArgPrep - tNorm)/1000.0) + "s;\n";
+        textView.setText("Result: " + res + "\n" + strTime);
     }
 
     private String decodeOutput(float [][] encoded, String chars){
@@ -150,10 +178,13 @@ public class MainActivity extends AppCompatActivity {
     private float [][] transformGrayscale(Bitmap src){
         int rows = src.getHeight();
         int cols = src.getWidth();
+        int []tmp = new int[rows * cols];
+        src.getPixels(tmp, 0, cols, 0, 0, cols, rows);
         float [][] res = new float[rows][cols];
         for(int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
-                int t = src.getPixel(j, i);
+                //int t = src.getPixel(j, i);
+                int t = tmp[i * cols + j];
                 float f = ((float) (t & 0xFF)) + ((float) ((t >> 8) & 0xFF)) + ((float) ((t >> 16) & 0xFF));
                 res[i][j] = f / 255.0f / 3.0f;
             }

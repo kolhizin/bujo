@@ -1,6 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
+    signingConfigs {
+        release {
+            storeFile file('C:\\Users\\KolhiziN\\.android\\internal_release.jks')
+            storePassword 'kn1989cpp'
+            keyAlias = 'internal_release'
+            keyPassword 'kn1989cpp'
+        }
+    }
     compileSdkVersion 28
     defaultConfig {
         applicationId "com.kolhizin.testtflite"
@@ -14,6 +22,7 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
     }
     aaptOptions {
