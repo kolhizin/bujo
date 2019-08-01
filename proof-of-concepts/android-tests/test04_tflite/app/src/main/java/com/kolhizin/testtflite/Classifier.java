@@ -2,6 +2,7 @@ package com.kolhizin.testtflite;
 
 import android.app.Activity;
 import android.content.res.AssetFileDescriptor;
+import android.graphics.Bitmap;
 import android.os.SystemClock;
 
 import java.io.BufferedReader;
@@ -160,11 +161,7 @@ public class Classifier {
         return outputData_[0];
     }
 
-    /*
-    private Bitmap array2Bitmap(float [][] src){
-        int rows = src.length;
-        int cols = src[0].length;
-
+    private Bitmap arrayToBitmap_(float [][] src, int rows, int cols){
         byte [] bitmapdata = new byte[rows * cols];
         for(int i = 0; i < rows; i++){
             for(int j = 0; j < cols; j++){
@@ -176,102 +173,129 @@ public class Classifier {
         bmp.copyPixelsFromBuffer(buffer);
         return bmp;
     }
-    private float [][] bitmap2Array(Bitmap src){
+    private void loadBitmapInBuffer(Bitmap src){
         int rows = src.getHeight();
         int cols = src.getWidth();
         int nbytes = src.getByteCount();
-        byte [] buff = new byte[nbytes];
-        src.copyPixelsToBuffer(ByteBuffer.wrap(buff));
-        float [][] res = new float[rows][cols];
-        for(int i = 0; i < rows; i++){
-            for(int j = 0; j < cols; j++){
-                int tmp = ((int)buff[i*cols+j])&(0xFF);
-                res[i][j] = ((float)tmp) / 255.0f;
-            }
-        }
-        return res;
-    }
-    private float[][] transformFitSize(float [][]src, int rows, int cols, float fillValue){
-        Bitmap bmp = array2Bitmap(src);
-        Bitmap rsz = fitSizeBitmap(bmp, rows, cols);
-        float [][] tmp = bitmap2Array(rsz);
-        if((tmp.length == rows) && (tmp[0].length == cols))
-            return tmp;
-        float [][] res = new float[rows][cols];
-        for(int i = 0; i < rows; i++){
-            if(i >= tmp.length){
+
+        updateBuffers_(rows, cols);
+        int id = nextBuffer_();
+        bufferRows_[id] = rows;
+        bufferCols_[id] = cols;
+
+        if(src.getConfig() == Bitmap.Config.ALPHA_8){
+            byte [] buff = new byte[nbytes];
+            src.copyPixelsToBuffer(ByteBuffer.wrap(buff));
+            for(int i = 0; i < rows; i++){
                 for(int j = 0; j < cols; j++){
-                    res[i][j] = fillValue;
+                    int tmp = ((int)buff[i*cols+j])&(0xFF);
+                    buffers_[id][i][j] = ((float)tmp) / 255.0f;
                 }
-                continue;
             }
-            for(int j = 0; j < cols; j++){
-                if(j >= tmp[i].length){
-                    res[i][j] = fillValue;
-                }else{
-                    res[i][j] = tmp[i][j];
+        }else if(src.getConfig() == Bitmap.Config.ARGB_8888){
+            int []tmp = new int[rows * cols];
+            src.getPixels(tmp, 0, cols, 0, 0, cols, rows);
+            for(int i = 0; i < rows; i++) {
+                for (int j = 0; j < cols; j++) {
+                    int t = tmp[i * cols + j];
+                    float f = ((float) (t & 0xFF)) + ((float) ((t >> 8) & 0xFF)) + ((float) ((t >> 16) & 0xFF));
+                    buffers_[id][i][j] = f / 255.0f / 3.0f;
                 }
             }
         }
-        return res;
     }
 
-    private Bitmap fitSizeBitmap(Bitmap src, int rows, int cols){
-        float fY = ((float)rows) / src.getHeight();
-        float fX = ((float)cols) / src.getWidth();
+    private void transformFitSize(float fillValue){
+        Bitmap bmp = arrayToBitmap_(buffers_[activeBuffer_], bufferRows_[activeBuffer_], bufferCols_[activeBuffer_]);
+        float fY = ((float)dim_in_rows) / bmp.getHeight();
+        float fX = ((float)dim_in_cols) / bmp.getWidth();
         float f = Math.min(fX, fY);
-        return Bitmap.createScaledBitmap(src, (int)(src.getWidth()*f), (int)(src.getHeight()*f), true);
-    }
-    private float [][] transformGrayscale(Bitmap src){
-        int rows = src.getHeight();
-        int cols = src.getWidth();
-        int []tmp = new int[rows * cols];
-        src.getPixels(tmp, 0, cols, 0, 0, cols, rows);
-        float [][] res = new float[rows][cols];
-        for(int i = 0; i < rows; i++) {
-            for (int j = 0; j < cols; j++) {
-                //int t = src.getPixel(j, i);
-                int t = tmp[i * cols + j];
-                float f = ((float) (t & 0xFF)) + ((float) ((t >> 8) & 0xFF)) + ((float) ((t >> 16) & 0xFF));
-                res[i][j] = f / 255.0f / 3.0f;
+        Bitmap rsz = Bitmap.createScaledBitmap(bmp, (int)(bmp.getWidth()*f), (int)(bmp.getHeight()*f), true);
+
+        loadBitmapInBuffer(rsz);
+        if((bufferRows_[activeBuffer_] == dim_in_rows) && (bufferCols_[activeBuffer_] == dim_in_cols))
+            return;
+        for(int i = bufferRows_[activeBuffer_]; i < dim_in_rows; i++){
+            for(int j = 0; j < dim_in_cols; j++){
+                buffers_[activeBuffer_][i][j] = fillValue;
             }
         }
-        return res;
+        for(int i = 0; i < bufferRows_[activeBuffer_]; i++){
+            for(int j = bufferCols_[activeBuffer_]; j < dim_in_cols; j++){
+                buffers_[activeBuffer_][i][j] = fillValue;
+            }
+        }
+        bufferRows_[activeBuffer_] = dim_in_rows;
+        bufferCols_[activeBuffer_] = dim_in_cols;
     }
 
-    private void transformCutoff(float [][]arr, float cutoff, float valueBelow, float valueAbove){
+    private void transformCutoff(float cutoff, float valueBelow, float valueAbove){
         //1.0*(img < transform.get('cutoff', 0.5)*np.mean(img))
         float sum_x = 0.0f;
-        for(int i = 0; i < arr.length; i++) {
-            for (int j = 0; j < arr[i].length; j++) {
-                sum_x += arr[i][j];
+        for(int i = 0; i < bufferRows_[activeBuffer_]; i++) {
+            for (int j = 0; j < bufferCols_[activeBuffer_]; j++) {
+                sum_x += buffers_[activeBuffer_][i][j];
             }
         }
-        float mean = sum_x / (arr.length * arr[0].length);
+        float mean = sum_x / (bufferRows_[activeBuffer_] * bufferCols_[activeBuffer_]);
         float val = cutoff * mean;
-        for(int i = 0; i < arr.length; i++){
-            for(int j = 0; j < arr[i].length; j++){
-                if(arr[i][j] < val)
-                    arr[i][j] = valueBelow;
+        for(int i = 0; i < bufferRows_[activeBuffer_]; i++){
+            for(int j = 0; j < bufferCols_[activeBuffer_]; j++){
+                if(buffers_[activeBuffer_][i][j] < val)
+                    buffers_[activeBuffer_][i][j] = valueBelow;
                 else
-                    arr[i][j] = valueAbove;
+                    buffers_[activeBuffer_][i][j] = valueAbove;
             }
         }
     }
-    private int findFirstNonzero(boolean []arr){
+    private int findFirstNonzero_(boolean []arr){
         for(int i = 0; i < arr.length; i++){
             if(arr[i])
                 return i;
         }
         return arr.length;
     }
-    private int findLastNonzero(boolean []arr){
+    private int findLastNonzero_(boolean []arr){
         for(int i = arr.length-1; i >= 0; i--){
             if(arr[i])
                 return i+1;
         }
         return 0;
     }
+
+    private void transformMeanStd(float coef){
+        int rows = bufferRows_[activeBuffer_];
+        int cols = bufferCols_[activeBuffer_];
+
+        float sum_x = 0.0f, sum_x2 = 0.0f;
+        for(int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                sum_x += buffers_[activeBuffer_][i][j];
+                sum_x2 += buffers_[activeBuffer_][i][j] * buffers_[activeBuffer_][i][j];
+            }
+        }
+        int num = (rows * cols);
+        float mean = sum_x / num;
+        float std = (float)Math.sqrt(sum_x2 / num - mean*mean);
+        for(int i = 0; i < rows; i++){
+            for(int j = 0; j < cols; j++){
+                buffers_[activeBuffer_][i][j] = coef * (buffers_[activeBuffer_][i][j]-mean) / std;
+            }
+        }
+    }
+    private void transformTranspose(){
+        int rows = bufferRows_[activeBuffer_];
+        int cols = bufferCols_[activeBuffer_];
+        int id = nextBuffer_();
+        bufferCols_[id] = rows;
+        bufferRows_[id] = cols;
+        for(int i = 0; i < rows; i++){
+            for(int j = 0; j < cols; j++){
+                activeBuffer_[id][j][i] = activeBuffer_[activeBuffer_][i][j];
+            }
+        }
+    }
+    /*
     private float [][] transformTrim(float [][]arr, float cutoff) throws Exception{
         int rows = arr.length;
         int cols = arr[0].length;
@@ -304,38 +328,6 @@ public class Classifier {
         for(int i = 0; i < row_id2-row_id1; i++) {
             for (int j = 0; j < col_id2-col_id1; j++) {
                 res[i][j] = arr[row_id1+i][col_id1+j];
-            }
-        }
-        return res;
-    }
-    private void transformMeanStd(float [][]arr, float coef){
-        int rows = arr.length;
-        int cols = arr[0].length;
-
-        float sum_x = 0.0f, sum_x2 = 0.0f;
-        for(int i = 0; i < rows; i++) {
-            for (int j = 0; j < cols; j++) {
-                sum_x += arr[i][j];
-                sum_x2 += arr[i][j] * arr[i][j];
-            }
-        }
-        int num = (rows * cols);
-        float mean = sum_x / num;
-        float std = (float)Math.sqrt(sum_x2 / num - mean*mean);
-        for(int i = 0; i < rows; i++){
-            for(int j = 0; j < cols; j++){
-                arr[i][j] = coef * (arr[i][j]-mean) / std;
-            }
-        }
-    }
-
-    private float [][] transformTranspose(float [][]arr){
-        int rows = arr.length;
-        int cols = arr[0].length;
-        float [][] res = new float[cols][rows];
-        for(int i = 0; i < rows; i++){
-            for(int j = 0; j < cols; j++){
-                res[j][i] = arr[i][j];
             }
         }
         return res;
