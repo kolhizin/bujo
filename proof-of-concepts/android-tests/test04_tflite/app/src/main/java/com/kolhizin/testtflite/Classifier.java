@@ -9,11 +9,14 @@ import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.FloatBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
+import java.util.LinkedList;
 
 import org.tensorflow.lite.Interpreter;
 import org.tensorflow.lite.Tensor;
@@ -139,14 +142,29 @@ public class Classifier {
     private void setInput(float [][] input) throws RuntimeException{
         if (inputData_ == null)
             throw new RuntimeException("Internal input buffer is not initialized!");
-        if (input.length != dim_in_rows)
+        if (input.length != dim_in_cols)
             throw new RuntimeException("Input row number does not match expected by model!");
-        if (input[0].length != dim_in_cols)
+        if (input[0].length != dim_in_rows)
             throw new RuntimeException("Input col number does not match expected by model!");
         inputData_.rewind();
-        for (int i = 0; i < dim_in_rows; ++i) {
-            for (int j = 0; j < dim_in_cols; ++j) {
+        for (int i = 0; i < dim_in_cols; i++) {
+            for (int j = 0; j < dim_in_rows; j++) {
                 inputData_.putFloat(input[i][j]);
+            }
+        }
+    }
+
+    private void setInput() throws RuntimeException{
+        if (inputData_ == null)
+            throw new RuntimeException("Internal input buffer is not initialized!");
+        if (bufferRows_[activeBuffer_] != dim_in_cols)
+            throw new RuntimeException("Input row number does not match expected by model!");
+        if (bufferCols_[activeBuffer_] != dim_in_rows)
+            throw new RuntimeException("Input col number does not match expected by model!");
+        inputData_.rewind();
+        for (int i = 0; i < bufferRows_[activeBuffer_]; i++) {
+            for(int j = 0; j < bufferCols_[activeBuffer_]; j++){
+                inputData_.putFloat(buffers_[activeBuffer_][i][j]);
             }
         }
     }
@@ -159,6 +177,54 @@ public class Classifier {
         setInput(input);
         runInference();
         return outputData_[0];
+    }
+    public String detect(Bitmap src, float cutoff) throws Exception{
+        applyTransforms(src, cutoff);
+        setInput();
+        runInference();
+        return decodeOutput(outputData_[0]);
+    }
+
+    public float [][] transformInput(Bitmap src, float cutoff) throws Exception{
+        applyTransforms(src, cutoff);
+        float [][] res = new float[bufferRows_[activeBuffer_]][bufferCols_[activeBuffer_]];
+        for(int i = 0; i < bufferRows_[activeBuffer_]; i++){
+            for(int j = 0; j < bufferCols_[activeBuffer_]; j++){
+                res[i][j] = buffers_[activeBuffer_][i][j];
+            }
+        }
+        return res;
+    }
+
+    private String decodeOutput(float [][] encoded){
+        int terminal = encoded[0].length - 1;
+        LinkedList<Integer> res0 = new LinkedList<Integer>();
+        int prev = -1;
+        for(int i = 0; i < encoded.length; i++){
+            int best = 0;
+            for(int j = 1; j < encoded[i].length; j++){
+                if(encoded[i][j] > encoded[i][best])
+                    best = j;
+            }
+            if(best == prev)
+                continue;
+            prev = best;
+            if(best != terminal)
+                res0.add(best);
+        }
+        StringBuffer res = new StringBuffer();
+        for(int i = 0; i < res0.size(); i++)
+            res.append(chars_.charAt(res0.get(i)));
+        return res.toString();
+    }
+
+    private void applyTransforms(Bitmap src, float cutoff) throws Exception{
+        loadBitmapInBuffer(src);
+        transformCutoff(cutoff, 1.0f, 0.0f);
+        transformTrim(1e-3f);
+        transformFitSize(0.0f);
+        transformMeanStd(-1.0f);
+        transformTranspose();
     }
 
     private Bitmap arrayToBitmap_(float [][] src, int rows, int cols){
@@ -286,19 +352,19 @@ public class Classifier {
     private void transformTranspose(){
         int rows = bufferRows_[activeBuffer_];
         int cols = bufferCols_[activeBuffer_];
+        int prev_id = activeBuffer_;
         int id = nextBuffer_();
         bufferCols_[id] = rows;
         bufferRows_[id] = cols;
         for(int i = 0; i < rows; i++){
             for(int j = 0; j < cols; j++){
-                activeBuffer_[id][j][i] = activeBuffer_[activeBuffer_][i][j];
+                buffers_[id][j][i] = buffers_[prev_id][i][j];
             }
         }
     }
-    /*
-    private float [][] transformTrim(float [][]arr, float cutoff) throws Exception{
-        int rows = arr.length;
-        int cols = arr[0].length;
+    private void transformTrim(float cutoff) throws Exception{
+        int rows = bufferRows_[activeBuffer_];
+        int cols = bufferCols_[activeBuffer_];
         boolean [] col_any = new boolean[cols];
         boolean [] row_any = new boolean[rows];
         for(int i = 0; i < cols; i++){
@@ -309,28 +375,28 @@ public class Classifier {
         }
         for(int i = 0; i < rows; i++){
             for(int j = 0; j < cols; j++){
-                if(arr[i][j] > cutoff){
+                if(buffers_[activeBuffer_][i][j] > cutoff){
                     col_any[j] = true;
                     row_any[i] = true;
                 }
             }
         }
-
-        int col_id1 = findFirstNonzero(col_any);
-        int col_id2 = findLastNonzero(col_any);
-        int row_id1 = findFirstNonzero(row_any);
-        int row_id2 = findLastNonzero(row_any);
+        int prev_id = activeBuffer_;
+        int id = nextBuffer_();
+        int col_id1 = findFirstNonzero_(col_any);
+        int col_id2 = findLastNonzero_(col_any);
+        int row_id1 = findFirstNonzero_(row_any);
+        int row_id2 = findLastNonzero_(row_any);
 
         if((col_id1 >= col_id2)||(row_id1 >= row_id2)){
             throw new Exception("trimArray: image is empty!");
         }
-        float [][] res = new float[row_id2-row_id1][col_id2-col_id1];
+        bufferRows_[id] = row_id2 - row_id1;
+        bufferCols_[id] = col_id2 - col_id1;
         for(int i = 0; i < row_id2-row_id1; i++) {
             for (int j = 0; j < col_id2-col_id1; j++) {
-                res[i][j] = arr[row_id1+i][col_id1+j];
+                buffers_[id][i][j] = buffers_[prev_id][row_id1+i][col_id1+j];
             }
         }
-        return res;
     }
-     */
 }

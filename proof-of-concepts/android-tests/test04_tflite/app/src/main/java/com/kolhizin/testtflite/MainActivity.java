@@ -93,6 +93,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             transformMeanStd(in_tmp3, -1.0f);
             tNorm = System.currentTimeMillis();
             float [][] in_tmp4 = transformTranspose(in_tmp3);
+            float [][] in_fin = classifier_.transformInput(input_, 0.7f);
 
             tPrep = System.currentTimeMillis();
             output = classifier_.detect(in_tmp4);
@@ -101,6 +102,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         String res = decodeOutput(output, chars_);
+        String res2 = "";
+        try{
+            res2 = classifier_.detect(input_, 0.7f);
+        }catch (Exception e){
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+        }
+
         long tEnd = System.currentTimeMillis();
         double tArgPrep = (tPrep-tStart)/1000.0;
         double tInfer = (tEnd-tPrep)/1000.0;
