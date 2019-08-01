@@ -115,8 +115,8 @@ public class Classifier {
         int nb = buffers_.length;
         float [][][] res = new float[nb][nr][nc];
         for(int i = 0; i < nb; i++){
-            for(int j = 0; j < nr; j++){
-                for(int k = 0; k < nc; k++){
+            for(int j = 0; j < buffers_[i].length; j++){
+                for(int k = 0; k < buffers_[i][j].length; k++){
                     res[i][j][k] = buffers_[i][j][k];
                 }
             }
