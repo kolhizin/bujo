@@ -106,7 +106,7 @@ public class Classifier {
             bufferRows_ = new int [2];
             bufferCols_ = new int [2];
         }else if((buffers_[0].length < dim) || (buffers_[0][0].length < dim))
-            growBuffers_(dim*2, dim*2);
+            growBuffers_(dim, dim);
     }
 
     private void growBuffers_(int rows, int cols){
