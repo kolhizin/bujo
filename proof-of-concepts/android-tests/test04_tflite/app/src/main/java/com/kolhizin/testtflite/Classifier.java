@@ -15,6 +15,7 @@ import org.tensorflow.lite.Interpreter;
 public class Classifier {
     private Interpreter tflite_;
     private Activity activity_;
+    private String chars_;
     private ByteBuffer inputData_ = null;
     private float[][][] outputData_ = null;
     public final int batch_size = 1;
@@ -24,9 +25,10 @@ public class Classifier {
     public final int output_cols = 102;
 
 
-    public Classifier(Activity activity, String modelPath) throws IOException {
+    public Classifier(Activity activity, String modelPath, String charsPath) throws IOException {
         activity_ = activity;
 
+        chars_ = loadChars(charsPath);
         tflite_ = new Interpreter(loadModelFile(modelPath));
         inputData_ = ByteBuffer.allocateDirect(batch_size * input_rows * input_cols * 4);
         inputData_.order(ByteOrder.nativeOrder());
@@ -66,37 +68,4 @@ public class Classifier {
         runInference();
         return outputData_[0];
     }
-
-    /*
-    // Runs inference and returns the classification results.
-    public List<Recognition> recognizeImage(final Bitmap bitmap) {
-        // Run the inference call.
-        // Find the best classifications.
-        PriorityQueue<Recognition> pq =
-                new PriorityQueue<Recognition>(
-                        3,
-                        new Comparator<Recognition>() {
-                            @Override
-                            public int compare(Recognition lhs, Recognition rhs) {
-                                // Intentionally reversed to put high confidence at the head of the queue.
-                                return Float.compare(rhs.getConfidence(), lhs.getConfidence());
-                            }
-                        });
-        for (int i = 0; i < labels.size(); ++i) {
-            pq.add(
-                    new Recognition(
-                            "" + i,
-                            labels.size() > i ? labels.get(i) : "unknown",
-                            getNormalizedProbability(i),
-                            null));
-        }
-        final ArrayList<Recognition> recognitions = new ArrayList<Recognition>();
-        int recognitionsSize = Math.min(pq.size(), MAX_RESULTS);
-        for (int i = 0; i < recognitionsSize; ++i) {
-            recognitions.add(pq.poll());
-        }
-        Trace.endSection();
-        return recognitions;
-    }
-     */
 }
