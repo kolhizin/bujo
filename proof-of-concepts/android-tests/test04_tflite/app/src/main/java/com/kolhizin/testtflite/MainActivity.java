@@ -40,6 +40,8 @@ import java.util.LinkedList;
 import java.util.List;
 import com.kolhizin.testtflite.Classifier;
 
+import org.tensorflow.lite.Tensor;
+
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     private Classifier classifier_ = null;
     private String chars_ = null;
@@ -64,9 +66,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         try {
             chars_ = readAssetChars("model.chars");
             input_ = BitmapFactory.decodeStream(getAssets().open("htr_test.jpg"));
-            classifier_ = new Classifier(this, "model.tflite");
+            classifier_ = new Classifier(this, "model.tflite", "model.chars");
         }catch (IOException e){
-            Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG);
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+        }catch (Exception e){
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
         }
 
         long tStart = System.currentTimeMillis();
