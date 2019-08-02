@@ -4,12 +4,15 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -20,7 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Calendar;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends FragmentActivity implements View.OnClickListener, View.OnTouchListener {
 
     // Used to load the 'native-lib' library on application startup.
     static {
@@ -48,6 +51,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         btnLoad.setOnClickListener(this);
         btnPhoto.setOnClickListener(this);
+        imgMain.setOnTouchListener(this);
     }
 
     @Override
@@ -57,6 +61,29 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.btnLoad: loadPicture(); return;
             case R.id.btnPhoto: takePhoto(); return;
         }
+    }
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+        if(v.getId() == R.id.imageView){
+            float x = event.getX();
+            float y = event.getY();
+            int w = imgMain.getWidth();
+            int h = imgMain.getHeight();
+            int w0 = imgMain.getDrawable().getIntrinsicWidth();
+            int h0 = imgMain.getDrawable().getIntrinsicHeight();
+            float [] loc = ImageUtils.toLocalCoord(x, y, w, h, w0, h0);
+            if((loc[0] >= 0.0f)&&(loc[0] <= 1.0f)&&(loc[1] >= 0.0f)&&(loc[1] <= 1.0f))
+            {
+                touchMainImg(loc[0], loc[1], event);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    protected void touchMainImg(float locX, float locY, MotionEvent event){
+        String msg = Float.toString(locX) + ", " + Float.toString(locY);
+        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
     }
 
     protected void takePhoto(){
@@ -126,7 +153,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             Bitmap bmp = null;
             try{
-                ImageUtils.loadImage(this, targetUri, 4096);
+                bmp = ImageUtils.loadImage(this, targetUri, 4096);
             }catch (Exception e){
                 Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
             }

@@ -15,6 +15,24 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class ImageUtils {
+    public static float [] toLocalCoord(float x, float y, int w, int h, int w0, int h0){
+        float [] res = new float[2];
+        float f = ((float)w)/h;
+        float f0 = ((float)w0)/h0;
+        if(f == f0){
+            res[0] = x / w;
+            res[1] = y / h;
+        }else if(f > f0){
+            float diff = (w - h*f0) * 0.5f;
+            res[0] = (x - diff) / (h * f0);
+            res[1] = y / h;
+        }else{
+            float diff = (h - w/f0) * 0.5f;
+            res[0] = x / w;
+            res[1] = (y - diff) / (w / f0);
+        }
+        return res;
+    }
     public static Bitmap loadImage(Context context, Uri photoUri, int maxImageDim) throws IOException {
         InputStream is = context.getContentResolver().openInputStream(photoUri);
         BitmapFactory.Options dbo = new BitmapFactory.Options();
