@@ -1,7 +1,9 @@
 //
-// Created by KolhiziN on 18.06.2019.
+// Created by KolhiziN on 02.08.2019.
 //
+
 #include "AsyncDetect.h"
+
 #include <exception>
 #include <android/bitmap.h>
 #include <sstream>
@@ -10,7 +12,7 @@
 BuJoSettings::BuJoSettings(JNIEnv *env, jobject settings) {
     env_ = env;
     object_ = settings;
-    class_ = env_->FindClass("com/kolhizin/asyncbujo/BuJoSettings");
+    class_ = env_->FindClass("com/kolhizin/detectbujo/BuJoSettings");
     if(!class_)
         throw std::runtime_error("Could not link BuJoSettings-class in JNI!");
 
@@ -41,7 +43,7 @@ int BuJoSettings::getIntValue(const std::string &name, int defValue) const {
 BuJoPage::BuJoPage(JNIEnv *env, jobject page) {
     env_ = env;
     object_ = page;
-    class_ = env_->FindClass("com/kolhizin/asyncbujo/BuJoPage");
+    class_ = env_->FindClass("com/kolhizin/detectbujo/BuJoPage");
     if(!class_)
         throw std::runtime_error("Could not link BuJoPage-class in JNI!");
 
@@ -109,7 +111,7 @@ void BuJoPage::addLine(const bujo::curves::Curve &curve) const {
 }
 
 void BuJoPage::setWord(int lid, int wid, const xt::xtensor<float, 1> &xCoord, const xt::xtensor<float, 1> &yCoord,
-        float negOffset, float posOffset) const {
+                       float negOffset, float posOffset) const {
     jfloatArray xArr = env_->NewFloatArray(xCoord.size());
     jfloatArray yArr = env_->NewFloatArray(yCoord.size());
     env_->SetFloatArrayRegion(xArr, 0, xCoord.size(), &xCoord[0]);
@@ -217,7 +219,7 @@ void performDetection(BuJoPage &page, const BuJoSettings &settings, const TaskNo
     notifier.notify();
 
     detector.selectSupportCurvesAuto(numSupportCurves, curvesXWindowAbs, curvesQuantileV, curvesQuantileH,
-            curvesRegCoef, curveGenerationOptions);
+                                     curvesRegCoef, curveGenerationOptions);
     page.setStatus(BuJoStatus::DETECTED_CURVES, "Detected curves. Detecting lines...");
     notifier.notify();
 
@@ -228,7 +230,7 @@ void performDetection(BuJoPage &page, const BuJoSettings &settings, const TaskNo
     float yDetSize = detector.mainImage().shape()[0];
     for(int i = 0; i < detector.numLineCurves(); i++){
         page.addLine(bujo::curves::affineTransformCurve(detector.getLineCurve(i),
-                0.0f, 1.0f/xDetSize, 0.0f, 1.0f/yDetSize));
+                                                        0.0f, 1.0f/xDetSize, 0.0f, 1.0f/yDetSize));
     }
     page.setStatus(BuJoStatus::DETECTED_LINES, "Detected lines. Detecting words...");
     notifier.notify();

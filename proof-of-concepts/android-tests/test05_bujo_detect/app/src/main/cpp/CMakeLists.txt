@@ -5,9 +5,7 @@
 
 cmake_minimum_required(VERSION 3.4.1)
 
-include_directories(
-        D:/Programming/3rdParty/Include
-)
+include_directories(D:/Programming/3rdParty/Include)
 
 # Creates and names a library, sets it as either STATIC
 # or SHARED, and provides the relative paths to its source code.

@@ -1,4 +1,4 @@
-package com.kolhizin.asyncbujo;
+package com.kolhizin.detectbujo;
 
 public class BuJoSettings {
     public float detectorScaleFactor = 0.2f; //scale-factor of image that is used for image filtering and line-detection

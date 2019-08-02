@@ -1,4 +1,4 @@
-package com.kolhizin.asyncbujo;
+package com.kolhizin.detectbujo;
 
 import android.content.Context;
 import android.database.Cursor;

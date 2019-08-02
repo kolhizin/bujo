@@ -1,4 +1,4 @@
-package com.kolhizin.asyncbujo;
+package com.kolhizin.detectbujo;
 
 import android.app.Application;
 

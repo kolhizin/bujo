@@ -1,9 +1,11 @@
 //
-// Created by KolhiziN on 18.06.2019.
+// Created by KolhiziN on 02.08.2019.
 //
 
-#ifndef TEST03_BUJO_ASYNC_ASYNCDETECT_H
-#define TEST03_BUJO_ASYNC_ASYNCDETECT_H
+#ifndef TEST05_BUJO_DETECT_ASYNCDETECT_H
+#define TEST05_BUJO_DETECT_ASYNCDETECT_H
+
+
 
 #include <jni.h>
 #import "detector.h"
@@ -97,7 +99,7 @@ public:
         env_->CallVoidMethod(object_, resetNumWords_, id, n);
     }
     void setWord(int lid, int wid, const xt::xtensor<float, 1> &xCoord, const xt::xtensor<float, 1> &yCoord,
-            float negOffset, float posOffset) const;
+                 float negOffset, float posOffset) const;
     void addLine(const bujo::curves::Curve &curve) const;
     void setStatus(BuJoStatus status, const std::string &message);
     void setError(const std::string &str);
@@ -106,4 +108,5 @@ public:
 
 void performDetection(BuJoPage &page, const BuJoSettings &settings, const TaskNotifier &notifier);
 
-#endif //TEST03_BUJO_ASYNC_ASYNCDETECT_H
+
+#endif //TEST05_BUJO_DETECT_ASYNCDETECT_H
