@@ -4,7 +4,9 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Matrix;
 import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -15,6 +17,7 @@ import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -36,7 +39,8 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     private static final int PERCODE_CAMERA = 1;
     private static final int PERCODE_WRITE_EXTSTORAGE = 2;
 
-    private Button btnLoad = null, btnPhoto = null;
+    private Bitmap mainBitmap = null;
+    private ImageButton btnRotate = null, btnLoad = null, btnPhoto = null, btnDetect = null;
     private ImageView imgMain = null;
     private Uri cameraImgUri = null;
     private Classifier classifier = null;
@@ -52,13 +56,47 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
         }
 
-        imgMain = (ImageView)findViewById(R.id.imageView);
-        btnLoad = (Button)findViewById(R.id.btnLoad);
-        btnPhoto = (Button)findViewById(R.id.btnPhoto);
+        imgMain = findViewById(R.id.imageView);
+        btnLoad = findViewById(R.id.btnLoad);
+        btnPhoto = findViewById(R.id.btnPhoto);
+        btnRotate = findViewById(R.id.btnRotate);
+        btnDetect = findViewById(R.id.btnDetect);
+
+        updateImageView();
 
         btnLoad.setOnClickListener(this);
         btnPhoto.setOnClickListener(this);
+        btnRotate.setOnClickListener(this);
+        btnDetect.setOnClickListener(this);
         imgMain.setOnTouchListener(this);
+    }
+
+    private void updateImageView(){
+        imgMain.setImageBitmap(mainBitmap);
+        if(mainBitmap != null){
+            btnRotate.setVisibility(View.VISIBLE);
+            btnRotate.setEnabled(true);
+            btnDetect.setVisibility(View.VISIBLE);
+            btnDetect.setEnabled(true);
+        }else{
+            btnRotate.setVisibility(View.GONE);
+            btnRotate.setEnabled(false);
+            btnDetect.setVisibility(View.GONE);
+            btnDetect.setEnabled(false);
+        }
+    }
+
+    private void rotateBitmap(){
+        if(mainBitmap != null){
+            Matrix matrix = new Matrix();
+            matrix.postRotate(90.0f);
+            mainBitmap = Bitmap.createBitmap(mainBitmap, 0, 0, mainBitmap.getWidth(), mainBitmap.getHeight(), matrix, true);
+            updateImageView();
+        }
+    }
+
+    private void detectLines(){
+
     }
 
     @Override
@@ -67,6 +105,8 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         {
             case R.id.btnLoad: loadPicture(); return;
             case R.id.btnPhoto: takePhoto(); return;
+            case R.id.btnRotate: rotateBitmap(); return;
+            case R.id.btnDetect: detectLines(); return;
         }
     }
     @Override
@@ -76,8 +116,13 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
             float y = event.getY();
             int w = imgMain.getWidth();
             int h = imgMain.getHeight();
-            int w0 = imgMain.getDrawable().getIntrinsicWidth();
-            int h0 = imgMain.getDrawable().getIntrinsicHeight();
+            Drawable drbl = imgMain.getDrawable();
+            if(drbl == null)
+                return false;
+            int w0 = drbl.getIntrinsicWidth();
+            int h0 = drbl.getIntrinsicHeight();
+            if(w0 <= 0 || h0 <= 0)
+                return false;
             float [] loc = ImageUtils.toLocalCoord(x, y, w, h, w0, h0);
             if((loc[0] >= 0.0f)&&(loc[0] <= 1.0f)&&(loc[1] >= 0.0f)&&(loc[1] <= 1.0f))
             {
@@ -164,8 +209,10 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
             }catch (Exception e){
                 Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
             }
-            if(bmp != null)
-                imgMain.setImageBitmap(bmp);
+            if(bmp != null) {
+                mainBitmap = bmp;
+                updateImageView();
+            }
         }
     }
 
