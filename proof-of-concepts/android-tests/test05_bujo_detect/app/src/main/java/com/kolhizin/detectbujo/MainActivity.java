@@ -36,14 +36,21 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     private static final int PERCODE_CAMERA = 1;
     private static final int PERCODE_WRITE_EXTSTORAGE = 2;
 
-    Button btnLoad = null, btnPhoto = null;
-    ImageView imgMain = null;
-    Uri cameraImgUri = null;
+    private Button btnLoad = null, btnPhoto = null;
+    private ImageView imgMain = null;
+    private Uri cameraImgUri = null;
+    private Classifier classifier = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        try{
+            classifier = new Classifier(this, "model.tflite", "model.chars");
+        }catch (Exception e){
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+        }
 
         imgMain = (ImageView)findViewById(R.id.imageView);
         btnLoad = (Button)findViewById(R.id.btnLoad);
