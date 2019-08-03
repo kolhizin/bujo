@@ -261,3 +261,118 @@ void performDetection(BuJoPage &page, const BuJoSettings &settings, const TaskNo
     page.setStatus(BuJoStatus::DETECTED_WORDS, "Detected words.");
     notifier.notify();
 }
+
+
+
+void performLineDetection(BuJoPage &page, const BuJoSettings &settings, const TaskNotifier &notifier)
+{
+    //convert to tensor
+    jobject bitmap = page.getSource();
+    auto original = bitmap2tensor(page.getEnv(), bitmap);
+    page.setStatus(BuJoStatus::CONVERTED_BITMAP, "Converted bitmap! Loading in detector...");
+    notifier.notify();
+
+    //load into detector
+    bujo::detector::Detector detector;
+    float scaleFactor = settings.getFloatValue("detectorScaleFactor", 1.0f);
+    detector.loadImage(original, scaleFactor);
+    page.setStatus(BuJoStatus::LOADED_DETECTOR, "Loaded in detector. Detecting angle...");
+    notifier.notify();
+
+    //detect angle
+    float angle = detector.detectAngle(settings.getFloatValue("detectorMaxAlignAngle", 1.57f));
+    page.setAngle(angle);
+    std::stringstream ss0;
+    ss0 << "Detected angle (" << angle << "). Aligning images...";
+    page.setStatus(BuJoStatus::DETECTED_ANGLE, ss0.str());
+    notifier.notify();
+
+    //use angle to align
+    detector.alignImages();
+    page.setStatus(BuJoStatus::ALIGNED_IMAGES, "Aligned images. Filtering images...");
+    notifier.notify();
+
+    //filter images
+    bujo::detector::FilteringOptions filteringOptions;
+    detector.filterImages(filteringOptions);
+    page.setStatus(BuJoStatus::FILTERED_IMAGES, "Filtered images. Detecting regions...");
+    notifier.notify();
+
+    //select region
+    float minSplitAngle = settings.getFloatValue("splitMinAngle", 0.5f);
+    unsigned numSplitAngle = settings.getIntValue("splitNumAngle", 50);
+    float minSplitIntensityAbs = settings.getFloatValue("splitMinIntensityAbs", 10.0f);
+    float maxSplitIntersectionAbs = settings.getFloatValue("splitMaxIntersectionAbs", 2.0f);
+    float minSplitRatio = settings.getFloatValue("splitMinRatio", 0.05f);
+    detector.updateRegionAuto(minSplitAngle, numSplitAngle, minSplitIntensityAbs, maxSplitIntersectionAbs, minSplitRatio);
+    auto mainShape = detector.mainImage().shape();
+    float mainDiag = std::sqrtf(mainShape[0]*mainShape[0]+mainShape[1]*mainShape[1]);
+    for(unsigned i = 0; i < detector.numSplits(); i++) {
+        page.addSplit(bujo::splits::rescaleSplit(detector.getSplit(i).desc, 1.0f / mainDiag));
+    }
+    page.setStatus(BuJoStatus::DETECTED_REGION, "Detected regions. Detecting curves...");
+    notifier.notify();
+
+    //select support surves
+    bujo::curves::CurveGenerationOptions curveGenerationOptions;
+    int numSupportCurves = settings.getIntValue("curvesNum", 6);
+    float curvesXWindow = settings.getFloatValue("curveXWindowRel", 0.08f);
+    float curvesQuantileV = settings.getFloatValue("curveVQuantile", 0.5f);
+    float curvesQuantileH = settings.getFloatValue("curveHQuantile", 0.5f);
+    float curvesRegCoef = settings.getFloatValue("curveRegCoef", 0.5f);
+    int curvesXWindowAbs = curvesXWindow * detector.mainImage().shape()[1];
+
+    page.setStatus(BuJoStatus::DETECTED_REGION, "Detected region. Detecting curves...");
+    notifier.notify();
+
+    detector.selectSupportCurvesAuto(numSupportCurves, curvesXWindowAbs, curvesQuantileV, curvesQuantileH,
+                                     curvesRegCoef, curveGenerationOptions);
+    page.setStatus(BuJoStatus::DETECTED_CURVES, "Detected curves. Detecting lines...");
+    notifier.notify();
+
+    float linesXWindow = settings.getFloatValue("lineXWindowRel", 0.08f);
+    int linesXWindowAbs = linesXWindow * detector.mainImage().shape()[1];
+    detector.detectLines(linesXWindowAbs);
+    float xDetSize = detector.mainImage().shape()[1];
+    float yDetSize = detector.mainImage().shape()[0];
+    for(int i = 0; i < detector.numLineCurves(); i++){
+        page.addLine(bujo::curves::affineTransformCurve(detector.getLineCurve(i),
+                                                        0.0f, 1.0f/xDetSize, 0.0f, 1.0f/yDetSize));
+    }
+    page.setStatus(BuJoStatus::DETECTED_LINES, "Detected lines. Detecting words...");
+    notifier.notify();
+}
+
+
+void performWordDetection(BuJoPage &page, const BuJoSettings &settings, const TaskNotifier &notifier)
+{
+    throw std::runtime_error("performWordDetection not implemented!");
+
+    bujo::detector::Detector detector;
+    bujo::curves::WordDetectionOptions wordDetectionOptions;
+    wordDetectionOptions.cutoff_word_std = settings.getFloatValue("wordStdDevCutoff", 0.02f);
+    int wordFilterSize = settings.getIntValue("wordFilterSizeAbs", 4);
+    float wordRegCoef = settings.getFloatValue("wordRegCoef", 0.1f);
+    int wordXWindowAbs = settings.getIntValue("wordXWindowAbs", 5);
+    detector.detectWords(wordXWindowAbs, wordFilterSize, wordRegCoef, wordDetectionOptions);
+
+    page.resetNumWordLines(detector.numLines());
+    int wordNumPoints = settings.getIntValue("wordNumPoints", 10);
+    auto wordLocCoord = xt::linspace(0.0f, 1.0f, wordNumPoints);
+    for(int i = 0; i < detector.numLines(); i++)
+    {
+        page.resetNumWords(i, detector.numWords(i));
+        for(int j = 0; j < detector.numWords(i); j++)
+        {
+            auto wrd = detector.getWord(i, j, wordLocCoord);
+            auto off = detector.getWordHeight(i, j);
+            xt::xtensor<float, 1> xc = xt::view(wrd, xt::range(0, wrd.shape()[0]), 0);
+            xt::xtensor<float, 1> yc = xt::view(wrd, xt::range(0, wrd.shape()[0]), 1);
+            page.setWord(i, j, xc, yc, std::get<0>(off), std::get<1>(off));
+        }
+    }
+
+    page.setStatus(BuJoStatus::DETECTED_WORDS, "Detected words.");
+    notifier.notify();
+}
+

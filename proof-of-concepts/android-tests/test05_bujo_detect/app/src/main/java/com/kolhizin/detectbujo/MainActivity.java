@@ -1,6 +1,7 @@
 package com.kolhizin.detectbujo;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -27,7 +28,46 @@ import java.io.IOException;
 import java.util.Calendar;
 
 public class MainActivity extends FragmentActivity implements View.OnClickListener, View.OnTouchListener {
+    class AsyncDetect extends AsyncDetectionTask{
+        private Context context_;
+        AsyncDetect(Context context, BuJoPage page, String task, BuJoSettings settings) throws Exception{
+            super(page, task, settings);
+            context_ = context;
+        }
+        @Override
+        protected void onProgressUpdate(BuJoPage ...values){
+            super.onProgressUpdate(values);
+            Toast.makeText(context_, values[0].getStatusMessage(), Toast.LENGTH_SHORT).show();
+            if(values[0].getStatus().fErrors)
+                Toast.makeText(context_, values[0].getErrorMessage(), Toast.LENGTH_LONG).show();
+            if(values[0].getStatus().fDetectedWords){
+                Bitmap img0 = BuJoTools.shadeRegions(values[0].getAligned(), values[0].getSplits());
+                Bitmap img = BuJoTools.drawWords(img0, values[0].getWords());
+                imgMain.setImageBitmap(img);
+            }else if(values[0].getStatus().fDetectedLines){
+                Bitmap img0 = BuJoTools.shadeRegions(values[0].getAligned(), values[0].getSplits());
+                Bitmap img = BuJoTools.drawLines(img0, values[0].getLines());
+                imgMain.setImageBitmap(img);
+            }else if(values[0].getStatus().fDetectedRegion){
+                Bitmap img = BuJoTools.shadeRegions(values[0].getAligned(), values[0].getSplits());
+                imgMain.setImageBitmap(img);
+            }else if(values[0].getAligned() != null) {
+                imgMain.setImageBitmap(values[0].getAligned());
+            }else if(values[0].getOriginal() != null) {
+                imgMain.setImageBitmap(values[0].getOriginal());
+            }
+        }
 
+        @Override
+        protected void onPostExecute(BuJoPage page) {
+            super.onPostExecute(page);
+            BuJoApp app = (BuJoApp)getApplication();
+            app.setPage(page);
+            if(page.getStatus().fSuccess){
+                Toast.makeText(context_, "Success!", Toast.LENGTH_LONG).show();
+            }
+        }
+    }
     // Used to load the 'native-lib' library on application startup.
     static {
         System.loadLibrary("native-lib");
@@ -96,7 +136,13 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     }
 
     private void detectLines(){
-
+        BuJoSettings settings = new BuJoSettings();
+        try {
+            AsyncDetect task = new AsyncDetect(this, new BuJoPage(), "detectLines", settings);
+            task.execute(mainBitmap);
+        }catch (Exception e){
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+        }
     }
 
     @Override
