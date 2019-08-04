@@ -46,41 +46,16 @@ Java_com_kolhizin_detectbujo_Detector_deleteDetector(JNIEnv *env, jobject instan
     delete reinterpret_cast<bujo::detector::Detector *>(handle);
 }
 
-extern "C"
-JNIEXPORT jlong JNICALL
-Java_com_kolhizin_detectbujo_Detector_createPage(JNIEnv *env, jobject instance, jobject page) {
-    return reinterpret_cast<long>(new BuJoPage(env, page));
-}
-
-extern "C"
-JNIEXPORT void JNICALL
-Java_com_kolhizin_detectbujo_Detector_deletePage(JNIEnv *env, jobject instance, jlong handle) {
-    delete reinterpret_cast<BuJoPage *>(handle);
-}
-
-extern "C"
-JNIEXPORT jlong JNICALL
-Java_com_kolhizin_detectbujo_Detector_createSettings(JNIEnv *env, jobject instance,
-                                                     jobject settings) {
-    return reinterpret_cast<long>(new BuJoSettings(env, settings));
-}
-
-extern "C"
-JNIEXPORT void JNICALL
-Java_com_kolhizin_detectbujo_Detector_deleteSettings(JNIEnv *env, jobject instance, jlong handle) {
-    delete reinterpret_cast<BuJoSettings *>(handle);
-}
-
 
 extern "C"
 JNIEXPORT jstring JNICALL
-Java_com_kolhizin_detectbujo_Detector_load__JJJ(JNIEnv *env, jobject instance, jlong hDetector,
-                                                jlong hPage, jlong hSettings) {
+Java_com_kolhizin_detectbujo_Detector_load__JLcom_kolhizin_detectbujo_BuJoPage_2Lcom_kolhizin_detectbujo_BuJoSettings_2(
+        JNIEnv *env, jobject instance, jlong hDetector, jobject page, jobject settings) {
     auto pDetector = reinterpret_cast<bujo::detector::Detector *>(hDetector);
-    auto pPage = reinterpret_cast<BuJoPage *>(hPage);
-    auto pSettings = reinterpret_cast<BuJoSettings *>(hSettings);
     try {
-        runLoad(*pDetector, *pPage, *pSettings);
+        BuJoPage page_(env, page);
+        BuJoSettings settings_(env, settings);
+        runLoad(*pDetector, page_, settings_);
     }catch (const std::exception &e)
     {
         return env->NewStringUTF(e.what());
@@ -93,14 +68,13 @@ Java_com_kolhizin_detectbujo_Detector_load__JJJ(JNIEnv *env, jobject instance, j
 
 extern "C"
 JNIEXPORT jstring JNICALL
-Java_com_kolhizin_detectbujo_Detector_preprocess__JJJ(JNIEnv *env, jobject instance,
-                                                      jlong hDetector, jlong hPage,
-                                                      jlong hSettings) {
+Java_com_kolhizin_detectbujo_Detector_preprocess__JLcom_kolhizin_detectbujo_BuJoPage_2Lcom_kolhizin_detectbujo_BuJoSettings_2(JNIEnv *env, jobject instance,
+                                                      jlong hDetector, jobject page, jobject settings) {
     auto pDetector = reinterpret_cast<bujo::detector::Detector *>(hDetector);
-    auto pPage = reinterpret_cast<BuJoPage *>(hPage);
-    auto pSettings = reinterpret_cast<BuJoSettings *>(hSettings);
     try {
-        runPreprocess(*pDetector, *pPage, *pSettings);
+        BuJoPage page_(env, page);
+        BuJoSettings settings_(env, settings);
+        runPreprocess(*pDetector, page_, settings_);
     }catch (const std::exception &e)
     {
         return env->NewStringUTF(e.what());
@@ -113,14 +87,13 @@ Java_com_kolhizin_detectbujo_Detector_preprocess__JJJ(JNIEnv *env, jobject insta
 
 extern "C"
 JNIEXPORT jstring JNICALL
-Java_com_kolhizin_detectbujo_Detector_detectRegions__JJJ(JNIEnv *env, jobject instance,
-                                                         jlong hDetector, jlong hPage,
-                                                         jlong hSettings) {
+Java_com_kolhizin_detectbujo_Detector_detectRegions__JLcom_kolhizin_detectbujo_BuJoPage_2Lcom_kolhizin_detectbujo_BuJoSettings_2(JNIEnv *env, jobject instance,
+                                                         jlong hDetector, jobject page, jobject settings) {
     auto pDetector = reinterpret_cast<bujo::detector::Detector *>(hDetector);
-    auto pPage = reinterpret_cast<BuJoPage *>(hPage);
-    auto pSettings = reinterpret_cast<BuJoSettings *>(hSettings);
     try {
-        runDetectRegions(*pDetector, *pPage, *pSettings);
+        BuJoPage page_(env, page);
+        BuJoSettings settings_(env, settings);
+        runDetectRegions(*pDetector, page_, settings_);
     }catch (const std::exception &e)
     {
         return env->NewStringUTF(e.what());
@@ -133,14 +106,13 @@ Java_com_kolhizin_detectbujo_Detector_detectRegions__JJJ(JNIEnv *env, jobject in
 
 extern "C"
 JNIEXPORT jstring JNICALL
-Java_com_kolhizin_detectbujo_Detector_detectLines__JJJ(JNIEnv *env, jobject instance,
-                                                       jlong hDetector, jlong hPage,
-                                                       jlong hSettings) {
+Java_com_kolhizin_detectbujo_Detector_detectLines__JLcom_kolhizin_detectbujo_BuJoPage_2Lcom_kolhizin_detectbujo_BuJoSettings_2(JNIEnv *env, jobject instance,
+                                                       jlong hDetector, jobject page, jobject settings) {
     auto pDetector = reinterpret_cast<bujo::detector::Detector *>(hDetector);
-    auto pPage = reinterpret_cast<BuJoPage *>(hPage);
-    auto pSettings = reinterpret_cast<BuJoSettings *>(hSettings);
     try {
-        runDetectLines(*pDetector, *pPage, *pSettings);
+        BuJoPage page_(env, page);
+        BuJoSettings settings_(env, settings);
+        runDetectLines(*pDetector, page_, settings_);
     }catch (const std::exception &e)
     {
         return env->NewStringUTF(e.what());

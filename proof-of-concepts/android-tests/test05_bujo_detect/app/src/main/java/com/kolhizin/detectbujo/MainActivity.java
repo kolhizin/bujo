@@ -36,7 +36,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         private Detector detector_;
         private Context context_;
 
-        public AsyncDetectionTask(Context context, Detector detector) {
+        public AsyncPreprocessTask(Context context, Detector detector) {
             super();
             context_ = context;
             detector_ = detector;
@@ -194,8 +194,11 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     private void detectLines(){
         BuJoSettings settings = new BuJoSettings();
         try {
-            AsyncDetect task = new AsyncDetect(this, new BuJoPage(), settings);
+            //AsyncDetect task = new AsyncDetect(this, new BuJoPage(), settings);
+            detector.reset();
+            AsyncPreprocessTask task = new AsyncPreprocessTask(this, detector);
             task.execute(mainBitmap);
+            Toast.makeText(this, "Started!", Toast.LENGTH_SHORT).show();
         }catch (Exception e){
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
         }

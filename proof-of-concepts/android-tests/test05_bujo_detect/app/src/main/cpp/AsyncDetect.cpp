@@ -157,7 +157,7 @@ xt::xtensor<float, 2> bitmap2tensor(JNIEnv * env, jobject bitmap)
     return res;
 }
 
-void performDetection(BuJoPage &page, const BuJoSettings &settings, const TaskNotifier &notifier)
+void asyncDetection(BuJoPage &page, const BuJoSettings &settings, const TaskNotifier &notifier)
 {
     //convert to tensor
     jobject bitmap = page.getSource();
