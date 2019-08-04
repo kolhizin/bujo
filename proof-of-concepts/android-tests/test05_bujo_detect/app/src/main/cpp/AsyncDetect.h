@@ -106,9 +106,11 @@ public:
 };
 
 
-void performDetection(BuJoPage &page, const BuJoSettings &settings, const TaskNotifier &notifier);
-void performLineDetection(BuJoPage &page, const BuJoSettings &settings, const TaskNotifier &notifier);
-void performWordDetection(BuJoPage &page, const BuJoSettings &settings, const TaskNotifier &notifier);
+void asyncDetection(BuJoPage &page, const BuJoSettings &settings, const TaskNotifier &notifier);
 
+void runLoad(bujo::detector::Detector &detector, BuJoPage &page, const BuJoSettings &settings);
+void runPreprocess(bujo::detector::Detector &detector, BuJoPage &page, const BuJoSettings &settings);
+void runDetectRegions(bujo::detector::Detector &detector, BuJoPage &page, const BuJoSettings &settings);
+void runDetectLines(bujo::detector::Detector &detector, BuJoPage &page, const BuJoSettings &settings);
 
 #endif //TEST05_BUJO_DETECT_ASYNCDETECT_H

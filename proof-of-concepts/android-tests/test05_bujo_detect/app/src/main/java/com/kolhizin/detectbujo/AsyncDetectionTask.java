@@ -22,24 +22,20 @@ import java.io.InputStream;
 public class AsyncDetectionTask extends AsyncTask<Bitmap, BuJoPage, BuJoPage> {
     private BuJoPage res_;
     private BuJoSettings settings_;
-    private String task_;
 
-    public AsyncDetectionTask(BuJoPage page, String task, BuJoSettings settings) throws Exception{
+    public AsyncDetectionTask(BuJoPage page, BuJoSettings settings){
         super();
         res_ = page;
         settings_ = settings;
-        if((task.equals("detect"))
-                ||(task.equals("detectWords"))
-                ||(task.equals("detectLines"))){
-            task_ = task;
-        }else throw new Exception("Unexpected task in AsyncDetectionTask!");
     }
 
-    private BuJoPage detectTask(Bitmap img0){
+
+    @Override
+    protected BuJoPage doInBackground(Bitmap ...params){
         res_.setStatusStart("Loading image!");
         notifyUpdate();
         try {
-            res_.setOriginal(img0, 0.5f);
+            res_.setOriginal(params[0], 0.5f);
         }catch (Exception e){
             e.printStackTrace();
             res_.setError("Exception: " + e.getMessage());
@@ -54,37 +50,6 @@ public class AsyncDetectionTask extends AsyncTask<Bitmap, BuJoPage, BuJoPage> {
         return res_;
     }
 
-    private BuJoPage detectLinesTask(Bitmap img0){
-        res_.setStatusStart("Loading image!");
-        notifyUpdate();
-        try {
-            res_.setOriginal(img0, 0.5f);
-        }catch (Exception e){
-            e.printStackTrace();
-            res_.setError("Exception: " + e.getMessage());
-            return res_;
-        }
-
-        res_.setStatusLoadedBitmap("Finished reading image! Initiating full detection!");
-        notifyUpdate();
-
-        int res = detectLines(res_, settings_);
-        res_.setStatusFinish(res == 0);
-        return res_;
-    }
-
-    @Override
-    protected BuJoPage doInBackground(Bitmap ...params){
-        if(task_.equals("detect")){
-            return detectTask(params[0]);
-        }else if(task_.equals("detectLines")){
-            return detectLinesTask(params[0]);
-        }else if(task_.equals("detectWords")) {
-            return detectLinesTask(params[0]);
-        }
-        return null;
-    }
-
     private void notifyUpdate(){
         publishProgress(res_);
     }
@@ -95,6 +60,4 @@ public class AsyncDetectionTask extends AsyncTask<Bitmap, BuJoPage, BuJoPage> {
     }
 
     public native int detect(BuJoPage page, BuJoSettings settings);
-    public native int detectLines(BuJoPage page, BuJoSettings settings);
-    public native int detectWords(BuJoPage page, BuJoSettings settings);
 }

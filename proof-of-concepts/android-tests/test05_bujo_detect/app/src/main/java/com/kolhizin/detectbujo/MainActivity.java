@@ -8,7 +8,9 @@ import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.graphics.pdf.PdfDocument;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.app.FragmentActivity;
@@ -28,10 +30,61 @@ import java.io.IOException;
 import java.util.Calendar;
 
 public class MainActivity extends FragmentActivity implements View.OnClickListener, View.OnTouchListener {
+
+
+    public class AsyncPreprocessTask extends AsyncTask<Bitmap, BuJoPage, BuJoPage> {
+        private Detector detector_;
+        private Context context_;
+
+        public AsyncDetectionTask(Context context, Detector detector) {
+            super();
+            context_ = context;
+            detector_ = detector;
+        }
+
+        @Override
+        protected BuJoPage doInBackground(Bitmap... params) {
+            detector_.getPage().setStatusStart("Loading image!");
+            publishProgress(detector_.getPage());
+            detector_.getPage().setStatusLoadedBitmap("Finished reading image! Initiating full detection!");
+            publishProgress(detector_.getPage());
+            try {
+                detector_.load(params[0]);
+                publishProgress(detector_.getPage());
+                detector_.preprocess();
+                publishProgress(detector_.getPage());
+                detector_.detectRegions();
+                publishProgress(detector_.getPage());
+            } catch (Exception e) {
+                e.printStackTrace();
+                detector_.getPage().setError("Exception: " + e.getMessage());
+            }
+            return detector_.getPage();
+        }
+
+        @Override
+        protected void onProgressUpdate(BuJoPage... values) {
+            super.onProgressUpdate(values);
+            Toast.makeText(context_, values[0].getStatusMessage(), Toast.LENGTH_SHORT).show();
+            if(values[0].getStatus().fErrors)
+                Toast.makeText(context_, values[0].getErrorMessage(), Toast.LENGTH_LONG).show();
+        }
+
+        @Override
+        protected void onPostExecute(BuJoPage page) {
+            super.onPostExecute(page);
+            BuJoApp app = (BuJoApp)getApplication();
+            app.setPage(page);
+            if(page.getStatus().fSuccess){
+                Toast.makeText(context_, "Success!", Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
     class AsyncDetect extends AsyncDetectionTask{
         private Context context_;
-        AsyncDetect(Context context, BuJoPage page, String task, BuJoSettings settings) throws Exception{
-            super(page, task, settings);
+        AsyncDetect(Context context, BuJoPage page, BuJoSettings settings){
+            super(page, settings);
             context_ = context;
         }
         @Override
@@ -141,7 +194,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     private void detectLines(){
         BuJoSettings settings = new BuJoSettings();
         try {
-            AsyncDetect task = new AsyncDetect(this, new BuJoPage(), "detectLines", settings);
+            AsyncDetect task = new AsyncDetect(this, new BuJoPage(), settings);
             task.execute(mainBitmap);
         }catch (Exception e){
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
