@@ -8,7 +8,7 @@
 
 
 #include <jni.h>
-#import "detector.h"
+#include "detector.h"
 #include <xtensor/xtensor.hpp>
 #include <string>
 #include <map>

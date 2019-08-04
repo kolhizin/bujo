@@ -84,6 +84,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     private ImageView imgMain = null;
     private Uri cameraImgUri = null;
     private Classifier classifier = null;
+    private Detector detector = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,6 +93,8 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
 
         try{
             classifier = new Classifier(this, "model.tflite", "model.chars");
+            detector = new Detector();
+            detector.reset();
         }catch (Exception e){
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
         }

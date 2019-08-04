@@ -1,6 +1,7 @@
 #include <jni.h>
 #include <string>
 #include "AsyncDetect.h"
+#include "detector.h"
 
 extern "C"
 JNIEXPORT jint JNICALL
@@ -95,4 +96,16 @@ Java_com_kolhizin_detectbujo_AsyncDetectionTask_detectWords(JNIEnv *env, jobject
     }
     return 0;
 
+}
+
+extern "C"
+JNIEXPORT jlong JNICALL
+Java_com_kolhizin_detectbujo_Detector_createDetector(JNIEnv *env, jobject instance) {
+    return reinterpret_cast<long>(new bujo::detector::Detector());
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_kolhizin_detectbujo_Detector_deleteDetector(JNIEnv *env, jobject instance, jlong handle) {
+    delete reinterpret_cast<bujo::detector::Detector *>(handle);
 }
