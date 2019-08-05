@@ -124,9 +124,10 @@ public class BuJoPage {
         return splits.size();
     }
 
-    public void resetNumWordLines(int n){
+    public void resetNumLines(int n){
         words = new BuJoWord[n][];
     }
+    public int getNumLines(){return words.length; }
     public void resetNumWords(int lineId, int n){
         words[lineId] = new BuJoWord[n];
     }

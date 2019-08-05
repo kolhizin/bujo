@@ -53,7 +53,8 @@ BuJoPage::BuJoPage(JNIEnv *env, jobject page) {
     loadMethod_(setAngle_, "setAngle", "(F)V");
     loadMethod_(addSplit_, "addSplit", "(FFFI)V");
     loadMethod_(addLine_, "addLine", "([F[F)V");
-    loadMethod_(resetNumWordLines_, "resetNumWordLines", "(I)V");
+    loadMethod_(resetNumLines_, "resetNumLines", "(I)V");
+    loadMethod_(getNumLines_, "getNumLines", "()I");
     loadMethod_(resetNumWords_, "resetNumWords", "(II)V");
     loadMethod_(setWord_, "setWord", "(II[F[FFF)V");
 
@@ -242,7 +243,7 @@ void asyncDetection(BuJoPage &page, const BuJoSettings &settings, const TaskNoti
     int wordXWindowAbs = settings.getIntValue("wordXWindowAbs", 5);
     detector.detectWords(wordXWindowAbs, wordFilterSize, wordRegCoef, wordDetectionOptions);
 
-    page.resetNumWordLines(detector.numLines());
+    page.resetNumLines(detector.numLines());
     int wordNumPoints = settings.getIntValue("wordNumPoints", 10);
     auto wordLocCoord = xt::linspace(0.0f, 1.0f, wordNumPoints);
     for(int i = 0; i < detector.numLines(); i++)
@@ -332,23 +333,20 @@ void runDetectWords(bujo::detector::Detector &detector, int lineId, BuJoPage &pa
     int wordFilterSize = settings.getIntValue("wordFilterSizeAbs", 4);
     float wordRegCoef = settings.getFloatValue("wordRegCoef", 0.1f);
     int wordXWindowAbs = settings.getIntValue("wordXWindowAbs", 5);
-    detector.detectWords(static_cast<unsigned>(wordXWindowAbs), static_cast<unsigned>(wordFilterSize),
-            wordRegCoef, wordDetectionOptions);
-
-    page.resetNumWordLines(detector.numLines());
+    if(detector.numLines() != page.getNumLines())
+        throw std::runtime_error("Error in runDetectWords: number of lines in detector and page mismatch!");
     int wordNumPoints = settings.getIntValue("wordNumPoints", 10);
     auto wordLocCoord = xt::linspace(0.0f, 1.0f, wordNumPoints);
-    for(int i = 0; i < detector.numLines(); i++)
-    {
-        page.resetNumWords(i, detector.numWords(i));
-        for(int j = 0; j < detector.numWords(i); j++)
-        {
-            auto wrd = detector.getWord(i, j, wordLocCoord);
-            auto off = detector.getWordHeight(i, j);
-            xt::xtensor<float, 1> xc = xt::view(wrd, xt::range(0, wrd.shape()[0]), 0);
-            xt::xtensor<float, 1> yc = xt::view(wrd, xt::range(0, wrd.shape()[0]), 1);
-            page.setWord(i, j, xc, yc, std::get<0>(off), std::get<1>(off));
-        }
+
+    detector.detectWords(lineId, static_cast<unsigned>(wordXWindowAbs), static_cast<unsigned>(wordFilterSize),
+                             wordRegCoef, wordDetectionOptions);
+    page.resetNumWords(lineId, detector.numWords(lineId));
+    for(int j = 0; j < detector.numWords(lineId); j++){
+        auto wrd = detector.getWord(lineId, j, wordLocCoord);
+        auto off = detector.getWordHeight(lineId, j);
+        xt::xtensor<float, 1> xc = xt::view(wrd, xt::range(0, wrd.shape()[0]), 0);
+        xt::xtensor<float, 1> yc = xt::view(wrd, xt::range(0, wrd.shape()[0]), 1);
+        page.setWord(lineId, j, xc, yc, std::get<0>(off), std::get<1>(off));
     }
 }
 

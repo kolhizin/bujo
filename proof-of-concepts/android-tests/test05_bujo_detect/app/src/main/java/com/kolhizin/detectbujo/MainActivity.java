@@ -303,7 +303,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         }else{
             if(page.getActiveLine() == null){
                 Toast.makeText(this, "First select line!", Toast.LENGTH_LONG).show();
-                return
+                return;
             }
             detectWords(page.getActiveLineId());
         }

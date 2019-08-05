@@ -70,7 +70,7 @@ class BuJoPage
     jobject object_;
 
     jmethodID getSource_;
-    jmethodID setError_, setAngle_, addSplit_, addLine_, resetNumWordLines_, resetNumWords_, setWord_;
+    jmethodID setError_, setAngle_, addSplit_, addLine_, resetNumLines_, getNumLines_, resetNumWords_, setWord_;
 
     jmethodID setStatusTransformedImage_, setStatusStartedDetector_, setStatusDetectedAngle_,
             setStatusAlignedImages_, setStatusFilteredImages_, setStatusDetectedRegion_,
@@ -92,8 +92,11 @@ public:
     inline void addSplit(const bujo::splits::SplitDesc &splt) const{
         env_->CallVoidMethod(object_, addSplit_, splt.angle, splt.offset, splt.offset_margin, splt.direction);
     }
-    inline void resetNumWordLines(int n) const {
-        env_->CallVoidMethod(object_, resetNumWordLines_, n);
+    inline void resetNumLines(int n) const {
+        env_->CallVoidMethod(object_, resetNumLines_, n);
+    }
+    inline int getNumLines() const {
+        return env_->CallIntMethod(object_, getNumLines_);
     }
     inline void resetNumWords(int id, int n) const {
         env_->CallVoidMethod(object_, resetNumWords_, id, n);
@@ -112,6 +115,6 @@ void runLoad(bujo::detector::Detector &detector, BuJoPage &page, const BuJoSetti
 void runPreprocess(bujo::detector::Detector &detector, BuJoPage &page, const BuJoSettings &settings);
 void runDetectRegions(bujo::detector::Detector &detector, BuJoPage &page, const BuJoSettings &settings);
 void runDetectLines(bujo::detector::Detector &detector, BuJoPage &page, const BuJoSettings &settings);
-void runDetectWords(bujo::detector::Detector &detector, int lineId, BuJoPage &page, const BuJoSettings &settings)
+void runDetectWords(bujo::detector::Detector &detector, int lineId, BuJoPage &page, const BuJoSettings &settings);
 
 #endif //TEST05_BUJO_DETECT_ASYNCDETECT_H

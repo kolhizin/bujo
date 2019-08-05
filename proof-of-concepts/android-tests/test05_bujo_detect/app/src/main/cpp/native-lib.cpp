@@ -48,6 +48,13 @@ Java_com_kolhizin_detectbujo_Detector_deleteDetector(JNIEnv *env, jobject instan
 
 
 extern "C"
+JNIEXPORT jlong JNICALL
+Java_com_kolhizin_detectbujo_Detector_getNumDetectedLines(JNIEnv *env, jobject instance, jlong handle) {
+    return reinterpret_cast<bujo::detector::Detector *>(handle)->numLines();
+}
+
+
+extern "C"
 JNIEXPORT jstring JNICALL
 Java_com_kolhizin_detectbujo_Detector_load__JLcom_kolhizin_detectbujo_BuJoPage_2Lcom_kolhizin_detectbujo_BuJoSettings_2(
         JNIEnv *env, jobject instance, jlong hDetector, jobject page, jobject settings) {

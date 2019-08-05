@@ -59,6 +59,8 @@ public class Detector {
         String result = detectLines(detectorHandle_, page_, settings_);
         if(!result.equals(""))
             throw new Exception(result);
+        long numLines = getNumDetectedLines(detectorHandle_);
+        page_.resetNumLines((int)numLines);
     }
 
     public void detectWords(int id) throws Exception{
@@ -66,10 +68,6 @@ public class Detector {
         String result = detectWords(detectorHandle_, id, page_, settings_);
         if(!result.equals(""))
             throw new Exception(result);
-    }
-
-    public void detectWords(int line) throws Exception{
-        throw new Exception("Not implemented!");
     }
 
     public BuJoPage getPage() {
@@ -83,6 +81,7 @@ public class Detector {
 
     private native long createDetector();
     private native void deleteDetector(long handle);
+    private native long getNumDetectedLines(long handle);
 
     private native String load(long hDetector, BuJoPage page, BuJoSettings settings);
     private native String preprocess(long hDetector, BuJoPage page, BuJoSettings settings);
