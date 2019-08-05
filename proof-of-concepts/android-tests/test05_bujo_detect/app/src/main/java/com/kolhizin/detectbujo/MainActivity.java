@@ -73,11 +73,46 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         @Override
         protected void onPostExecute(BuJoPage page) {
             super.onPostExecute(page);
-            BuJoApp app = (BuJoApp)getApplication();
-            app.setPage(page);
-            if(page.getStatus().fSuccess){
-                Toast.makeText(context_, "Success!", Toast.LENGTH_LONG).show();
+            showUpdatedImage();
+            Toast.makeText(context_, "Done!", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    public class AsyncDetectLinesTask extends AsyncTask<Integer, BuJoPage, BuJoPage> {
+        private Detector detector_;
+        private Context context_;
+
+        public AsyncDetectLinesTask(Context context, Detector detector) {
+            super();
+            context_ = context;
+            detector_ = detector;
+        }
+
+        @Override
+        protected BuJoPage doInBackground(Integer ... params) {
+            try {
+                detector_.detectLines();
+                publishProgress(detector_.getPage());
+            } catch (Exception e) {
+                e.printStackTrace();
+                detector_.getPage().setError("Exception: " + e.getMessage());
             }
+            return detector_.getPage();
+        }
+
+        @Override
+        protected void onProgressUpdate(BuJoPage... values) {
+            super.onProgressUpdate(values);
+            Toast.makeText(context_, values[0].getStatusMessage(), Toast.LENGTH_SHORT).show();
+            if(values[0].getStatus().fErrors)
+                Toast.makeText(context_, values[0].getErrorMessage(), Toast.LENGTH_LONG).show();
+        }
+
+        @Override
+        protected void onPostExecute(BuJoPage page) {
+            super.onPostExecute(page);
+            showUpdatedImage();
+            Toast.makeText(context_, "Done!", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -114,8 +149,6 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         @Override
         protected void onPostExecute(BuJoPage page) {
             super.onPostExecute(page);
-            BuJoApp app = (BuJoApp)getApplication();
-            app.setPage(page);
             if(page.getStatus().fSuccess){
                 Toast.makeText(context_, "Success!", Toast.LENGTH_LONG).show();
             }
@@ -147,7 +180,9 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         try{
             classifier = new Classifier(this, "model.tflite", "model.chars");
             detector = new Detector();
-            detector.reset();
+            BuJoApp app = (BuJoApp)getApplication();
+            app.setClassifier(classifier);
+            app.setDetector(detector);
         }catch (Exception e){
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
         }
@@ -182,6 +217,20 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         }
     }
 
+    private void showUpdatedImage(){
+        BuJoPage page = ((BuJoApp)getApplication()).getPage();
+        if(page == null)
+            return;
+        if(page.getStatus().fDetectedLines){
+            Bitmap img0 = BuJoTools.shadeRegions(page.getAligned(), page.getSplits());
+            Bitmap img = BuJoTools.drawLines(img0, page.getLines());
+            imgMain.setImageBitmap(img);
+        }else if(page.getStatus().fDetectedRegion) {
+            Bitmap img = BuJoTools.shadeRegions(page.getAligned(), page.getSplits());
+            imgMain.setImageBitmap(img);
+        }
+    }
+
     private void rotateBitmap(){
         if(mainBitmap != null){
             Matrix matrix = new Matrix();
@@ -191,6 +240,18 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         }
     }
 
+    private void detectRegion(){
+        BuJoSettings settings = new BuJoSettings();
+        try {
+            //AsyncDetect task = new AsyncDetect(this, new BuJoPage(), settings);
+            detector.reset();
+            AsyncPreprocessTask task = new AsyncPreprocessTask(this, detector);
+            task.execute(mainBitmap);
+            Toast.makeText(this, "Started!", Toast.LENGTH_SHORT).show();
+        }catch (Exception e){
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+        }
+    }
     private void detectLines(){
         BuJoSettings settings = new BuJoSettings();
         try {
@@ -204,6 +265,19 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         }
     }
 
+    private void dispatchDetect(){
+        BuJoPage page = ((BuJoApp)getApplication()).getPage();
+        if(page == null){
+            Toast.makeText(this, "Page does not exist!", Toast.LENGTH_LONG).show();
+            return;
+        }
+        if(!page.getStatus().fDetectedRegion){
+            detectRegion();
+        }else if(!page.getStatus().fDetectedLines){
+            detectLines();
+        }
+    }
+
     @Override
     public void onClick(View v){
         switch(v.getId())
@@ -211,7 +285,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
             case R.id.btnLoad: loadPicture(); return;
             case R.id.btnPhoto: takePhoto(); return;
             case R.id.btnRotate: rotateBitmap(); return;
-            case R.id.btnDetect: detectLines(); return;
+            case R.id.btnDetect: dispatchDetect(); return;
         }
     }
     @Override
