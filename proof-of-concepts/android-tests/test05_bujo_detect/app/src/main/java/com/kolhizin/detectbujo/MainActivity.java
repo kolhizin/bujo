@@ -116,44 +116,6 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         }
     }
 
-    class AsyncDetect extends AsyncDetectionTask{
-        private Context context_;
-        AsyncDetect(Context context, BuJoPage page, BuJoSettings settings){
-            super(page, settings);
-            context_ = context;
-        }
-        @Override
-        protected void onProgressUpdate(BuJoPage ...values){
-            super.onProgressUpdate(values);
-            Toast.makeText(context_, values[0].getStatusMessage(), Toast.LENGTH_SHORT).show();
-            if(values[0].getStatus().fErrors)
-                Toast.makeText(context_, values[0].getErrorMessage(), Toast.LENGTH_LONG).show();
-            if(values[0].getStatus().fDetectedWords){
-                Bitmap img0 = BuJoTools.shadeRegions(values[0].getAligned(), values[0].getSplits());
-                Bitmap img = BuJoTools.drawWords(img0, values[0].getWords());
-                imgMain.setImageBitmap(img);
-            }else if(values[0].getStatus().fDetectedLines){
-                Bitmap img0 = BuJoTools.shadeRegions(values[0].getAligned(), values[0].getSplits());
-                Bitmap img = BuJoTools.drawLines(img0, values[0].getLines());
-                imgMain.setImageBitmap(img);
-            }else if(values[0].getStatus().fDetectedRegion){
-                Bitmap img = BuJoTools.shadeRegions(values[0].getAligned(), values[0].getSplits());
-                imgMain.setImageBitmap(img);
-            }else if(values[0].getAligned() != null) {
-                imgMain.setImageBitmap(values[0].getAligned());
-            }else if(values[0].getOriginal() != null) {
-                imgMain.setImageBitmap(values[0].getOriginal());
-            }
-        }
-
-        @Override
-        protected void onPostExecute(BuJoPage page) {
-            super.onPostExecute(page);
-            if(page.getStatus().fSuccess){
-                Toast.makeText(context_, "Success!", Toast.LENGTH_LONG).show();
-            }
-        }
-    }
     // Used to load the 'native-lib' library on application startup.
     static {
         System.loadLibrary("native-lib");
@@ -255,10 +217,8 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     private void detectLines(){
         BuJoSettings settings = new BuJoSettings();
         try {
-            //AsyncDetect task = new AsyncDetect(this, new BuJoPage(), settings);
-            detector.reset();
-            AsyncPreprocessTask task = new AsyncPreprocessTask(this, detector);
-            task.execute(mainBitmap);
+            AsyncDetectLinesTask task = new AsyncDetectLinesTask(this, detector);
+            task.execute(0);
             Toast.makeText(this, "Started!", Toast.LENGTH_SHORT).show();
         }catch (Exception e){
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();

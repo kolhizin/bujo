@@ -51,6 +51,30 @@ public class BuJoPage {
     public class BuJoLine {
         float [] xCoords;
         float [] yCoords;
+
+        float getDistance(float x, float y){
+            //assumes that line is almost horizontal
+            if(x < xCoords[0]){
+                float dx = x - xCoords[0];
+                float dy = y - yCoords[0];
+                return (float)Math.sqrt(dx * dx + dy * dy);
+            }else if(x > xCoords[xCoords.length - 1]){
+                float dx = x - xCoords[xCoords.length - 1];
+                float dy = y - yCoords[yCoords.length - 1];
+                return (float)Math.sqrt(dx * dx + dy * dy);
+            }
+            int i0 = 0, i1 = 1;
+            for(int i = 1; i < xCoords.length; i++){
+                if((x >= xCoords[i-1])&&(x <= xCoords[i])){
+                    i0 = i - 1;
+                    i1 = i;
+                    break;
+                }
+            }
+            float a = (x - xCoords[i0]) / (xCoords[i1] - xCoords[i0]);
+            float yx = yCoords[i0] * (1 - a) + yCoords[i1] * a;
+            return Math.abs(yx - y);
+        }
     }
     public class BuJoSplit{
         float angle = 0.0f, offset = 0.0f, margin = 0.0f;
@@ -128,6 +152,22 @@ public class BuJoPage {
     }
     public int numLines(){
         return lines.size();
+    }
+
+    public int getClosestLine(float x, float y){
+        if(lines.isEmpty())
+            return -1;
+        int id = 0;
+        float dst = lines.get(0).getDistance(x, y);
+        for(int i = 0; i < lines.size(); i++){
+            BuJoLine line = lines.get(i);
+            float cur_dst = line.getDistance(x, y);
+            if(cur_dst < dst){
+                dst = cur_dst;
+                id = i;
+            }
+        }
+        return id;
     }
 
     public BuJoStatus getStatus(){ return status; }
