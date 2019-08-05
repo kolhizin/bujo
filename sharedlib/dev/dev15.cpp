@@ -27,7 +27,10 @@ void dev15()
 	bujo::detector::Detector det;
 	bujo::detector::FilteringOptions opts;
 	opts.cutoff_quantile = 0.95f;
-	det.loadImage(img0, 0.2f, 0.7f, opts);
+	det.loadImage(img0, 0.2f);
+	det.detectAngle(0.7f);
+	det.alignImages();
+	det.filterImages(opts);
 	det.updateRegionAuto(1.2f, 100, 10.0f, 0.0f, 0.05f);
 
 	det.selectSupportCurvesAuto(6, 25);

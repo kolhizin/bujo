@@ -325,3 +325,30 @@ void runDetectLines(bujo::detector::Detector &detector, BuJoPage &page, const Bu
     page.setStatus(BuJoStatus::DETECTED_LINES, "Detected lines. Detecting words...");
 }
 
+void runDetectWords(bujo::detector::Detector &detector, int lineId, BuJoPage &page,
+                    const BuJoSettings &settings) {
+    bujo::curves::WordDetectionOptions wordDetectionOptions;
+    wordDetectionOptions.cutoff_word_std = settings.getFloatValue("wordStdDevCutoff", 0.02f);
+    int wordFilterSize = settings.getIntValue("wordFilterSizeAbs", 4);
+    float wordRegCoef = settings.getFloatValue("wordRegCoef", 0.1f);
+    int wordXWindowAbs = settings.getIntValue("wordXWindowAbs", 5);
+    detector.detectWords(static_cast<unsigned>(wordXWindowAbs), static_cast<unsigned>(wordFilterSize),
+            wordRegCoef, wordDetectionOptions);
+
+    page.resetNumWordLines(detector.numLines());
+    int wordNumPoints = settings.getIntValue("wordNumPoints", 10);
+    auto wordLocCoord = xt::linspace(0.0f, 1.0f, wordNumPoints);
+    for(int i = 0; i < detector.numLines(); i++)
+    {
+        page.resetNumWords(i, detector.numWords(i));
+        for(int j = 0; j < detector.numWords(i); j++)
+        {
+            auto wrd = detector.getWord(i, j, wordLocCoord);
+            auto off = detector.getWordHeight(i, j);
+            xt::xtensor<float, 1> xc = xt::view(wrd, xt::range(0, wrd.shape()[0]), 0);
+            xt::xtensor<float, 1> yc = xt::view(wrd, xt::range(0, wrd.shape()[0]), 1);
+            page.setWord(i, j, xc, yc, std::get<0>(off), std::get<1>(off));
+        }
+    }
+}
+

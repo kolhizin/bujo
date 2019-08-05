@@ -58,6 +58,7 @@ namespace bujo
 			void detectLines(unsigned curve_window);
 			void detectWords(unsigned word_window, float reg_coef = 0.1f, float word_cutoff = 0.1f);
 			void detectWords(unsigned word_window, unsigned filter_size, float reg_coef, const bujo::curves::WordDetectionOptions& options= bujo::curves::WordDetectionOptions());
+			void detectWords(unsigned lineId, unsigned word_window, unsigned filter_size, float reg_coef, const bujo::curves::WordDetectionOptions& options = bujo::curves::WordDetectionOptions());
 
 			inline float textAngle() const { return angle_; }
 			inline unsigned textDelta() const { return static_cast<unsigned>(textLineDelta_ / scale_); }
@@ -73,7 +74,7 @@ namespace bujo
 			inline unsigned numSplits() const { return static_cast<unsigned>(splits_.size()); }
 			const bujo::splits::RegionSplit& getSplit(unsigned i) const { return splits_.at(i); }
 
-			inline unsigned numLines() const { return static_cast<unsigned>(words_.size()); }
+			inline unsigned numLines() const { return static_cast<unsigned>(allCurves_.size()); }
 			inline unsigned numSupportLines() const { return static_cast<unsigned>(supportCurves_.size()); }
 			inline unsigned numWords(unsigned line) const { return static_cast<unsigned>(words_.at(line).size()); }
 			inline unsigned numWords() const

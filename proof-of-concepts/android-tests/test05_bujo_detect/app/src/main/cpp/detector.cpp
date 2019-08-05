@@ -149,6 +149,34 @@ void bujo::detector::Detector::detectWords(unsigned word_window, unsigned filter
 		});
 }
 
+void bujo::detector::Detector::detectWords(unsigned lineId, unsigned word_window, unsigned filter_size, float reg_coef, const bujo::curves::WordDetectionOptions& options)
+{
+	if (words_.size() != allCurves_.size())
+	{
+		words_.clear();
+		words_.resize(allCurves_.size());
+	}
+	auto tmp = usedImg_ > textCutoff_;
+	float conversion_coef_x = static_cast<float>(alignedImg_.shape()[1]) / (alignedOriginalImg_.shape()[1]);
+	float conversion_coef_y = static_cast<float>(alignedImg_.shape()[0]) / (alignedOriginalImg_.shape()[0]);
+
+	curves::Curve ncrv;
+	const auto& v = allCurves_[lineId];
+	ncrv.x_value = (v.x_value + static_cast<float>(kernel_h_)) / (alignedImg_.shape()[1]) * (alignedOriginalImg_.shape()[1]);
+	ncrv.y_value = (v.y_value + static_cast<float>(kernel_v_ - 1)) / (alignedImg_.shape()[0]) * (alignedOriginalImg_.shape()[0]);
+	ncrv.calculateLenParametrization();
+
+	auto h = bujo::curves::getCurveHeight(tmp, v, 2 * textLineDelta_, reg_coef);
+	float fneg_offset = static_cast<float>(std::get<0>(h) * (alignedOriginalImg_.shape()[0])) / (alignedImg_.shape()[0]);
+	float fpos_offset = static_cast<float>(std::get<1>(h) * (alignedOriginalImg_.shape()[0])) / (alignedImg_.shape()[0]);
+	unsigned neg_offset = static_cast<unsigned>(std::ceilf(fneg_offset));
+	unsigned pos_offset = static_cast<unsigned>(std::ceilf(fpos_offset));
+
+	words_[lineId] = bujo::transform::generateWords(alignedOriginalImg_, ncrv, neg_offset, pos_offset, filter_size, word_window, options);
+	for (int i = 0; i < words_[lineId].size(); i++)
+		words_[lineId][i] = bujo::transform::transformWord(words_[lineId][i], 0.0f, conversion_coef_x, 0.0f, conversion_coef_y, 1.0f);
+}
+
 xt::xtensor<float, 2> bujo::detector::Detector::extractWord(unsigned lineId, unsigned wordId, float height_scale) const
 {
 	auto tmp = bujo::transform::transformWord(words_.at(lineId).at(wordId), 0.0f, 1.0f / scale_, 0.0f, 1.0f / scale_, height_scale);
