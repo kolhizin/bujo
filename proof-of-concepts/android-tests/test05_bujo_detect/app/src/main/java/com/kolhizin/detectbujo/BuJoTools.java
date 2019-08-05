@@ -88,21 +88,36 @@ public class BuJoTools {
         return makeLinePath(w, h, line.xCoords, line.yCoords);
     }
 
-    public static Bitmap drawLines(Bitmap src, List<BuJoPage.BuJoLine> lines) {
+    public static Bitmap drawLines(Bitmap src, List<BuJoPage.BuJoLine> lines, int color, float width) {
         int w = src.getWidth();
         int h = src.getHeight();
 
         Bitmap res = src.copy(src.getConfig(), true);
         Canvas canvas = new Canvas(res);
         Paint paint = new Paint();
-        paint.setColor(Color.rgb(255,0, 0));
+        paint.setColor(color);
         paint.setAlpha(110);
         paint.setStyle(Paint.Style.STROKE);
-        paint.setStrokeWidth(10);
+        paint.setStrokeWidth(width);
 
         for(int i = 0; i < lines.size(); i++){
             canvas.drawPath(makeLinePath(w, h, lines.get(i)), paint);
         }
+        return res;
+    }
+    public static Bitmap drawLine(Bitmap src, BuJoPage.BuJoLine line, int color, float width) {
+        int w = src.getWidth();
+        int h = src.getHeight();
+
+        Bitmap res = src.copy(src.getConfig(), true);
+        Canvas canvas = new Canvas(res);
+        Paint paint = new Paint();
+        paint.setColor(color);
+        paint.setAlpha(110);
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setStrokeWidth(width);
+
+        canvas.drawPath(makeLinePath(w, h, line), paint);
         return res;
     }
 

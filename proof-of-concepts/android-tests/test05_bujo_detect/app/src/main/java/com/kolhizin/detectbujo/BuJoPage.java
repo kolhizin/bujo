@@ -86,6 +86,7 @@ public class BuJoPage {
     private float angle;
     private List<BuJoSplit> splits;
     private List<BuJoLine> lines;
+    private BuJoLine activeLine;
     private BuJoWord [][] words;
 
     public BuJoPage()
@@ -93,6 +94,7 @@ public class BuJoPage {
         status = new BuJoStatus();
         splits = new LinkedList<BuJoSplit>();
         lines = new LinkedList<BuJoLine>();
+        activeLine = null;
     }
 
     public void setOriginal(Bitmap bmp, float detectorScale){
@@ -168,6 +170,17 @@ public class BuJoPage {
             }
         }
         return id;
+    }
+
+    public void activateLine(int id){
+        if(id >= 0 && id < lines.size())
+            activeLine = lines.get(id);
+    }
+    public void deactivateLine(){
+        activeLine = null;
+    }
+    public BuJoLine getActiveLine(){
+        return activeLine;
     }
 
     public BuJoStatus getStatus(){ return status; }

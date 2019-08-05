@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
@@ -24,6 +25,8 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import org.tensorflow.lite.Interpreter;
 
 import java.io.File;
 import java.io.IOException;
@@ -164,6 +167,10 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         imgMain.setOnTouchListener(this);
     }
 
+    private BuJoPage getPage(){
+        return ((BuJoApp)getApplication()).getPage();
+    }
+
     private void updateImageView(){
         imgMain.setImageBitmap(mainBitmap);
         if(mainBitmap != null){
@@ -185,7 +192,9 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
             return;
         if(page.getStatus().fDetectedLines){
             Bitmap img0 = BuJoTools.shadeRegions(page.getAligned(), page.getSplits());
-            Bitmap img = BuJoTools.drawLines(img0, page.getLines());
+            Bitmap img = BuJoTools.drawLines(img0, page.getLines(), Color.rgb(100,100,100),10.0f);
+            if(page.getActiveLine() != null)
+                img = BuJoTools.drawLine(img, page.getActiveLine(), Color.rgb(255,0,0),20.0f);
             imgMain.setImageBitmap(img);
         }else if(page.getStatus().fDetectedRegion) {
             Bitmap img = BuJoTools.shadeRegions(page.getAligned(), page.getSplits());
@@ -273,7 +282,19 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     }
 
     protected void touchMainImg(float locX, float locY, MotionEvent event){
-        String msg = Float.toString(locX) + ", " + Float.toString(locY);
+        int id = -1;
+        if(getPage() != null && getPage().getStatus().fDetectedLines) {
+            id = getPage().getClosestLine(locX, locY);
+            BuJoPage.BuJoLine newLine = null;
+            if(id != -1)
+                newLine = getPage().getLine(id);
+            boolean fSame = (newLine == getPage().getActiveLine());
+            if(!fSame) {
+                getPage().activateLine(id);
+                showUpdatedImage();
+            }
+        }
+        String msg = Float.toString(locX) + ", " + Float.toString(locY) + " = " + Integer.toString(id);
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
     }
 
