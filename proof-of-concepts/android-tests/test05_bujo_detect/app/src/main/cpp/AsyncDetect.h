@@ -112,5 +112,6 @@ void runLoad(bujo::detector::Detector &detector, BuJoPage &page, const BuJoSetti
 void runPreprocess(bujo::detector::Detector &detector, BuJoPage &page, const BuJoSettings &settings);
 void runDetectRegions(bujo::detector::Detector &detector, BuJoPage &page, const BuJoSettings &settings);
 void runDetectLines(bujo::detector::Detector &detector, BuJoPage &page, const BuJoSettings &settings);
+void runDetectWords(bujo::detector::Detector &detector, int lineId, BuJoPage &page, const BuJoSettings &settings)
 
 #endif //TEST05_BUJO_DETECT_ASYNCDETECT_H

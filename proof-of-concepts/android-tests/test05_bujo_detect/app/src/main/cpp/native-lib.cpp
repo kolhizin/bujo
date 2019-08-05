@@ -122,3 +122,23 @@ Java_com_kolhizin_detectbujo_Detector_detectLines__JLcom_kolhizin_detectbujo_BuJ
     }
     return env->NewStringUTF(""); //empty means ok
 }
+
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_kolhizin_detectbujo_Detector_detectWords__JILcom_kolhizin_detectbujo_BuJoPage_2Lcom_kolhizin_detectbujo_BuJoSettings_2(
+        JNIEnv *env, jobject instance, jlong hDetector, jint lineId, jobject page,
+        jobject settings) {
+    auto pDetector = reinterpret_cast<bujo::detector::Detector *>(hDetector);
+    try {
+        BuJoPage page_(env, page);
+        BuJoSettings settings_(env, settings);
+        runDetectWords(*pDetector, lineId, page_, settings_);
+    }catch (const std::exception &e)
+    {
+        return env->NewStringUTF(e.what());
+    }catch (...)
+    {
+        return env->NewStringUTF("Unknwon error");
+    }
+    return env->NewStringUTF(""); //empty means ok
+}

@@ -120,6 +120,44 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         }
     }
 
+    public class AsyncDetectWordsTask extends AsyncTask<Integer, BuJoPage, BuJoPage> {
+        private Detector detector_;
+        private Context context_;
+
+        public AsyncDetectWordsTask(Context context, Detector detector) {
+            super();
+            context_ = context;
+            detector_ = detector;
+        }
+
+        @Override
+        protected BuJoPage doInBackground(Integer ... params) {
+            try {
+                detector_.detectWords(params[0]);
+                publishProgress(detector_.getPage());
+            } catch (Exception e) {
+                e.printStackTrace();
+                detector_.getPage().setError("Exception: " + e.getMessage());
+            }
+            return detector_.getPage();
+        }
+
+        @Override
+        protected void onProgressUpdate(BuJoPage... values) {
+            super.onProgressUpdate(values);
+            Toast.makeText(context_, values[0].getStatusMessage(), Toast.LENGTH_SHORT).show();
+            if(values[0].getStatus().fErrors)
+                Toast.makeText(context_, values[0].getErrorMessage(), Toast.LENGTH_LONG).show();
+        }
+
+        @Override
+        protected void onPostExecute(BuJoPage page) {
+            super.onPostExecute(page);
+            showUpdatedImage();
+            Toast.makeText(context_, "Done!", Toast.LENGTH_LONG).show();
+        }
+    }
+
     // Used to load the 'native-lib' library on application startup.
     static {
         System.loadLibrary("native-lib");
@@ -240,9 +278,20 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
+    private void detectWords(int id){
+        BuJoSettings settings = new BuJoSettings();
+        try {
+            AsyncDetectWordsTask task = new AsyncDetectWordsTask(this, detector);
+            task.execute(id);
+            Toast.makeText(this, "Started!", Toast.LENGTH_SHORT).show();
+        }catch (Exception e){
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+        }
+    }
+
 
     private void dispatchDetect(){
-        BuJoPage page = ((BuJoApp)getApplication()).getPage();
+        BuJoPage page = getPage();
         if(page == null){
             Toast.makeText(this, "Page does not exist!", Toast.LENGTH_LONG).show();
             return;
@@ -251,6 +300,12 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
             detectRegion();
         }else if(!page.getStatus().fDetectedLines){
             detectLines();
+        }else{
+            if(page.getActiveLine() == null){
+                Toast.makeText(this, "First select line!", Toast.LENGTH_LONG).show();
+                return
+            }
+            detectWords(page.getActiveLineId());
         }
     }
 

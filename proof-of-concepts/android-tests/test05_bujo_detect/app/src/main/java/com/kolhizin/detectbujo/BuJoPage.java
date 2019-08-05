@@ -182,6 +182,15 @@ public class BuJoPage {
     public BuJoLine getActiveLine(){
         return activeLine;
     }
+    public int getActiveLineId(){
+        if(activeLine == null)
+            return -1;
+        for(int i = 0; i < lines.size(); i++) {
+            if (lines.get(i) == activeLine)
+                return i;
+        }
+        return -1;
+    }
 
     public BuJoStatus getStatus(){ return status; }
 
