@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Rect;
@@ -191,14 +192,20 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         if(page == null)
             return;
         if(page.getStatus().fDetectedLines){
-            Bitmap img0 = BuJoTools.shadeRegions(page.getAligned(), page.getSplits());
-            Bitmap img = BuJoTools.drawLines(img0, page.getLines(), Color.rgb(100,100,100),10.0f);
+            Bitmap res = page.getAligned().copy(page.getAligned().getConfig(), true);
+            Canvas canvas = new Canvas(res);
+
+            BuJoTools.shadeRegions(canvas, page.getSplits());
+            BuJoTools.drawLines(canvas, page.getLines(), Color.rgb(100,100,100),10.0f);
             if(page.getActiveLine() != null)
-                img = BuJoTools.drawLine(img, page.getActiveLine(), Color.rgb(255,0,0),20.0f);
-            imgMain.setImageBitmap(img);
+                BuJoTools.drawLine(canvas, page.getActiveLine(), Color.rgb(255,0,0),20.0f);
+            imgMain.setImageBitmap(res);
         }else if(page.getStatus().fDetectedRegion) {
-            Bitmap img = BuJoTools.shadeRegions(page.getAligned(), page.getSplits());
-            imgMain.setImageBitmap(img);
+            Bitmap res = page.getAligned().copy(page.getAligned().getConfig(), true);
+            Canvas canvas = new Canvas(res);
+
+            BuJoTools.shadeRegions(canvas, page.getSplits());
+            imgMain.setImageBitmap(res);
         }
     }
 
@@ -283,18 +290,27 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
 
     protected void touchMainImg(float locX, float locY, MotionEvent event){
         int id = -1;
+        double tDistance = 0.0;
+        double tDraw = 0.0;
         if(getPage() != null && getPage().getStatus().fDetectedLines) {
+            long t0 = System.currentTimeMillis();
             id = getPage().getClosestLine(locX, locY);
+            long t1 = System.currentTimeMillis();
+            tDistance = (t1 - t0) / 1000.0;
             BuJoPage.BuJoLine newLine = null;
             if(id != -1)
                 newLine = getPage().getLine(id);
             boolean fSame = (newLine == getPage().getActiveLine());
             if(!fSame) {
                 getPage().activateLine(id);
+                long t2 = System.currentTimeMillis();
                 showUpdatedImage();
+                long t3 = System.currentTimeMillis();
+                tDraw = (t3 - t2) / 1000.0;
             }
         }
         String msg = Float.toString(locX) + ", " + Float.toString(locY) + " = " + Integer.toString(id);
+        msg += "; calc = " + Double.toString(tDistance) + ", draw = " + Double.toString(tDraw);
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
     }
 

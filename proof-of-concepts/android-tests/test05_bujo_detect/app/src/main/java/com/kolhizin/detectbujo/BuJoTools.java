@@ -88,12 +88,10 @@ public class BuJoTools {
         return makeLinePath(w, h, line.xCoords, line.yCoords);
     }
 
-    public static Bitmap drawLines(Bitmap src, List<BuJoPage.BuJoLine> lines, int color, float width) {
-        int w = src.getWidth();
-        int h = src.getHeight();
+    public static void drawLines(Canvas canvas, List<BuJoPage.BuJoLine> lines, int color, float width) {
+        int w = canvas.getWidth();
+        int h = canvas.getHeight();
 
-        Bitmap res = src.copy(src.getConfig(), true);
-        Canvas canvas = new Canvas(res);
         Paint paint = new Paint();
         paint.setColor(color);
         paint.setAlpha(110);
@@ -103,14 +101,11 @@ public class BuJoTools {
         for(int i = 0; i < lines.size(); i++){
             canvas.drawPath(makeLinePath(w, h, lines.get(i)), paint);
         }
-        return res;
     }
-    public static Bitmap drawLine(Bitmap src, BuJoPage.BuJoLine line, int color, float width) {
-        int w = src.getWidth();
-        int h = src.getHeight();
+    public static void drawLine(Canvas canvas, BuJoPage.BuJoLine line, int color, float width) {
+        int w = canvas.getWidth();
+        int h = canvas.getHeight();
 
-        Bitmap res = src.copy(src.getConfig(), true);
-        Canvas canvas = new Canvas(res);
         Paint paint = new Paint();
         paint.setColor(color);
         paint.setAlpha(110);
@@ -118,7 +113,6 @@ public class BuJoTools {
         paint.setStrokeWidth(width);
 
         canvas.drawPath(makeLinePath(w, h, line), paint);
-        return res;
     }
 
     public static Bitmap drawWords(Bitmap src, BuJoWord [][]words) {
@@ -184,13 +178,13 @@ public class BuJoTools {
         return p;
     }
 
-    public static Bitmap shadeRegions(Bitmap src, List<BuJoPage.BuJoSplit> splits){
+    public static void shadeRegions(Canvas canvas, List<BuJoPage.BuJoSplit> splits){
         if(splits.size()==0)
-            return src;
+            return;
 
         Path p = null;
-        int w = src.getWidth();
-        int h = src.getHeight();
+        int w = canvas.getWidth();
+        int h = canvas.getHeight();
         for(int i = 0; i < splits.size(); i++){
             BuJoPage.BuJoSplit split = splits.get(i);
             Path tmp = makeShadeRegion(w, h, split.angle, split.offset, split.direction);
@@ -200,17 +194,14 @@ public class BuJoTools {
                 p.op(tmp, Path.Op.UNION);
         }
         if(p == null)
-            return src;
+            return;
 
-        Bitmap res = src.copy(src.getConfig(), true);
-        Canvas canvas = new Canvas(res);
         Paint paint = new Paint();
         paint.setColor(Color.rgb(0,0, 0));
         paint.setAlpha(110);
         paint.setStyle(Paint.Style.FILL_AND_STROKE);
         paint.setStrokeWidth(10);
         canvas.drawPath(p, paint);
-        return res;
     }
 
 }
