@@ -22,6 +22,11 @@ import org.tensorflow.lite.Interpreter;
 import org.tensorflow.lite.Tensor;
 
 public class Classifier {
+    public class Result{
+        float [] probs;
+        char [] chars;
+    }
+
     public Interpreter tflite_;
     private Activity activity_;
     private String chars_;
@@ -185,6 +190,13 @@ public class Classifier {
         return decodeOutput(outputData_[0]);
     }
 
+    public Result[] detect(Bitmap src, float cutoff, int topK) throws Exception{
+        applyTransforms(src, cutoff);
+        setInput();
+        runInference();
+        return decodeTopK(outputData_[0], topK);
+    }
+
     public float [][] transformInput(Bitmap src, float cutoff) throws Exception{
         applyTransforms(src, cutoff);
         float [][] res = new float[bufferRows_[activeBuffer_]][bufferCols_[activeBuffer_]];
@@ -192,6 +204,16 @@ public class Classifier {
             for(int j = 0; j < bufferCols_[activeBuffer_]; j++){
                 res[i][j] = buffers_[activeBuffer_][i][j];
             }
+        }
+        return res;
+    }
+
+    private Result []decodeTopK(float [][] encoded, int k){
+        Result [] res = new Result[encoded.length];
+        for(int i = 0; i < encoded.length; i++){
+            res[i].probs = new float[k];
+            res[i].chars = new char[k];
+            
         }
         return res;
     }
