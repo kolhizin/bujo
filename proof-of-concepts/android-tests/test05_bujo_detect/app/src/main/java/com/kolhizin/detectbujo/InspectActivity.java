@@ -15,19 +15,30 @@ import android.widget.Toast;
 public class InspectActivity extends FragmentActivity {
     public class AsyncDetectWordsTask extends AsyncTask<Integer, BuJoPage, BuJoPage> {
         private Detector detector_;
+        private Classifier classifier_;
         private Context context_;
 
-        public AsyncDetectWordsTask(Context context, Detector detector) {
+        public AsyncDetectWordsTask(Context context, Detector detector, Classifier classifier) {
             super();
             context_ = context;
             detector_ = detector;
+            classifier_ = classifier;
         }
 
         @Override
         protected BuJoPage doInBackground(Integer ... params) {
             try {
                 detector_.detectWords(lineId);
+                wordImages = new Bitmap[detector_.getPage().getWords()[lineId].length];
+                BuJoWord [] words = detector_.getPage().getWords()[lineId];
+                for(int i = 0; i < words.length; i++) {
+                    wordImages[i] = extractWord(i, 1.4f);
+                }
                 publishProgress(detector_.getPage());
+                for(int i = 0; i < words.length; i++){
+                    words[i].text = classifier_.detect(wordImages[i], 0.7f);
+                    publishProgress(detector_.getPage());
+                }
             } catch (Exception e) {
                 e.printStackTrace();
                 detector_.getPage().setError("Exception: " + e.getMessage());
@@ -43,8 +54,12 @@ public class InspectActivity extends FragmentActivity {
             if(wordTextViews == null || wordTextViews.length != page.getWords()[lineId].length){
                 wordTextViews = new TextView[page.getWords()[lineId].length];
                 for(int i = 0; i < page.getWords()[lineId].length; i++){
-                    loadWord(i, 1.4f);
+                    loadWord(i);
                 }
+            }
+            BuJoWord []words = page.getWords()[lineId];
+            for(int i = 0; i < wordTextViews.length; i++){
+                wordTextViews[i].setText(makeText(i, words[i], wordImages[i]));
             }
             Toast.makeText(context_, values[0].getStatusMessage(), Toast.LENGTH_SHORT).show();
             if(values[0].getStatus().fErrors)
@@ -81,7 +96,18 @@ public class InspectActivity extends FragmentActivity {
     private TextView lineTextView = null;
     private LinearLayout wordsLayout = null;
     private TextView [] wordTextViews = null;
+    private Bitmap [] wordImages = null;
     private int lineId = -1;
+
+    private String makeText(int id, BuJoWord word, Bitmap bmp){
+        String wordText = "Word #" + String.valueOf(id);
+        float stddev = BuJoTools.calcImageStdDev(bmp);
+        wordText += ", stddev=" + String.valueOf(stddev);
+        if(word.text != null){
+            wordText += "\nResult=" + word.text;
+        }
+        return wordText;
+    }
 
     private void loadLine(float negOffset, float posOffset){
         BuJoPage.BuJoLine line = page.getLine(lineId);
@@ -91,46 +117,19 @@ public class InspectActivity extends FragmentActivity {
 
         lineImageView.setImageBitmap(bmpLine);
         lineTextView.setText(text);
-        /*
-        String lineText = "Line #" + String.valueOf(i);
-        lineText += ", " + String.valueOf(page.getWords()[i].length) + " words:";
-        mainLayout.addView(newTextView(lineText, 20));
-        mainLayout.addView(newImageView(tmpLine));
-        for(int j = 0; j < words.length; j++){
-            String wordText = "Word #" + String.valueOf(j);
-            float dx = words[j].xCoords[words[j].xCoords.length-1] - words[j].xCoords[0];
-            if(dx * page.getAligned().getWidth() < 5.0f){
-                mainLayout.addView(newTextView(wordText + ", not-a-word", 20));
-                continue;
-            }
-            Bitmap tmpWord = BuJoTools.extractCurve(page.getAligned(),
-                    words[j].xCoords, words[j].yCoords,
-                    -words[j].negOffset*yScale, words[j].posOffset*yScale);
-
-            float stddev = BuJoTools.calcImageStdDev(tmpWord);
-            mainLayout.addView(newTextView(wordText + ", stddev=" + String.valueOf(stddev), 20));
-            mainLayout.addView(newImageView(tmpWord));
-        }
-        */
     }
-    private void loadWord(int j, float yScale){
+    private Bitmap extractWord(int j, float yScale){
+        BuJoWord word = page.getWords()[lineId][j];
+        return BuJoTools.extractCurve(page.getAligned(), word.xCoords, word.yCoords,
+                -word.negOffset*yScale, word.posOffset*yScale);
+    }
+    private void loadWord(int j){
         BuJoPage.BuJoLine line = page.getLine(lineId);
         BuJoWord []words = page.getWords()[lineId];
-        String wordText = "Word #" + String.valueOf(j);
-        float dx = words[j].xCoords[words[j].xCoords.length-1] - words[j].xCoords[0];
-        if(dx * page.getAligned().getWidth() < 5.0f){
-            wordTextViews[j] = newTextView(wordText + ", not-a-word", 20);
-            wordsLayout.addView(wordTextViews[j]);
-            return;
-        }
-        Bitmap tmpWord = BuJoTools.extractCurve(page.getAligned(),
-                words[j].xCoords, words[j].yCoords,
-                -words[j].negOffset*yScale, words[j].posOffset*yScale);
 
-        float stddev = BuJoTools.calcImageStdDev(tmpWord);
-        wordTextViews[j] = newTextView(wordText + ", stddev=" + String.valueOf(stddev), 20);
+        wordTextViews[j] = newTextView(makeText(j, words[j], wordImages[j]), 20);
         wordsLayout.addView(wordTextViews[j]);
-        wordsLayout.addView(newImageView(tmpWord));
+        wordsLayout.addView(newImageView(wordImages[j]));
     }
 
     @Override
