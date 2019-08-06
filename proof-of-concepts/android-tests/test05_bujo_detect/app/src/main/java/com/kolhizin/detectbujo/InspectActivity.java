@@ -26,7 +26,7 @@ public class InspectActivity extends FragmentActivity {
         @Override
         protected BuJoPage doInBackground(Integer ... params) {
             try {
-                detector_.detectWords(params[0]);
+                detector_.detectWords(lineId);
                 publishProgress(detector_.getPage());
             } catch (Exception e) {
                 e.printStackTrace();
@@ -38,6 +38,14 @@ public class InspectActivity extends FragmentActivity {
         @Override
         protected void onProgressUpdate(BuJoPage... values) {
             super.onProgressUpdate(values);
+            if(page.getWords()[lineId] == null)
+                return;
+            if(wordTextViews == null || wordTextViews.length != page.getWords()[lineId].length){
+                wordTextViews = new TextView[page.getWords()[lineId].length];
+                for(int i = 0; i < page.getWords()[lineId].length; i++){
+                    loadWord(i, 1.4f);
+                }
+            }
             Toast.makeText(context_, values[0].getStatusMessage(), Toast.LENGTH_SHORT).show();
             if(values[0].getStatus().fErrors)
                 Toast.makeText(context_, values[0].getErrorMessage(), Toast.LENGTH_LONG).show();
@@ -72,6 +80,7 @@ public class InspectActivity extends FragmentActivity {
     private ImageView lineImageView = null;
     private TextView lineTextView = null;
     private LinearLayout wordsLayout = null;
+    private TextView [] wordTextViews = null;
     private int lineId = -1;
 
     private void loadLine(float negOffset, float posOffset){
@@ -104,6 +113,25 @@ public class InspectActivity extends FragmentActivity {
         }
         */
     }
+    private void loadWord(int j, float yScale){
+        BuJoPage.BuJoLine line = page.getLine(lineId);
+        BuJoWord []words = page.getWords()[lineId];
+        String wordText = "Word #" + String.valueOf(j);
+        float dx = words[j].xCoords[words[j].xCoords.length-1] - words[j].xCoords[0];
+        if(dx * page.getAligned().getWidth() < 5.0f){
+            wordTextViews[j] = newTextView(wordText + ", not-a-word", 20);
+            wordsLayout.addView(wordTextViews[j]);
+            return;
+        }
+        Bitmap tmpWord = BuJoTools.extractCurve(page.getAligned(),
+                words[j].xCoords, words[j].yCoords,
+                -words[j].negOffset*yScale, words[j].posOffset*yScale);
+
+        float stddev = BuJoTools.calcImageStdDev(tmpWord);
+        wordTextViews[j] = newTextView(wordText + ", stddev=" + String.valueOf(stddev), 20);
+        wordsLayout.addView(wordTextViews[j]);
+        wordsLayout.addView(newImageView(tmpWord));
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,7 +148,7 @@ public class InspectActivity extends FragmentActivity {
         lineImageView = findViewById(R.id.inspectLineImageView);
 
         loadLine(0.03f, 0.03f);
-        /*
+
         BuJoSettings settings = new BuJoSettings();
         try {
             AsyncDetectWordsTask task = new AsyncDetectWordsTask(this, app.getDetector());
@@ -129,7 +157,7 @@ public class InspectActivity extends FragmentActivity {
         }catch (Exception e){
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
         }
-        */
+
     }
 
 }
