@@ -8,26 +8,19 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
-import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
-import android.graphics.pdf.PdfDocument;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.FileProvider;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
-
-import org.tensorflow.lite.Interpreter;
 
 import java.io.File;
 import java.io.IOException;
@@ -241,7 +234,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         }
     }
     private void detectWords(int id){
-        Intent intent = new Intent(this, InspectActivity.class);
+        Intent intent = new Intent(this, InspectLineActivity.class);
         startActivity(intent);
         /*
         */

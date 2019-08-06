@@ -5,4 +5,7 @@ public class BuJoWord {
     float [] yCoords;
     float negOffset, posOffset;
     String text = null;
+
+    float [][] probs = null;
+    char [][] chars = null;
 }

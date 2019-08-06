@@ -6,13 +6,12 @@ import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class InspectActivity extends FragmentActivity {
+public class InspectLineActivity extends FragmentActivity {
     public class AsyncDetectWordsTask extends AsyncTask<Integer, BuJoPage, BuJoPage> {
         private Detector detector_;
         private Classifier classifier_;
@@ -35,9 +34,19 @@ public class InspectActivity extends FragmentActivity {
                     wordImages[i] = extractWord(i, 1.4f);
                 }
                 publishProgress(detector_.getPage());
+                int topK = 2;
                 for(int i = 0; i < words.length; i++){
-                    if(wordImages[i] != null)
+                    if(wordImages[i] != null) {
                         words[i].text = classifier_.detect(wordImages[i], 0.7f);
+
+                        Classifier.Result [] tmp = classifier_.detect(wordImages[i], 0.7f, topK);
+                        words[i].probs = new float[tmp.length][];
+                        words[i].chars = new char[tmp.length][];
+                        for(int j = 0; j < tmp.length; j++){
+                            words[i].probs[j] = tmp[j].probs;
+                            words[i].chars[j] = tmp[j].chars;
+                        }
+                    }
                     publishProgress(detector_.getPage());
                 }
             } catch (Exception e) {
@@ -109,6 +118,21 @@ public class InspectActivity extends FragmentActivity {
         if(word.text != null){
             wordText += "\nResult=" + word.text;
         }
+        if(word.chars != null && word.probs != null){
+            wordText += "\n";
+            for(int i = 0; i < word.chars.length; i++){
+                wordText += "[";
+                for(int j = 0; j < word.chars[i].length; j++){
+                    if(j > 0)
+                        wordText += "|";
+                    if(word.chars[i]==0)
+                        wordText += "END:" + Float.toString(word.probs[i][j]);
+                    else
+                        wordText += "'" word.chars[i][j] + "':" + Float.toString(word.probs[i][j]);
+                }
+                wordText += "]";
+            }
+        }
         return wordText;
     }
 
@@ -141,7 +165,7 @@ public class InspectActivity extends FragmentActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_inspect);
+        setContentView(R.layout.activity_inspect_line);
 
         Intent intent = getIntent();
         BuJoApp app = (BuJoApp)getApplication();

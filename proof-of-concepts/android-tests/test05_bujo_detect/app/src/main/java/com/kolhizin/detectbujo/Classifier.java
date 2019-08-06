@@ -16,6 +16,8 @@ import java.nio.FloatBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.LinkedList;
 
 import org.tensorflow.lite.Interpreter;
@@ -25,6 +27,33 @@ public class Classifier {
     public class Result{
         float [] probs;
         char [] chars;
+    }
+
+    private static Integer [] getSortedIndices(float [] arr){
+        class ArrayIndexComparator implements Comparator<Integer>
+        {
+            private final float[] array_;
+
+            public ArrayIndexComparator(float[] array) {
+                array_ = array;
+            }
+
+            public Integer[] createIndexArray() {
+                Integer[] indexes = new Integer[array_.length];
+                for (int i = 0; i < array_.length; i++) {
+                    indexes[i] = i; // Autoboxing
+                }
+                return indexes;
+            }
+
+            @Override
+            public int compare(Integer index1, Integer index2) {
+                return Float.compare(array_[index1], array_[index2]);
+            }
+        }
+        ArrayIndexComparator comparator = new ArrayIndexComparator(arr);
+        Integer [] indices = comparator.createIndexArray();
+        Arrays.sort(indices, comparator);
     }
 
     public Interpreter tflite_;
@@ -213,7 +242,14 @@ public class Classifier {
         for(int i = 0; i < encoded.length; i++){
             res[i].probs = new float[k];
             res[i].chars = new char[k];
-            
+            Integer[] inds = getSortedIndices(res[i].probs);
+            for(int j = 0; j < k; j++){
+                res[i].probs[j] = res[i].probs[inds[j]];
+                if(inds[j] == chars_.length())
+                    res[i].chars[j] = 0;
+                else
+                    res[i].chars[j] = chars_.charAt(inds[j]);
+            }
         }
         return res;
     }
