@@ -36,7 +36,8 @@ public class InspectActivity extends FragmentActivity {
                 }
                 publishProgress(detector_.getPage());
                 for(int i = 0; i < words.length; i++){
-                    words[i].text = classifier_.detect(wordImages[i], 0.7f);
+                    if(wordImages[i] != null)
+                        words[i].text = classifier_.detect(wordImages[i], 0.7f);
                     publishProgress(detector_.getPage());
                 }
             } catch (Exception e) {
@@ -101,8 +102,10 @@ public class InspectActivity extends FragmentActivity {
 
     private String makeText(int id, BuJoWord word, Bitmap bmp){
         String wordText = "Word #" + String.valueOf(id);
-        float stddev = BuJoTools.calcImageStdDev(bmp);
-        wordText += ", stddev=" + String.valueOf(stddev);
+        if(bmp != null) {
+            float stddev = BuJoTools.calcImageStdDev(bmp);
+            wordText += ", stddev=" + String.valueOf(stddev);
+        }
         if(word.text != null){
             wordText += "\nResult=" + word.text;
         }
@@ -120,6 +123,9 @@ public class InspectActivity extends FragmentActivity {
     }
     private Bitmap extractWord(int j, float yScale){
         BuJoWord word = page.getWords()[lineId][j];
+        float dx = Math.abs(word.xCoords[word.xCoords.length-1] - word.xCoords[0]);
+        if(dx * page.getAligned().getWidth() < 4.0f)
+            return null;
         return BuJoTools.extractCurve(page.getAligned(), word.xCoords, word.yCoords,
                 -word.negOffset*yScale, word.posOffset*yScale);
     }
@@ -150,7 +156,7 @@ public class InspectActivity extends FragmentActivity {
 
         BuJoSettings settings = new BuJoSettings();
         try {
-            AsyncDetectWordsTask task = new AsyncDetectWordsTask(this, app.getDetector());
+            AsyncDetectWordsTask task = new AsyncDetectWordsTask(this, app.getDetector(), app.getClassifier());
             task.execute(page.getActiveLineId());
             Toast.makeText(this, "Started!", Toast.LENGTH_SHORT).show();
         }catch (Exception e){
