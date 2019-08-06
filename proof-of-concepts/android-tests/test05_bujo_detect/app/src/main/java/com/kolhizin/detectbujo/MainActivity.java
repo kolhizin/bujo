@@ -62,7 +62,6 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         @Override
         protected void onProgressUpdate(BuJoPage... values) {
             super.onProgressUpdate(values);
-            Toast.makeText(context_, values[0].getStatusMessage(), Toast.LENGTH_SHORT).show();
             if(values[0].getStatus().fErrors)
                 Toast.makeText(context_, values[0].getErrorMessage(), Toast.LENGTH_LONG).show();
         }
@@ -100,7 +99,6 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         @Override
         protected void onProgressUpdate(BuJoPage... values) {
             super.onProgressUpdate(values);
-            Toast.makeText(context_, values[0].getStatusMessage(), Toast.LENGTH_SHORT).show();
             if(values[0].getStatus().fErrors)
                 Toast.makeText(context_, values[0].getErrorMessage(), Toast.LENGTH_LONG).show();
         }
@@ -218,7 +216,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
             detector.reset();
             AsyncPreprocessTask task = new AsyncPreprocessTask(this, detector);
             task.execute(mainBitmap);
-            Toast.makeText(this, "Started!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Started region-detection!", Toast.LENGTH_SHORT).show();
         }catch (Exception e){
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
         }
@@ -228,7 +226,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         try {
             AsyncDetectLinesTask task = new AsyncDetectLinesTask(this, detector);
             task.execute(0);
-            Toast.makeText(this, "Started!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Started line-detection!", Toast.LENGTH_SHORT).show();
         }catch (Exception e){
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
         }
@@ -295,29 +293,17 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     }
 
     protected void touchMainImg(float locX, float locY, MotionEvent event){
-        int id = -1;
-        double tDistance = 0.0;
-        double tDraw = 0.0;
         if(getPage() != null && getPage().getStatus().fDetectedLines) {
-            long t0 = System.currentTimeMillis();
-            id = getPage().getClosestLine(locX, locY);
-            long t1 = System.currentTimeMillis();
-            tDistance = (t1 - t0) / 1000.0;
+            int id = getPage().getClosestLine(locX, locY);
             BuJoPage.BuJoLine newLine = null;
             if(id != -1)
                 newLine = getPage().getLine(id);
             boolean fSame = (newLine == getPage().getActiveLine());
             if(!fSame) {
                 getPage().activateLine(id);
-                long t2 = System.currentTimeMillis();
                 showUpdatedImage();
-                long t3 = System.currentTimeMillis();
-                tDraw = (t3 - t2) / 1000.0;
             }
         }
-        String msg = Float.toString(locX) + ", " + Float.toString(locY) + " = " + Integer.toString(id);
-        msg += "; calc = " + Double.toString(tDistance) + ", draw = " + Double.toString(tDraw);
-        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
     }
 
     protected void takePhoto(){
@@ -381,9 +367,6 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
             }
         }
         if(targetUri != null){
-            //BuJoSettings settings = new BuJoSettings();
-            //AsyncDetect task = new AsyncDetect(this, settings, imgView.getMaxHeight());
-            //task.execute(targetUri);
 
             Bitmap bmp = null;
             try{
