@@ -29,6 +29,19 @@ public class Classifier {
         char [] chars;
     }
 
+    private static float [] convertProbs(float [] arr){
+        double [] exps = new double[arr.length];
+        double sum = 0.0;
+        for(int i = 0; i < arr.length; i++){
+            exps[i] = Math.exp(arr[i]);
+            sum += exps[i];
+        }
+        float [] res = new float[arr.length];
+        for(int i = 0; i < arr.length; i++){
+            res[i] = (float)(exps[i] / sum);
+        }
+        return res;
+    }
     private static Integer [] getSortedIndices(float [] arr){
         class ArrayIndexComparator implements Comparator<Integer>
         {
@@ -48,12 +61,13 @@ public class Classifier {
 
             @Override
             public int compare(Integer index1, Integer index2) {
-                return Float.compare(array_[index1], array_[index2]);
+                return -Float.compare(array_[index1], array_[index2]);
             }
         }
         ArrayIndexComparator comparator = new ArrayIndexComparator(arr);
         Integer [] indices = comparator.createIndexArray();
         Arrays.sort(indices, comparator);
+        return indices;
     }
 
     public Interpreter tflite_;
@@ -212,6 +226,13 @@ public class Classifier {
         runInference();
         return outputData_[0];
     }
+    public Bitmap preprocess(Bitmap src, float cutoff) throws Exception{
+        applyTransforms(src, cutoff);
+        transformTranspose();
+        transformMinMax();
+        //arrayToBitmap_
+        return src;
+    }
     public String detect(Bitmap src, float cutoff) throws Exception{
         applyTransforms(src, cutoff);
         setInput();
@@ -240,11 +261,13 @@ public class Classifier {
     private Result []decodeTopK(float [][] encoded, int k){
         Result [] res = new Result[encoded.length];
         for(int i = 0; i < encoded.length; i++){
+            res[i] = new Result();
             res[i].probs = new float[k];
             res[i].chars = new char[k];
-            Integer[] inds = getSortedIndices(res[i].probs);
+            float [] probs = convertProbs(encoded[i]);
+            Integer[] inds = getSortedIndices(probs);
             for(int j = 0; j < k; j++){
-                res[i].probs[j] = res[i].probs[inds[j]];
+                res[i].probs[j] = probs[inds[j]];
                 if(inds[j] == chars_.length())
                     res[i].chars[j] = 0;
                 else
@@ -404,6 +427,23 @@ public class Classifier {
         for(int i = 0; i < rows; i++){
             for(int j = 0; j < cols; j++){
                 buffers_[activeBuffer_][i][j] = coef * (buffers_[activeBuffer_][i][j]-mean) / std;
+            }
+        }
+    }
+    private void transformMinMax(){
+        int rows = bufferRows_[activeBuffer_];
+        int cols = bufferCols_[activeBuffer_];
+
+        float min = buffers_[activeBuffer_][0][0], max = buffers_[activeBuffer_][0][0];
+        for(int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                min = Math.min(min, buffers_[activeBuffer_][i][j]);
+                max = Math.max(max, buffers_[activeBuffer_][i][j]);
+            }
+        }
+        for(int i = 0; i < rows; i++){
+            for(int j = 0; j < cols; j++){
+                buffers_[activeBuffer_][i][j] = (buffers_[activeBuffer_][i][j] - min) / (max - min);
             }
         }
     }

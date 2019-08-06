@@ -125,10 +125,10 @@ public class InspectLineActivity extends FragmentActivity {
                 for(int j = 0; j < word.chars[i].length; j++){
                     if(j > 0)
                         wordText += "|";
-                    if(word.chars[i]==0)
+                    if(word.chars[i][j] == 0)
                         wordText += "END:" + Float.toString(word.probs[i][j]);
                     else
-                        wordText += "'" word.chars[i][j] + "':" + Float.toString(word.probs[i][j]);
+                        wordText += "'" + word.chars[i][j] + "':" + String.format("%.02f", word.probs[i][j]);
                 }
                 wordText += "]";
             }
