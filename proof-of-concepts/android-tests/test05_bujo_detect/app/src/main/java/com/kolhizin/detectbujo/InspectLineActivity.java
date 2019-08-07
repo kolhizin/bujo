@@ -200,7 +200,7 @@ public class InspectLineActivity extends FragmentActivity implements View.OnClic
         BuJoApp app = (BuJoApp)getApplication();
         int lineId = -1, wordId = -1;
         for(int i = 0; i < wordImgViews.length; i++){
-            if(v.getId() == wordImgViews[i].getId()){
+            if(v == wordImgViews[i]){
                 lineId = app.getPage().getActiveLineId();
                 wordId = i;
                 break;
