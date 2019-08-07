@@ -230,8 +230,7 @@ public class Classifier {
         applyTransforms(src, cutoff);
         transformTranspose();
         transformMinMax();
-        //arrayToBitmap_
-        return src;
+        return arrayToBitmap_(buffers_[activeBuffer_], bufferRows_[activeBuffer_], bufferCols_[activeBuffer_]);
     }
     public String detect(Bitmap src, float cutoff) throws Exception{
         applyTransforms(src, cutoff);

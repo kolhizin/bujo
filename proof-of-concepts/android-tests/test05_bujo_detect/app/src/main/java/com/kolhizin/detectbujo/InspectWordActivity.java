@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class InspectWordActivity extends FragmentActivity {
     private ImageView imgSource = null, imgDetect = null;
@@ -27,12 +28,15 @@ public class InspectWordActivity extends FragmentActivity {
         float cutoff = 0.7f;
 
         Bitmap wordImage = BuJoTools.extractCurve(app.getPage().getAligned(),
-                word.xCoords, word.yCoords, -word.negOffset*yScale, word.posOffset*yScale)
+                word.xCoords, word.yCoords, -word.negOffset*yScale, word.posOffset*yScale);
 
         imgSource.setImageBitmap(wordImage);
-        imgDetect.setImageBitmap(wordImage);
-
-        String detectResult = classifier.detect(wordImage, cutoff);
-        txtDescription.setText(detectResult);
+        try {
+            imgDetect.setImageBitmap(classifier.preprocess(wordImage, cutoff));
+            String detectResult = classifier.detect(wordImage, cutoff);
+            txtDescription.setText(detectResult);
+        }catch (Exception e){
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+        }
     }
 }
