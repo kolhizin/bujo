@@ -6,12 +6,13 @@ import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class InspectLineActivity extends FragmentActivity {
+public class InspectLineActivity extends FragmentActivity implements View.OnClickListener {
     public class AsyncDetectWordsTask extends AsyncTask<Integer, BuJoPage, BuJoPage> {
         private Detector detector_;
         private Classifier classifier_;
@@ -63,6 +64,7 @@ public class InspectLineActivity extends FragmentActivity {
                 return;
             if(wordTextViews == null || wordTextViews.length != page.getWords()[lineId].length){
                 wordTextViews = new TextView[page.getWords()[lineId].length];
+                wordImgViews = new ImageView[page.getWords()[lineId].length];
                 for(int i = 0; i < page.getWords()[lineId].length; i++){
                     loadWord(i);
                 }
@@ -105,6 +107,7 @@ public class InspectLineActivity extends FragmentActivity {
     private ImageView lineImageView = null;
     private TextView lineTextView = null;
     private LinearLayout wordsLayout = null;
+    private ImageView [] wordImgViews = null;
     private TextView [] wordTextViews = null;
     private Bitmap [] wordImages = null;
     private int lineId = -1;
@@ -157,8 +160,10 @@ public class InspectLineActivity extends FragmentActivity {
         BuJoWord []words = page.getWords()[lineId];
 
         wordTextViews[j] = newTextView(makeText(j, words[j], wordImages[j]), 20);
+        wordImgViews[j] = newImageView(wordImages[j]);
+        wordImgViews[j].setOnClickListener(this);
         wordsLayout.addView(wordTextViews[j]);
-        wordsLayout.addView(newImageView(wordImages[j]));
+        wordsLayout.addView(wordImgViews[j]);
     }
 
     @Override
@@ -186,6 +191,26 @@ public class InspectLineActivity extends FragmentActivity {
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
         }
 
+    }
+
+    @Override
+    public void onClick(View v){
+        if(wordImgViews == null)
+            return;
+        BuJoApp app = (BuJoApp)getApplication();
+        int lineId = -1, wordId = -1;
+        for(int i = 0; i < wordImgViews.length; i++){
+            if(v.getId() == wordImgViews[i].getId()){
+                lineId = app.getPage().getActiveLineId();
+                wordId = i;
+                break;
+            }
+        }
+        if(lineId == -1 || wordId == -1)
+            return;
+        app.setWord(app.getPage().getWords()[lineId][wordId]);
+        Intent intent = new Intent(this, InspectWordActivity.class);
+        startActivity(intent);
     }
 
 }

@@ -234,8 +234,6 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     private void detectWords(int id){
         Intent intent = new Intent(this, InspectLineActivity.class);
         startActivity(intent);
-        /*
-        */
     }
 
 
