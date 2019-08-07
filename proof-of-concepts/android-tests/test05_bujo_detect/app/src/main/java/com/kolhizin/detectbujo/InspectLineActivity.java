@@ -39,14 +39,6 @@ public class InspectLineActivity extends FragmentActivity implements View.OnClic
                 for(int i = 0; i < words.length; i++){
                     if(wordImages[i] != null) {
                         words[i].text = classifier_.detect(wordImages[i], 0.7f);
-
-                        Classifier.Result [] tmp = classifier_.detect(wordImages[i], 0.7f, topK);
-                        words[i].probs = new float[tmp.length][];
-                        words[i].chars = new char[tmp.length][];
-                        for(int j = 0; j < tmp.length; j++){
-                            words[i].probs[j] = tmp[j].probs;
-                            words[i].chars[j] = tmp[j].chars;
-                        }
                     }
                     publishProgress(detector_.getPage());
                 }
@@ -120,20 +112,6 @@ public class InspectLineActivity extends FragmentActivity implements View.OnClic
         }
         if(word.text != null){
             wordText += "\nResult=" + word.text;
-        }
-        if(word.chars != null && word.probs != null){
-            for(int i = 0; i < word.chars.length; i++){
-                wordText += "\n[";
-                for(int j = 0; j < word.chars[i].length; j++){
-                    if(j > 0)
-                        wordText += "|";
-                    if(word.chars[i][j] == 0)
-                        wordText += "END:" + String.format("%.02f", word.probs[i][j]);
-                    else
-                        wordText += "'" + word.chars[i][j] + "':" + String.format("%.02f", word.probs[i][j]);
-                }
-                wordText += "]";
-            }
         }
         return wordText;
     }
