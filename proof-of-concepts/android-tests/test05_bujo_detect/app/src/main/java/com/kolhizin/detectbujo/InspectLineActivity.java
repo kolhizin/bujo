@@ -111,7 +111,7 @@ public class InspectLineActivity extends FragmentActivity implements View.OnClic
             wordText += ", stddev=" + String.valueOf(stddev);
         }
         if(word.text != null){
-            wordText += "\nResult=" + word.text;
+            wordText += "\nCharResult=" + word.text;
         }
         return wordText;
     }

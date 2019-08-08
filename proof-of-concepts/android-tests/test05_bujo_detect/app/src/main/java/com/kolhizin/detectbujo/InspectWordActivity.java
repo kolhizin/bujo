@@ -2,7 +2,6 @@ package com.kolhizin.detectbujo;
 
 import android.graphics.Bitmap;
 import android.support.v4.app.FragmentActivity;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -35,7 +34,7 @@ public class InspectWordActivity extends FragmentActivity {
         try {
             imgDetect.setImageBitmap(classifier.preprocess(wordImage, cutoff));
             word.text = classifier.detect(wordImage, cutoff);
-            Classifier.Result [] tmp = classifier.detect(wordImage, cutoff, topK);
+            Classifier.CharResult[] tmp = classifier.detect(wordImage, cutoff, topK);
             word.probs = new float[tmp.length][];
             word.chars = new char[tmp.length][];
             for(int j = 0; j < tmp.length; j++){

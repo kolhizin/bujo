@@ -3,30 +3,30 @@ package com.kolhizin.detectbujo;
 import android.app.Activity;
 import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;
-import android.os.SystemClock;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.FloatBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.LinkedList;
 
 import org.tensorflow.lite.Interpreter;
 import org.tensorflow.lite.Tensor;
 
 public class Classifier {
-    public class Result{
+    public class CharResult {
         float [] probs;
         char [] chars;
+    }
+    public class StringResult {
+        String string;
+        float prob;
     }
 
     private static float [] convertProbs(float [] arr){
@@ -236,10 +236,10 @@ public class Classifier {
         applyTransforms(src, cutoff);
         setInput();
         runInference();
-        return decodeOutput(outputData_[0]);
+        return decodeGreedy(outputData_[0]);
     }
 
-    public Result[] detect(Bitmap src, float cutoff, int topK) throws Exception{
+    public CharResult[] detect(Bitmap src, float cutoff, int topK) throws Exception{
         applyTransforms(src, cutoff);
         setInput();
         runInference();
@@ -257,10 +257,10 @@ public class Classifier {
         return res;
     }
 
-    private Result []decodeTopK(float [][] encoded, int k){
-        Result [] res = new Result[encoded.length];
+    private CharResult[]decodeTopK(float [][] encoded, int k){
+        CharResult[] res = new CharResult[encoded.length];
         for(int i = 0; i < encoded.length; i++){
-            res[i] = new Result();
+            res[i] = new CharResult();
             res[i].probs = new float[k];
             res[i].chars = new char[k];
             float [] probs = convertProbs(encoded[i]);
@@ -276,26 +276,31 @@ public class Classifier {
         return res;
     }
 
-    private String decodeOutput(float [][] encoded){
-        int terminal = encoded[0].length - 1;
-        LinkedList<Integer> res0 = new LinkedList<Integer>();
+    private String decode(int [] encoded){
+        int terminal = chars_.length();
+        StringBuffer res = new StringBuffer(encoded.length);
         int prev = -1;
+        for(int i = 0; i < encoded.length; i++){
+            if(encoded[i] == prev)
+                continue;
+            if(encoded[i] != terminal)
+                res.append(chars_.charAt(encoded[i]));
+            prev = encoded[i];
+        }
+        return res.toString();
+    }
+
+    private String decodeGreedy(float [][] encoded){
+        int [] ids = new int[encoded.length];
         for(int i = 0; i < encoded.length; i++){
             int best = 0;
             for(int j = 1; j < encoded[i].length; j++){
                 if(encoded[i][j] > encoded[i][best])
                     best = j;
             }
-            if(best == prev)
-                continue;
-            prev = best;
-            if(best != terminal)
-                res0.add(best);
+            ids[i] = best;
         }
-        StringBuffer res = new StringBuffer();
-        for(int i = 0; i < res0.size(); i++)
-            res.append(chars_.charAt(res0.get(i)));
-        return res.toString();
+        return decode(ids);
     }
 
     private void applyTransforms(Bitmap src, float cutoff) throws Exception{
