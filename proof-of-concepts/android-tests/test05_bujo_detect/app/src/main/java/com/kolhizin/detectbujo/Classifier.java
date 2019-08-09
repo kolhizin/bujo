@@ -314,6 +314,14 @@ public class Classifier {
                 return -Float.compare(p1.prob, p2.prob);
             }
         }
+        class StringResultComparator implements Comparator<Classifier.StringResult>
+        {
+            public StringResultComparator(){}
+            @Override
+            public int compare(Classifier.StringResult p1, Classifier.StringResult p2) {
+                return -Float.compare(p1.prob, p2.prob);
+            }
+        }
 
         ProbId [] substitutes = new ProbId[ids.length * (ids[0].length - 1)];
         for(int i = 0; i < ids.length; i++){
@@ -463,6 +471,9 @@ public class Classifier {
         for(int i = 0; i < res.length; i++){
             res[i] = res0.get(i);
         }
+
+        Arrays.sort(res, new StringResultComparator());
+
         return res;
     }
 

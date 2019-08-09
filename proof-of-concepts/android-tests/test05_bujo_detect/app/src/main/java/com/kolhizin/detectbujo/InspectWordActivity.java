@@ -36,11 +36,19 @@ public class InspectWordActivity extends FragmentActivity {
             word.text = classifier.detect(wordImage, cutoff);
             Classifier.CharResult[] tmp = classifier.detect(wordImage, cutoff, topK);
             Classifier.StringResult[] tmp_full = classifier.detect(wordImage, cutoff, 3, 0.01f);
+
             word.probs = new float[tmp.length][];
             word.chars = new char[tmp.length][];
             for(int j = 0; j < tmp.length; j++){
                 word.probs[j] = tmp[j].probs;
                 word.chars[j] = tmp[j].chars;
+            }
+
+            word.topProbs = new float[tmp_full.length];
+            word.topTexts = new String[tmp_full.length];
+            for(int j = 0; j < tmp_full.length; j++){
+                word.topTexts[j] = tmp_full[j].string;
+                word.topProbs[j] = tmp_full[j].prob;
             }
         }catch (Exception e){
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
@@ -61,6 +69,12 @@ public class InspectWordActivity extends FragmentActivity {
                         txtResult += "'" + word.chars[i][j] + "':" + String.format("%.02f", word.probs[i][j]);
                 }
                 txtResult += "\n\n";
+            }
+        }
+        if(word.topTexts != null && word.topProbs != null){
+            txtResult += "\n\n";
+            for(int i = 0; i < word.topTexts.length; i++){
+                txtResult += "\"" + word.topTexts[i] + "\"=" + String.format("%.03f", word.topProbs[i]);
             }
         }
         txtDescription.setText(txtResult);

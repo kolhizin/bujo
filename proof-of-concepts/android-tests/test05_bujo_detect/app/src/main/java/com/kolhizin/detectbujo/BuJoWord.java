@@ -8,4 +8,7 @@ public class BuJoWord {
 
     float [][] probs = null;
     char [][] chars = null;
+
+    String [] topTexts = null;
+    float [] topProbs = null;
 }
