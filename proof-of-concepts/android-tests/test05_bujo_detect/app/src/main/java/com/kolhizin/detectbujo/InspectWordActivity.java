@@ -68,13 +68,13 @@ public class InspectWordActivity extends FragmentActivity {
                     else
                         txtResult += "'" + word.chars[i][j] + "':" + String.format("%.02f", word.probs[i][j]);
                 }
-                txtResult += "\n\n";
+                txtResult += "\n";
             }
         }
         if(word.topTexts != null && word.topProbs != null){
-            txtResult += "\n\n";
+            txtResult += "\n";
             for(int i = 0; i < word.topTexts.length; i++){
-                txtResult += "\"" + word.topTexts[i] + "\"=" + String.format("%.03f", word.topProbs[i]);
+                txtResult += "\n" + word.topTexts[i] + "   " + String.format("%.03f", word.topProbs[i]);
             }
         }
         txtDescription.setText(txtResult);
