@@ -290,7 +290,7 @@ public class Classifier {
         int [][] ids = new int[encoded.length][encoded[0].length];
         for(int i = 0; i < encoded.length; i++){
             float [] probs0 = convertProbs(encoded[i]);
-            Integer[] inds0 = getSortedIndices(probs[i]);
+            Integer[] inds0 = getSortedIndices(probs0);
             for(int j = 0; j < inds0.length; i++){
                 ids[i][j] = inds0[j];
                 probs[i][j] = probs0[inds0[j]];
@@ -431,9 +431,9 @@ public class Classifier {
             boolean netnew = true;
             for(int j = 0; j < allDecoded.size(); j++){
                 boolean same = true;
-                int [] tmp = allDecoded.get(j);
+                int [] tmpv = allDecoded.get(j);
                 for(int k = 0; k < newDecoded.length; k++){
-                    if(tmp[k] != newDecoded[k]){
+                    if(tmpv[k] != newDecoded[k]){
                         same = false;
                         break;
                     }
