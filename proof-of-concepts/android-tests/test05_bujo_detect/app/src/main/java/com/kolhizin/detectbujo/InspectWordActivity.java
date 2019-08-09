@@ -35,6 +35,7 @@ public class InspectWordActivity extends FragmentActivity {
             imgDetect.setImageBitmap(classifier.preprocess(wordImage, cutoff));
             word.text = classifier.detect(wordImage, cutoff);
             Classifier.CharResult[] tmp = classifier.detect(wordImage, cutoff, topK);
+            Classifier.StringResult[] tmp_full = classifier.detect(wordImage, cutoff, 3, 0.01f);
             word.probs = new float[tmp.length][];
             word.chars = new char[tmp.length][];
             for(int j = 0; j < tmp.length; j++){

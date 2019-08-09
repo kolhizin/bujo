@@ -247,6 +247,12 @@ public class Classifier {
         runInference();
         return decodeTopK(outputData_[0], topK);
     }
+    public StringResult[] detect(Bitmap src, float cutoff, int numChanges, float optionCutoff) throws Exception{
+        applyTransforms(src, cutoff);
+        setInput();
+        runInference();
+        return decodeBestK(outputData_[0], numChanges, optionCutoff);
+    }
 
     public float [][] transformInput(Bitmap src, float cutoff) throws Exception{
         applyTransforms(src, cutoff);
@@ -277,8 +283,8 @@ public class Classifier {
         }
         return res;
     }
-    /*
-    private StringResult []decodeBestK(float [][] encoded, float probCutoff){
+
+    private StringResult []decodeBestK(float [][] encoded, int numChanges, float probCutoff){
         //1 sort encoded result
         float [][] probs = new float[encoded.length][encoded[0].length];
         int [][] ids = new int[encoded.length][encoded[0].length];
@@ -324,8 +330,134 @@ public class Classifier {
         Arrays.sort(substitutes, new ProbIdComparator());
 
         //4 get options
-        return null;
-    }*/
+        int realNum = 0;
+        for(int i = 0; i < substitutes.length; i++){
+            if(substitutes[i].prob < probCutoff){
+                realNum = i;
+                break;
+            }
+        }
+
+        ProbId [][] prevLevel = new ProbId[realNum][1];
+        for(int i = 0; i < realNum; i++){
+            prevLevel[i][0] = substitutes[i];
+        }
+        int [] usedLevels = new int [numChanges];
+        for(int i = 1; i < numChanges; i++){
+            ProbId [][] nextLevel = new ProbId[prevLevel.length * realNum][i+1];
+            for(int j = 0; j < prevLevel.length; j++){
+                for(int k = 0; k < prevLevel[j].length; k++){
+                    for(int m = 0; m < realNum; m++){
+                        nextLevel[j*realNum + m][k] = prevLevel[j][k];
+                    }
+                }
+            }
+            int newNum = 0;
+            for(int j = 0; j < prevLevel.length; j++){
+                for(int k = 0; k < realNum; k++){
+                    nextLevel[j*realNum+k][i + 1] = substitutes[k];
+                    ProbId [] tmp = nextLevel[j * realNum+k];
+                    float prob = 1.0f;
+                    for(int m = 0; m < i + 1; m++){
+                        boolean usedLevel = false;
+                        for(int r = 0; r < m; r++){
+                            if(usedLevels[r] == tmp[m].i){
+                                usedLevel = true;
+                                break;
+                            }
+                        }
+                        usedLevels[m] = tmp[m].i;
+                        if(usedLevel)
+                            continue;
+                        prob *= tmp[m].prob;
+                    }
+                    if(prob > probCutoff)
+                        newNum++;
+                }
+            }
+            ProbId [][] newLevel = new ProbId[newNum][];
+            int curId = 0;
+
+            for(int j = 0; j < nextLevel.length; j++){
+                ProbId [] tmp = nextLevel[j];
+                float prob = 1.0f;
+                for(int m = 0; m < i + 1; m++){
+                    boolean usedLevel = false;
+                    for(int r = 0; r < m; r++){
+                        if(usedLevels[r] == tmp[m].i){
+                            usedLevel = true;
+                            break;
+                        }
+                    }
+                    usedLevels[m] = tmp[m].i;
+                    if(usedLevel)
+                        continue;
+                    prob *= tmp[m].prob;
+                }
+                if(prob > probCutoff){
+                    newLevel[curId] = tmp;
+                    curId++;
+                }
+            }
+
+            prevLevel = newLevel;
+        }
+
+        //5 compress results
+        LinkedList<StringResult> res0 = new LinkedList<StringResult>();
+        LinkedList<int []> allDecoded = new LinkedList<int[]>();
+        int [] newDecoded = new int[encoded.length];
+        float [] newProbs = new float[encoded.length];
+        for(int i = 0; i < prevLevel.length; i++){
+            for(int j = 0; j < probs.length; j++){
+                newDecoded[j] = ids[j][0];
+                newProbs[j] = probs[j][0];
+            }
+            ProbId[] tmp = prevLevel[i];
+            for(int j = 0; j < prevLevel[i].length; j++){
+                boolean usedLevel = false;
+                for(int r = 0; r < j; r++){
+                    if(usedLevels[r] == tmp[j].i){
+                        usedLevel = true;
+                        break;
+                    }
+                }
+                usedLevels[j] = tmp[j].i;
+                if(usedLevel)
+                    continue;
+                newDecoded[tmp[j].i] = ids[tmp[j].i][tmp[j].j];
+                newProbs[tmp[j].i] = probs[tmp[j].i][tmp[j].j];
+            }
+            boolean netnew = true;
+            for(int j = 0; j < allDecoded.size(); j++){
+                boolean same = true;
+                int [] tmp = allDecoded.get(j);
+                for(int k = 0; k < newDecoded.length; k++){
+                    if(tmp[k] != newDecoded[k]){
+                        same = false;
+                        break;
+                    }
+                }
+                if(same){
+                    netnew = false;
+                    break;
+                }
+            }
+            if(netnew)
+                res0.add(decode(newDecoded, newProbs));
+        }
+        for(int j = 0; j < probs.length; j++){
+            newDecoded[j] = ids[j][0];
+            newProbs[j] = probs[j][0];
+        }
+        res0.add(decode(newDecoded, newProbs));
+
+        StringResult [] res = new StringResult[res0.size()];
+        for(int i = 0; i < res.length; i++){
+            res[i] = res0.get(i);
+        }
+        return res;
+    }
 
     private String decode(int [] encoded){
         int terminal = chars_.length();
