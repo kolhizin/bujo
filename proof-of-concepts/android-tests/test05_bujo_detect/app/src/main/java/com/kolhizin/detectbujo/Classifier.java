@@ -291,7 +291,7 @@ public class Classifier {
         for(int i = 0; i < encoded.length; i++){
             float [] probs0 = convertProbs(encoded[i]);
             Integer[] inds0 = getSortedIndices(probs0);
-            for(int j = 0; j < inds0.length; i++){
+            for(int j = 0; j < inds0.length; j++){
                 ids[i][j] = inds0[j];
                 probs[i][j] = probs0[inds0[j]];
             }
