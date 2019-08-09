@@ -322,7 +322,7 @@ public class Classifier {
                 tmp.i = i;
                 tmp.j = j;
                 tmp.prob = probs[i][j];
-                substitutes[i*(ids[0].length - 1) + j] = tmp;
+                substitutes[i*(ids[0].length - 1) + j - 1] = tmp;
             }
         }
 
@@ -355,7 +355,7 @@ public class Classifier {
             int newNum = 0;
             for(int j = 0; j < prevLevel.length; j++){
                 for(int k = 0; k < realNum; k++){
-                    nextLevel[j*realNum+k][i + 1] = substitutes[k];
+                    nextLevel[j*realNum+k][i] = substitutes[k];
                     ProbId [] tmp = nextLevel[j * realNum+k];
                     float prob = 1.0f;
                     for(int m = 0; m < i + 1; m++){
