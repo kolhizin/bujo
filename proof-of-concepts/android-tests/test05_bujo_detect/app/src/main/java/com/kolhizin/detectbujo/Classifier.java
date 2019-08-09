@@ -8,6 +8,7 @@ import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.MappedByteBuffer;
@@ -15,6 +16,7 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.LinkedList;
 
 import org.tensorflow.lite.Interpreter;
 import org.tensorflow.lite.Tensor;
@@ -275,6 +277,55 @@ public class Classifier {
         }
         return res;
     }
+    /*
+    private StringResult []decodeBestK(float [][] encoded, float probCutoff){
+        //1 sort encoded result
+        float [][] probs = new float[encoded.length][encoded[0].length];
+        int [][] ids = new int[encoded.length][encoded[0].length];
+        for(int i = 0; i < encoded.length; i++){
+            float [] probs0 = convertProbs(encoded[i]);
+            Integer[] inds0 = getSortedIndices(probs[i]);
+            for(int j = 0; j < inds0.length; i++){
+                ids[i][j] = inds0[j];
+                probs[i][j] = probs0[inds0[j]];
+            }
+        }
+
+        //2 get substitute priorities
+        class ProbId {
+            float prob;
+            int i, j;
+        }
+        class FullSubstitute{
+            float prob;
+            ProbId [] subs;
+        }
+        class ProbIdComparator implements Comparator<ProbId>
+        {
+            public ProbIdComparator(){}
+            @Override
+            public int compare(ProbId p1, ProbId p2) {
+                return -Float.compare(p1.prob, p2.prob);
+            }
+        }
+
+        ProbId [] substitutes = new ProbId[ids.length * (ids[0].length - 1)];
+        for(int i = 0; i < ids.length; i++){
+            for(int j = 1; j < ids[i].length; j++){
+                ProbId tmp = new ProbId();
+                tmp.i = i;
+                tmp.j = j;
+                tmp.prob = probs[i][j];
+                substitutes[i*(ids[0].length - 1) + j] = tmp;
+            }
+        }
+
+        //3 sort substitutes
+        Arrays.sort(substitutes, new ProbIdComparator());
+
+        //4 get options
+        return null;
+    }*/
 
     private String decode(int [] encoded){
         int terminal = chars_.length();
@@ -288,6 +339,24 @@ public class Classifier {
             prev = encoded[i];
         }
         return res.toString();
+    }
+    private StringResult decode(int [] encoded, float [] probs){
+        int terminal = chars_.length();
+        double probability = 1.0;
+        StringBuffer res = new StringBuffer(encoded.length);
+        int prev = -1;
+        for(int i = 0; i < encoded.length; i++){
+            probability *= probs[i];
+            if(encoded[i] == prev)
+                continue;
+            if(encoded[i] != terminal)
+                res.append(chars_.charAt(encoded[i]));
+            prev = encoded[i];
+        }
+        StringResult sr = new StringResult();
+        sr.prob = (float)probability;
+        sr.string = res.toString();
+        return sr;
     }
 
     private String decodeGreedy(float [][] encoded){
