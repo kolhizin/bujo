@@ -342,7 +342,8 @@ public class Classifier {
         for(int i = 0; i < realNum; i++){
             prevLevel[i][0] = substitutes[i];
         }
-        int [] usedLevels = new int [numChanges];
+        int [] usedIs = new int [numChanges];
+        int [] usedJs = new int [numChanges];
         for(int i = 1; i < numChanges; i++){
             ProbId [][] nextLevel = new ProbId[prevLevel.length * realNum][i+1];
             for(int j = 0; j < prevLevel.length; j++){
@@ -361,12 +362,13 @@ public class Classifier {
                     for(int m = 0; m < i + 1; m++){
                         boolean usedLevel = false;
                         for(int r = 0; r < m; r++){
-                            if(usedLevels[r] == tmp[m].i){
+                            if((usedIs[r] == tmp[m].i) && (usedJs[r] == tmp[m].j)){
                                 usedLevel = true;
                                 break;
                             }
                         }
-                        usedLevels[m] = tmp[m].i;
+                        usedIs[m] = tmp[m].i;
+                        usedIs[m] = tmp[m].j;
                         if(usedLevel)
                             continue;
                         prob *= tmp[m].prob;
@@ -384,12 +386,13 @@ public class Classifier {
                 for(int m = 0; m < i + 1; m++){
                     boolean usedLevel = false;
                     for(int r = 0; r < m; r++){
-                        if(usedLevels[r] == tmp[m].i){
+                        if((usedIs[r] == tmp[m].i) && (usedJs[r] == tmp[m].j)){
                             usedLevel = true;
                             break;
                         }
                     }
-                    usedLevels[m] = tmp[m].i;
+                    usedIs[m] = tmp[m].i;
+                    usedIs[m] = tmp[m].j;
                     if(usedLevel)
                         continue;
                     prob *= tmp[m].prob;
@@ -417,14 +420,16 @@ public class Classifier {
             for(int j = 0; j < prevLevel[i].length; j++){
                 boolean usedLevel = false;
                 for(int r = 0; r < j; r++){
-                    if(usedLevels[r] == tmp[j].i){
+                    if((usedIs[r] == tmp[j].i) && (usedJs[r] == tmp[j].j)){
                         usedLevel = true;
                         break;
                     }
                 }
-                usedLevels[j] = tmp[j].i;
+                usedIs[j] = tmp[j].i;
+                usedIs[j] = tmp[j].j;
                 if(usedLevel)
                     continue;
+
                 newDecoded[tmp[j].i] = ids[tmp[j].i][tmp[j].j];
                 newProbs[tmp[j].i] = probs[tmp[j].i][tmp[j].j];
             }
@@ -443,8 +448,10 @@ public class Classifier {
                     break;
                 }
             }
-            if(netnew)
+            if(netnew) {
                 res0.add(decode(newDecoded, newProbs));
+                allDecoded.add(newDecoded.clone());
+            }
         }
         for(int j = 0; j < probs.length; j++){
             newDecoded[j] = ids[j][0];
