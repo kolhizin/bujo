@@ -329,6 +329,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
             }catch (IOException e){
                 Toast.makeText(this, "Exception", Toast.LENGTH_LONG);
             }
+            //Add provider_paths.xml and update manifest to include provider-section
             cameraImgUri = FileProvider.getUriForFile(this,
                     BuildConfig.APPLICATION_ID + ".provider", tmpFile);
             Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
