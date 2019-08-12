@@ -1,4 +1,5 @@
 import numpy as np
+import functools
 import skimage, skimage.io, skimage.transform, skimage.filters
 
 def extract_words_from_dataset(jdata, acceptable_statuses):
@@ -10,7 +11,7 @@ def extract_words_from_dataset(jdata, acceptable_statuses):
     res = [(process_lines(v['lines']), v['name']) for (k, v) in jdata.items()]
     return [(x[0], name+'/'+x[1]) for (y, name) in res for x in y]
 
-def downscale_x(img, scale):
+def downscale_x(img, scale, fill=1.0):
     if scale > 1.0:
         raise Exception("downscale: scale must be <= 1.0")
     if scale == 1.0:
@@ -19,9 +20,9 @@ def downscale_x(img, scale):
     diff = img.shape[1] - tmp.shape[1]
     d1 = diff // 2
     d2 = diff - d1
-    return np.hstack([np.ones((tmp.shape[0], d1)), tmp,np.ones((tmp.shape[0], d2))])
+    return np.hstack([fill*np.ones((tmp.shape[0], d1)), tmp, fill*np.ones((tmp.shape[0], d2))])
 
-def downscale_y(img, scale):
+def downscale_y(img, scale, fill=1.0):
     if scale > 1.0:
         raise Exception("downscale: scale must be <= 1.0")
     if scale == 1.0:
@@ -30,7 +31,7 @@ def downscale_y(img, scale):
     diff = img.shape[0] - tmp.shape[0]
     d1 = diff // 2
     d2 = diff - d1
-    return np.vstack([np.ones((d1, tmp.shape[1])), tmp,np.ones((d2, tmp.shape[1]))])
+    return np.vstack([fill*np.ones((d1, tmp.shape[1])), tmp, fill*np.ones((d2, tmp.shape[1]))])
 
 def upscale_x(img, scale):
     if scale < 1.0:
@@ -53,14 +54,14 @@ def upscale_y(img, scale):
     d0 = diff // 2
     return tmp[d0:(img.shape[0]+d0), :]
 
-def rescale(img, scale):
+def rescale(img, scale, fill=1.0):
     xs = scale
     ys = scale
     if type(scale) in (list, tuple):
         xs = scale[0]
         ys = scale[1]
-    xfn = downscale_x if xs < 1.0 else upscale_x
-    yfn = downscale_y if ys < 1.0 else upscale_y
+    xfn = functools.partial(downscale_x, fill=fill) if xs < 1.0 else upscale_x
+    yfn = functools.partial(downscale_y, fill=fill) if ys < 1.0 else upscale_y
     return yfn(xfn(img, xs), ys)
 
 def trim_image_width(img):
@@ -97,7 +98,7 @@ def perform_transform(img, transform):
     if transform['type'] == 'cutoff':
         return 1.0*(img < transform.get('cutoff', 0.5)*np.mean(img))
     if transform['type'] == 'scale':
-        return rescale(img, (transform.get('x', 1.0), transform.get('y', 1.0)))
+        return rescale(img, (transform.get('x', 1.0), transform.get('y', 1.0)), fill=transform.get('fill', 1.0))
     if transform['type'] == 'resize':
         xs = transform.get('x', None)
         ys = transform.get('y', None)
@@ -116,8 +117,8 @@ def perform_transform(img, transform):
 def generate_rotations(min_angle, max_angle, num):
     return [{'type':'rotate', 'angle':x} for x in np.linspace(min_angle, max_angle, num)]
 
-def generate_scales(min_scale, max_scale, num):
-    return [{'type':'scale', 'x':x, 'y':y}
+def generate_scales(min_scale, max_scale, num, fill=1.0):
+    return [{'type':'scale', 'x':x, 'y':y, 'fill':fill}
         for x in np.linspace(min_scale, max_scale, num)
         for y in np.linspace(min_scale, max_scale, num)]
 

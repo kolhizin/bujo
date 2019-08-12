@@ -68,7 +68,8 @@ void BuJoDetector::ManagedDetector::LoadImage(Bitmap^ bmp, float sizeFactor)
 
 void BuJoDetector::ManagedDetector::DetectRegion()
 {
-	impl()->updateRegionAuto(1.2f, 100, 10.0f, 0.0f, 0.05f);;
+	if(settings_->detectRegion)
+		impl()->updateRegionAuto(1.2f, 100, 10.0f, 0.0f, 0.05f);;
 }
 
 void BuJoDetector::ManagedDetector::DetectLines()

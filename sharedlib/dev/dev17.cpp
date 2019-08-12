@@ -8,7 +8,7 @@
 #include <sstream>
 
 //goal of this file is to read alphabet
-void dev16()
+void dev17()
 {
 	cv::Mat cv0, cv1;
 	cv0 = cv::imread("D:\\Data\\alphabet\\20190811_151351.jpg", cv::IMREAD_COLOR);
@@ -33,15 +33,10 @@ void dev16()
 	det.detectAngle(0.7f);
 	det.alignImages();
 	det.filterImages(opts);
-	det.updateRegionAuto(1.2f, 100, 10.0f, 0.0f, 0.05f);
-
-	cv1 = bujo::util::xt2cv(det.mainImage() > det.textCutoff(), CV_8U);
-	cv::namedWindow("Region", cv::WINDOW_AUTOSIZE);
-	cv::imshow("Region", cv1);
+	//det.updateRegionAuto(1.2f, 100, 10.0f, 0.0f, 0.05f);
 
 	det.selectSupportCurvesAuto(6, 25);
 	det.detectLines(25);
-	//det.detectWords(5, 4, 0.1f, wopts);
 	for (int i = 0; i < det.numLines(); i++)
 	{
 		det.detectWords(i, 5, 4, 0.1f, wopts);
